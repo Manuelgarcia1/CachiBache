@@ -36,4 +36,18 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Claude Code settings
+.claude/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+logs
+*.log
+
+# Environment variables
+.env
+
 app-example
