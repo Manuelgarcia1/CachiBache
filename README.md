@@ -1,50 +1,62 @@
-# Welcome to your Expo app 👋
+# 🚗 Cachi-Bache – App de Reporte de Baches Urbanos
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil desarrollada con **React Native** y **Expo** cuyo objetivo es empoderar a los ciudadanos para participar activamente en la mejora de su entorno urbano, facilitando la detección y reparación de baches en la vía pública.
 
-## Get started
+## 🔁 Flujo de trabajo
 
-1. Install dependencies
+- [Flujo de trabajo](./docs/flujo-de-trabajo.md)
 
-   ```bash
-   npm install
-   ```
+## 👥 Collaborators
 
-2. Start the app
+- 👤 [@Diego Lalanda](https://github.com/DiegoLalanda)
+- 👤 [@Fernanda Elola](https://github.com/FernandaElola)
+- 👤 [@Enrique Pierotti Castillo](https://github.com/pierotticastillo)
+- 👤 [@Manuel Alejandro García](https://github.com/Manuelgarcia1)
 
-   ```bash
-   npx expo start
-   ```
+## 📌 Objetivo General
 
-In the output, you'll find options to open the app in a
+- Empoderar a los ciudadanos para participar en la mejora de su entorno.
+- Mejorar la eficiencia del sistema de reparaciones urbanas.
+- Usar datos reales para tomar decisiones más inteligentes sobre mantenimiento urbano.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🎯 Objetivos Específicos
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 📍 Reporte de baches con geolocalización
 
-## Get a fresh project
+Los vecinos pueden subir:
 
-When you're ready, run:
+- Fotos del bache.
+- Ubicación mediante GPS.
+- Comentarios adicionales.
 
-```bash
-npm run reset-project
-```
+### ⚡ Sistema de priorización automática
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Un algoritmo ordena los baches según:
 
-## Learn more
+- Cantidad de reportes.
+- Tránsito estimado.
+- Nivel de peligrosidad.
 
-To learn more about developing your project with Expo, look at the following resources:
+### 📊 Dashboard público y transparente
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Muestra obras en curso.
+- Baches reportados.
+- Estado actual y fecha estimada de reparación.
 
-## Join the community
+### 🔎 Seguimiento de reclamos
 
-Join our community of developers creating universal apps.
+Cada usuario puede ver el progreso de los reportes que hizo:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. **Pendiente**
+2. **Asignado**
+3. **En reparación**
+4. **Finalizado**
+
+### ⏱️ Plazos definidos
+
+- Reparaciones temporales: **menos de 24 horas**.
+- Reparación definitiva: **dentro de los 10 días**.
+
+### 🔔 Notificaciones
+
+El usuario recibe alertas push cuando su reclamo cambia de estado.
