@@ -1,12 +1,15 @@
+// Ubicación: src/features/auth/components/LoginButtons.tsx
+
 import { Button } from '@tamagui/button';
 import { Stack } from '@tamagui/core';
 
 interface LoginButtonsProps {
   onShowRegister: () => void;
   onShowForgotPassword: () => void;
+  onLogin: () => void; // <-- 1. AÑADE ESTA NUEVA PROP
 }
 
-export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButtonsProps) {
+export function LoginButtons({ onShowRegister, onShowForgotPassword, onLogin }: LoginButtonsProps) {
   return (
     <Stack space="$3" width="100%" maxWidth={300}>
       <Button
@@ -30,7 +33,7 @@ export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButt
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$blue9" }}
-        onPress={() => console.log('Login con Correo')}
+        onPress={onLogin} // <-- 2. USA LA NUEVA PROP AQUÍ
       >
         Ingresar con Correo
       </Button>
