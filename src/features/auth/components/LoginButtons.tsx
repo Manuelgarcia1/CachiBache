@@ -1,7 +1,12 @@
-import { Stack } from '@tamagui/core'
-import { Button } from '@tamagui/button'
+import { Button } from '@tamagui/button';
+import { Stack } from '@tamagui/core';
 
-export function LoginButtons() {
+interface LoginButtonsProps {
+  onShowRegister: () => void;
+  onShowForgotPassword: () => void;
+}
+
+export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButtonsProps) {
   return (
     <Stack space="$3" width="100%" maxWidth={300}>
       <Button
@@ -28,6 +33,34 @@ export function LoginButtons() {
         onPress={() => console.log('Login con Correo')}
       >
         Ingresar con Correo
+      </Button>
+
+      <Button
+        size="$4"
+        backgroundColor="transparent"
+        borderColor="$green8"
+        borderWidth={2}
+        color="white"
+        fontWeight="600"
+        borderRadius="$6"
+        pressStyle={{ backgroundColor: "$green9" }}
+        onPress={onShowRegister}
+      >
+        Crear Cuenta Nueva
+      </Button>
+
+      <Button
+        size="$4"
+        backgroundColor="transparent"
+        borderColor="$orange8"
+        borderWidth={2}
+        color="white"
+        fontWeight="600"
+        borderRadius="$6"
+        pressStyle={{ backgroundColor: "$orange9" }}
+        onPress={onShowForgotPassword}
+      >
+        ¿Olvidaste tu contraseña?
       </Button>
     </Stack>
   )
