@@ -8,10 +8,10 @@ interface WelcomeScreenProps {
   onShowForgotPassword: () => void;
 }
 
-export function WelcomeScreen({ onShowRegister, onShowForgotPassword }: WelcomeScreenProps) {
-  // Ya no necesitas los estados showRegister y showForgotPassword aquí
-  // Ni la lógica condicional de renderizado para ForgotPasswordScreen o RegisterScreen
-
+export function WelcomeScreen({
+  onShowRegister,
+  onShowForgotPassword,
+}: WelcomeScreenProps) {
   return (
     <Stack
       flex={1}
