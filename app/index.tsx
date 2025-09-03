@@ -1,5 +1,5 @@
-import { WelcomeScreen } from '../src/features/auth'
+import { WelcomeScreen } from "../src/features/auth";
 
 export default function Index() {
-  return <WelcomeScreen />
+  return <WelcomeScreen />;
 }

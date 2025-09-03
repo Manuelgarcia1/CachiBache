@@ -1,6 +1,8 @@
 import { Button, Stack } from "tamagui";
+import { useRouter } from "expo-router";
 
 export function LoginButtons() {
+  const router = useRouter();
   return (
     <Stack space="$3" width="100%" maxWidth={300}>
       <Button
@@ -27,6 +29,34 @@ export function LoginButtons() {
         onPress={() => {}}
       >
         Ingresar con Correo
+      </Button>
+
+      <Button
+        size="$4"
+        backgroundColor="transparent"
+        borderColor="$green8"
+        borderWidth={2}
+        color="white"
+        fontWeight="600"
+        borderRadius="$6"
+        pressStyle={{ backgroundColor: "$green9" }}
+        onPress={() => router.push("/register")}
+      >
+        Crear Cuenta Nueva
+      </Button>
+
+      <Button
+        size="$4"
+        backgroundColor="transparent"
+        borderColor="$orange8"
+        borderWidth={2}
+        color="white"
+        fontWeight="600"
+        borderRadius="$6"
+        pressStyle={{ backgroundColor: "$orange9" }}
+        onPress={() => router.push("/ForgotPassword")}
+      >
+        ¿Olvidaste tu contraseña?
       </Button>
     </Stack>
   );
