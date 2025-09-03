@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, Text, View, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { AppLogo } from '../../auth/components/AppLogo';
 import { RegisterForm, RegisterFormData } from './RegisterForm';
 
 interface RegisterScreenProps {
   onRegisterSuccess?: () => void;
   onBackToLogin?: () => void;
+  scrollViewRef?: React.RefObject<KeyboardAwareScrollView>;
 }
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   onRegisterSuccess,
   onBackToLogin,
+  scrollViewRef,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -37,14 +40,26 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
     }
   };
 
+  const internalScrollViewRef = useRef<KeyboardAwareScrollView>(null);
+  const activeScrollViewRef = scrollViewRef || internalScrollViewRef;
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView 
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <KeyboardAwareScrollView
+        ref={activeScrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        extraScrollHeight={100} // Espacio adicional para asegurar que el campo sea visible
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        extraHeight={150} // Altura adicional para asegurar que el campo sea visible
       >
-        <View style={styles.content}>
+        <KeyboardAvoidingView
+          style={styles.content}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           {/* Logo y título */}
           <View style={styles.header}>
             <AppLogo />
@@ -61,9 +76,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             onSubmit={handleRegister}
             loading={loading}
             onBackToLogin={onBackToLogin}
+            scrollViewRef={scrollViewRef}
           />
-        </View>
-      </ScrollView>
+        </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { Ref } from 'react';
+import { StyleSheet, Text, TextInput, View, NativeSyntheticEvent, TextInputFocusEventData, ReturnKeyTypeOptions } from 'react-native';
 
 interface FormFieldProps {
   label: string;
@@ -10,6 +10,10 @@ interface FormFieldProps {
   error?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  returnKeyType?: ReturnKeyTypeOptions;
+  onSubmitEditing?: () => void;
+  inputRef?: Ref<TextInput>;
+  onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -21,6 +25,10 @@ export const FormField: React.FC<FormFieldProps> = ({
   error,
   autoCapitalize = 'none',
   keyboardType = 'default',
+  returnKeyType = 'done',
+  onSubmitEditing,
+  inputRef,
+  onFocus,
 }) => {
   return (
     <View style={styles.container}>
@@ -28,6 +36,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         {label}
       </Text>
       <TextInput
+        ref={inputRef}
         style={[styles.input, error && styles.inputError]}
         placeholder={placeholder}
         value={value}
@@ -35,6 +44,10 @@ export const FormField: React.FC<FormFieldProps> = ({
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
+        onFocus={onFocus}
+        blurOnSubmit={false}
       />
       {error && (
         <Text style={styles.errorText}>

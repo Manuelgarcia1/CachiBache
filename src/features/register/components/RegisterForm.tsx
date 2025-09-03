@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { 
+  Alert, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  View, 
+  TextInput, 
+  NativeSyntheticEvent, 
+  TextInputFocusEventData 
+} from 'react-native';
 import { FormField } from './FormField';
 import { RegisterButton } from './RegisterButton';
 import { TermsCheckbox } from './TermsCheckbox';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => void;
   loading?: boolean;
   onBackToLogin?: () => void;
+  scrollViewRef?: React.RefObject<KeyboardAwareScrollView>;
 }
 
 export interface RegisterFormData {
@@ -23,6 +34,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSubmit,
   loading = false,
   onBackToLogin,
+  scrollViewRef,
 }) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     fullName: '',
@@ -81,6 +93,76 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     Alert.alert('Términos y Condiciones', 'Aquí irían los términos y condiciones de la aplicación.');
   };
 
+  const inputRefs = useRef<{[key: string]: TextInput | null}>({});
+
+  const scrollToInput = (reactNode: any) => {
+    if (!scrollViewRef?.current || !reactNode) return;
+    
+    // Usar requestAnimationFrame para asegurar que el layout esté listo
+    requestAnimationFrame(() => {
+      // Usar measure para obtener la posición exacta del elemento
+      reactNode.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+        // Calcular la posición a la que debemos desplazarnos
+        const scrollToY = Math.max(0, pageY - 100); // 100px de margen superior
+        
+        // Usar scrollToPosition para un desplazamiento más preciso
+        scrollViewRef.current?.scrollToPosition(0, scrollToY, true);
+      });
+    });
+  };
+  
+  // Función para manejar la referencia de los inputs
+  const setInputRef = (name: string) => (ref: TextInput | null) => {
+    if (ref) {
+      inputRefs.current[name] = ref;
+    }
+  };
+  
+  // Función para manejar el foco en un campo
+  const handleFocus = (event: NativeSyntheticEvent<TextInputFocusEventData>, nextField?: string) => {
+    // Desplazar al campo actual
+    const target = event.target as any; // Necesario para el tipado de measure
+    
+    // Usar measure para obtener la posición del elemento
+    target.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+      if (scrollViewRef?.current) {
+        // Desplazar a la posición del campo con un pequeño offset
+        scrollViewRef.current.scrollToPosition(0, pageY - 100, true);
+      }
+    });
+    
+    // Configurar el botón de siguiente
+    if (nextField && inputRefs.current[nextField]) {
+      // Configurar el botón de siguiente para que enfoque el siguiente campo
+      const currentInput = event.currentTarget;
+      currentInput.setNativeProps({
+        returnKeyType: 'next',
+        blurOnSubmit: false,
+        onSubmitEditing: () => {
+          // Enfocar el siguiente campo
+          const nextInput = inputRefs.current[nextField];
+          if (nextInput) {
+            nextInput.focus();
+            // Usar un pequeño retraso para asegurar que el teclado se haya actualizado
+            setTimeout(() => {
+              nextInput.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+                if (scrollViewRef?.current) {
+                  scrollViewRef.current.scrollToPosition(0, pageY - 100, true);
+                }
+              });
+            }, 50);
+          }
+        }
+      });
+    } else {
+      // Últ campo: cambiar a 'done'
+      event.currentTarget.setNativeProps({
+        returnKeyType: 'done',
+        blurOnSubmit: true
+      });
+    }
+  };
+
   const updateField = (field: keyof RegisterFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Limpiar error del campo cuando el usuario empiece a escribir
@@ -106,6 +188,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         onChangeText={(text) => updateField('fullName', text)}
         error={errors.fullName}
         autoCapitalize="words"
+        returnKeyType="next"
+        onSubmitEditing={() => inputRefs.current.email?.focus()}
+        inputRef={setInputRef('fullName')}
+        onFocus={(event) => handleFocus(event, 'email')}
       />
 
       <FormField
@@ -115,6 +201,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         onChangeText={(text) => updateField('email', text)}
         error={errors.email}
         keyboardType="email-address"
+        returnKeyType="next"
+        onSubmitEditing={() => inputRefs.current.password?.focus()}
+        inputRef={setInputRef('email')}
+        onFocus={(event) => handleFocus(event, 'password')}
       />
 
       <FormField
@@ -124,6 +214,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         onChangeText={(text) => updateField('password', text)}
         error={errors.password}
         secureTextEntry
+        returnKeyType="next"
+        onSubmitEditing={() => inputRefs.current.confirmPassword?.focus()}
+        inputRef={setInputRef('password')}
+        onFocus={(event) => handleFocus(event, 'confirmPassword')}
       />
 
       <FormField
@@ -133,6 +227,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         onChangeText={(text) => updateField('confirmPassword', text)}
         error={errors.confirmPassword}
         secureTextEntry
+        returnKeyType="next"
+        onSubmitEditing={() => inputRefs.current.phone?.focus()}
+        inputRef={setInputRef('confirmPassword')}
+        onFocus={(event) => handleFocus(event, 'phone')}
       />
 
       <FormField
@@ -142,6 +240,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         onChangeText={(text) => updateField('phone', text)}
         error={errors.phone}
         keyboardType="phone-pad"
+        returnKeyType="done"
+        inputRef={setInputRef('phone')}
+        onFocus={(event) => handleFocus(event)}
       />
 
       <TermsCheckbox

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, Platform, KeyboardAvoidingView } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppLogo } from '../../auth/components/AppLogo';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
@@ -51,13 +52,21 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView 
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <KeyboardAwareScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        extraScrollHeight={100}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        extraHeight={150}
       >
-        <View style={styles.content}>
+        <KeyboardAvoidingView
+          style={styles.content}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           {/* Logo y título */}
           <View style={styles.header}>
             <AppLogo />
@@ -75,8 +84,8 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             loading={loading}
             onBackToLogin={onBackToLogin}
           />
-        </View>
-      </ScrollView>
+        </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
