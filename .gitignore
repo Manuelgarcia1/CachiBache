@@ -51,3 +51,6 @@ logs
 .env
 
 app-example
+
+# Personal documentation
+docs-personales/

@@ -1,105 +1,51 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppLogo } from '../../auth/components/AppLogo';
-import { RegisterForm, RegisterFormData } from './RegisterForm';
+import React, { useState } from "react";
+import { ScrollView, Stack, Text } from "tamagui";
+import { AppLogo } from "../../auth/components/AppLogo";
+import { RegisterForm, RegisterFormData } from "./RegisterForm";
 
-interface RegisterScreenProps {
-  onRegisterSuccess?: () => void;
-  onBackToLogin?: () => void;
-}
-
-export const RegisterScreen: React.FC<RegisterScreenProps> = ({
-  onRegisterSuccess,
-  onBackToLogin,
-}) => {
+export function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (formData: RegisterFormData) => {
     setLoading(true);
-    
+
     try {
-      // Aquí iría la lógica de registro con tu API
-      console.log('Datos del formulario:', formData);
-      
-      // Simular llamada a API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Si el registro es exitoso
-      console.log('Usuario registrado exitosamente');
-      onRegisterSuccess?.();
-      
+      console.log("Datos del formulario:", formData);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Usuario registrado exitosamente");
     } catch (error) {
-      console.error('Error en el registro:', error);
-      // Aquí podrías mostrar un mensaje de error
+      console.error("Error en el registro:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+    <Stack flex={1} backgroundColor="$blue8" padding="$4">
+      <ScrollView
         showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
-        <View style={styles.content}>
-          {/* Logo y título */}
-          <View style={styles.header}>
-            <AppLogo />
-            <Text style={styles.title}>
-              Únete a CachiBache
-            </Text>
-            <Text style={styles.subtitle}>
-              Reporta baches en tu ciudad y ayuda a mejorar las calles
-            </Text>
-          </View>
+        <Stack alignItems="center" space="$4" width="100%" marginTop="$8">
+          <AppLogo />
+          <Text fontSize="$8" fontWeight="600" color="white" textAlign="center">
+            Únete a CachiBache
+          </Text>
+          <Text fontSize="$4" color="white" textAlign="center" maxWidth={300}>
+            Reporta baches en tu ciudad y ayuda a mejorar las calles
+          </Text>
 
-          {/* Formulario de registro */}
           <RegisterForm
             onSubmit={handleRegister}
             loading={loading}
-            onBackToLogin={onBackToLogin}
           />
-        </View>
+        </Stack>
       </ScrollView>
-    </SafeAreaView>
+    </Stack>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#1f2937',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    maxWidth: 300,
-  },
-});
+}

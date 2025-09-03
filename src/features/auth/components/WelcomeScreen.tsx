@@ -1,17 +1,9 @@
-import { Stack } from "@tamagui/core";
+import { Stack } from "tamagui";
 import { AppLogo } from "./AppLogo";
 import { GuestOption } from "./GuestOption";
 import { LoginButtons } from "./LoginButtons";
 
-interface WelcomeScreenProps {
-  onShowRegister: () => void;
-  onShowForgotPassword: () => void;
-}
-
-export function WelcomeScreen({
-  onShowRegister,
-  onShowForgotPassword,
-}: WelcomeScreenProps) {
+export function WelcomeScreen() {
   return (
     <Stack
       flex={1}
@@ -21,10 +13,7 @@ export function WelcomeScreen({
       padding="$4"
     >
       <AppLogo />
-      <LoginButtons
-        onShowRegister={onShowRegister} // Usar la prop recibida
-        onShowForgotPassword={onShowForgotPassword} // Usar la prop recibida
-      />
+      <LoginButtons />
       <GuestOption />
     </Stack>
   );

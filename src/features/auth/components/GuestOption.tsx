@@ -1,16 +1,16 @@
-import { Text, Stack } from '@tamagui/core'
+import { Stack, Text } from "tamagui";
 
 export function GuestOption() {
   return (
     <Stack marginTop="$6">
-      <Text 
-        color="$blue3" 
-        fontSize="$4" 
+      <Text
+        color="$blue3"
+        fontSize="$4"
         textDecorationLine="underline"
-        onPress={() => console.log('Ingresar como invitado')}
+        onPress={() => {}}
       >
         Ingresar como Invitado
       </Text>
     </Stack>
-  )
+  );
 }

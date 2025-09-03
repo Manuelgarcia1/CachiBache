@@ -1,12 +1,8 @@
-import { Button } from '@tamagui/button';
-import { Stack } from '@tamagui/core';
+import { Button, Stack } from "tamagui";
+import { useRouter } from "expo-router";
 
-interface LoginButtonsProps {
-  onShowRegister: () => void;
-  onShowForgotPassword: () => void;
-}
-
-export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButtonsProps) {
+export function LoginButtons() {
+  const router = useRouter();
   return (
     <Stack space="$3" width="100%" maxWidth={300}>
       <Button
@@ -16,7 +12,7 @@ export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButt
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$yellow9" }}
-        onPress={() => console.log('Login con Google')}
+        onPress={() => {}}
       >
         Ingresar con Google
       </Button>
@@ -30,7 +26,7 @@ export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButt
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$blue9" }}
-        onPress={() => console.log('Login con Correo')}
+        onPress={() => {}}
       >
         Ingresar con Correo
       </Button>
@@ -44,7 +40,7 @@ export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButt
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$green9" }}
-        onPress={onShowRegister}
+        onPress={() => router.push("/register")}
       >
         Crear Cuenta Nueva
       </Button>
@@ -58,10 +54,10 @@ export function LoginButtons({ onShowRegister, onShowForgotPassword }: LoginButt
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$orange9" }}
-        onPress={onShowForgotPassword}
+        onPress={() => router.push("/ForgotPassword")}
       >
         ¿Olvidaste tu contraseña?
       </Button>
     </Stack>
-  )
+  );
 }
