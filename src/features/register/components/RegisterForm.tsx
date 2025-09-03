@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { FormField } from './FormField';
+import { Alert } from 'react-native';
+import { Button, Stack, Text } from 'tamagui';
+import { FormField } from '../../../shared/components';
 import { RegisterButton } from './RegisterButton';
 import { TermsCheckbox } from './TermsCheckbox';
 
@@ -19,11 +20,11 @@ export interface RegisterFormData {
   acceptTerms: boolean;
 }
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({
+export function RegisterForm({
   onSubmit,
   loading = false,
   onBackToLogin,
-}) => {
+}: RegisterFormProps) {
   const [formData, setFormData] = useState<RegisterFormData>({
     fullName: '',
     email: '',
@@ -94,8 +95,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
+    <Stack width="100%" padding="$4" space="$4">
+      <Text
+        fontSize="$9"
+        fontWeight="bold"
+        textAlign="center"
+        color="$gray12"
+        marginBottom="$2"
+      >
         Crear Cuenta
       </Text>
       
@@ -151,7 +158,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       />
 
       {errors.acceptTerms && (
-        <Text style={styles.errorText}>
+        <Text
+          fontSize="$3"
+          color="$red10"
+          textAlign="center"
+          marginTop="$2"
+        >
           {errors.acceptTerms}
         </Text>
       )}
@@ -163,44 +175,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       />
 
       {onBackToLogin && (
-        <TouchableOpacity
-          style={styles.backButton}
+        <Button
+          backgroundColor="transparent"
+          color="$blue10"
+          fontSize="$3"
+          padding="$2"
+          marginTop="$2"
           onPress={onBackToLogin}
         >
-          <Text style={styles.backButtonText}>
-            ¿Ya tienes cuenta? Inicia sesión
-          </Text>
-        </TouchableOpacity>
+          ¿Ya tienes cuenta? Inicia sesión
+        </Button>
       )}
-    </View>
+    </Stack>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    padding: 16,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-    color: '#1f2937',
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#dc2626',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  backButton: {
-    padding: 8,
-    marginTop: 8,
-  },
-  backButtonText: {
-    color: '#2563eb',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-});
+}
