@@ -1,8 +1,6 @@
 import { Stack } from "expo-router";
-import { TamaguiProvider, createTamagui } from '@tamagui/core'
-import config from '../tamagui.config'
-
-const tamaguiConfig = createTamagui(config)
+import { TamaguiProvider } from 'tamagui'
+import tamaguiConfig from '../tamagui.config'
 
 export default function RootLayout() {
   return (
