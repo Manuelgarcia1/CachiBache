@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Button, Spinner, Text, XStack } from 'tamagui';
 
 interface RegisterButtonProps {
   onPress: () => void;
@@ -8,65 +8,31 @@ interface RegisterButtonProps {
   title?: string;
 }
 
-export const RegisterButton: React.FC<RegisterButtonProps> = ({
+export function RegisterButton({
   onPress,
   disabled = false,
   loading = false,
   title = 'Crear Cuenta',
-}) => {
+}: RegisterButtonProps) {
   return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        (disabled || loading) && styles.buttonDisabled
-      ]}
-      onPress={onPress}
+    <Button
+      size="$4"
+      backgroundColor="$blue10"
+      borderRadius="$6"
+      fontWeight="600"
+      width="100%"
+      marginVertical="$4"
+      pressStyle={{ backgroundColor: "$blue11" }}
       disabled={disabled || loading}
+      opacity={disabled || loading ? 0.6 : 1}
+      onPress={onPress}
     >
-      {loading ? (
-        <Text style={styles.buttonText}>
-          Creando cuenta...
+      <XStack alignItems="center" space="$2">
+        <Text color="white" fontWeight="600">
+          {loading ? 'Creando cuenta...' : title}
         </Text>
-      ) : (
-        <Text style={styles.buttonText}>
-          {title}
-        </Text>
-      )}
-      {loading && (
-        <ActivityIndicator 
-          size="small" 
-          color="white" 
-          style={styles.spinner}
-        />
-      )}
-    </TouchableOpacity>
+        {loading && <Spinner size="small" color="white" />}
+      </XStack>
+    </Button>
   );
-};
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    marginVertical: 16,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  buttonDisabled: {
-    backgroundColor: '#9ca3af',
-    borderColor: '#9ca3af',
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  spinner: {
-    marginLeft: 8,
-  },
-});
+}

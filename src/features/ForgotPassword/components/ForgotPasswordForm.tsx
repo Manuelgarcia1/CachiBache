@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Stack, Text } from 'tamagui';
 import { ForgotPasswordButton } from './ForgotPasswordButton';
-import { FormField } from './FormField';
+import { FormField } from '../../../shared/components';
 
 interface ForgotPasswordFormProps {
   onSubmit: (email: string) => void;
@@ -46,14 +46,27 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        Recuperar Contraseña
-      </Text>
-      
-      <Text style={styles.description}>
-        Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
-      </Text>
+    <Stack space="$4" width="100%" maxWidth={400} padding="$4">
+      <Stack space="$3" alignItems="center">
+        <Text
+          fontSize="$7"
+          fontWeight="600"
+          textAlign="center"
+          color="white"
+        >
+          Recuperar Contraseña
+        </Text>
+        
+        <Text
+          fontSize="$4"
+          color="$blue3"
+          textAlign="center"
+          lineHeight="$1"
+          paddingHorizontal="$4"
+        >
+          Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
+        </Text>
+      </Stack>
 
       <FormField
         label="Email"
@@ -72,45 +85,23 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       />
 
       {onBackToLogin && (
-        <Text style={styles.backText}>
+        <Text
+          fontSize="$4"
+          color="white"
+          textAlign="center"
+          marginTop="$4"
+        >
           ¿Recordaste tu contraseña?{' '}
-          <Text style={styles.backLink} onPress={onBackToLogin}>
+          <Text
+            color="$yellow8"
+            fontWeight="600"
+            onPress={onBackToLogin}
+            textDecorationLine="underline"
+          >
             Inicia sesión
           </Text>
         </Text>
       )}
-    </View>
+    </Stack>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    padding: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-    color: '#1f2937',
-  },
-  description: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 22,
-    paddingHorizontal: 16,
-  },
-  backText: {
-    fontSize: 16,
-    color: '#374151',
-    textAlign: 'center',
-    marginTop: 24,
-  },
-  backLink: {
-    color: '#2563eb',
-    fontWeight: '600',
-  },
-});

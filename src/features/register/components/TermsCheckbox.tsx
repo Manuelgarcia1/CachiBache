@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from "react";
+import { Checkbox, Stack, Text, XStack } from "tamagui";
 
 interface TermsCheckboxProps {
   checked: boolean;
@@ -7,74 +7,58 @@ interface TermsCheckboxProps {
   onTermsPress: () => void;
 }
 
-export const TermsCheckbox: React.FC<TermsCheckboxProps> = ({
+export function TermsCheckbox({
   checked,
   onCheckedChange,
   onTermsPress,
-}) => {
+}: TermsCheckboxProps) {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={[styles.checkbox, checked && styles.checkboxChecked]}
-        onPress={() => onCheckedChange(!checked)}
+    <XStack
+      alignItems="flex-start"
+      space="$3"
+      paddingHorizontal="$2"
+      marginVertical="$3"
+    >
+      <Checkbox
+        size="$4"
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        borderRadius="$2"
+        marginTop="$1"
       >
-        {checked && <Text style={styles.checkmark}>✓</Text>}
-      </TouchableOpacity>
-      
-      <View style={styles.textContainer}>
-        <Text style={styles.text}>
-          Acepto los{' '}
-          <TouchableOpacity onPress={onTermsPress}>
-            <Text style={styles.link}>términos y condiciones</Text>
-          </TouchableOpacity>
-          {' '}y la{' '}
-          <TouchableOpacity onPress={onTermsPress}>
-            <Text style={styles.link}>política de privacidad</Text>
-          </TouchableOpacity>
-        </Text>
-      </View>
-    </View>
-  );
-};
+        <Checkbox.Indicator>
+          <Text color="$background" fontSize="$2" fontWeight="bold">
+            ✓
+          </Text>
+        </Checkbox.Indicator>
+      </Checkbox>
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginVertical: 12,
-    paddingHorizontal: 8,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: '#d1d5db',
-    borderRadius: 4,
-    backgroundColor: '#ffffff',
-    marginRight: 12,
-    marginTop: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
-  },
-  checkmark: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  textContainer: {
-    flex: 1,
-  },
-  text: {
-    fontSize: 14,
-    color: '#374151',
-    lineHeight: 20,
-  },
-  link: {
-    color: '#2563eb',
-    textDecorationLine: 'underline',
-  },
-});
+      <Stack flex={1}>
+        <XStack flexWrap="wrap" alignItems="center">
+          <Text fontSize="$3" color="$gray11">
+            Acepto los 
+          </Text>
+          <Text
+            fontSize="$3"
+            color="$blue10"
+            textDecorationLine="underline"
+            onPress={onTermsPress}
+          >
+            términos y condiciones
+          </Text>
+          <Text fontSize="$3" color="$gray11">
+            {" "}y la 
+          </Text>
+          <Text
+            fontSize="$3"
+            color="$blue10"
+            textDecorationLine="underline"
+            onPress={onTermsPress}
+          >
+            política de privacidad
+          </Text>
+        </XStack>
+      </Stack>
+    </XStack>
+  );
+}
