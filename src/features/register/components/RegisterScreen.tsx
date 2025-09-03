@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View, Platform, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, Platform, KeyboardAvoidingView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { AppLogo } from '../../auth/components/AppLogo';
-import { RegisterForm, RegisterFormData } from './RegisterForm';
+import { RegisterForm } from './RegisterForm';
+import type { RegisterFormValues } from './RegisterForm';
 
 interface RegisterScreenProps {
   onRegisterSuccess?: () => void;
@@ -18,7 +19,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (formData: RegisterFormData) => {
+  const handleRegister = async (formData: RegisterFormValues): Promise<void> => {
     setLoading(true);
     
     try {
@@ -30,11 +31,28 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
       
       // Si el registro es exitoso
       console.log('Usuario registrado exitosamente');
-      onRegisterSuccess?.();
+      
+      // Mostrar alerta de éxito
+      return new Promise((resolve) => {
+        Alert.alert(
+          '¡Registro exitoso!',
+          'Tu cuenta ha sido creada correctamente. Por favor inicia sesión para continuar.',
+          [
+            {
+              text: 'Aceptar',
+              onPress: () => {
+                onRegisterSuccess?.();
+                resolve();
+              }
+            }
+          ]
+        );
+      });
       
     } catch (error) {
       console.error('Error en el registro:', error);
-      // Aquí podrías mostrar un mensaje de error
+      Alert.alert('Error', 'Ocurrió un error al registrar tu cuenta. Por favor, inténtalo de nuevo.');
+      throw error; // Re-lanzar el error para que Formik lo maneje
     } finally {
       setLoading(false);
     }

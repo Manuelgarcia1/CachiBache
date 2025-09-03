@@ -6,6 +6,7 @@ interface FormFieldProps {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
+  onBlur?: () => void;
   secureTextEntry?: boolean;
   error?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
@@ -14,6 +15,7 @@ interface FormFieldProps {
   onSubmitEditing?: () => void;
   inputRef?: Ref<TextInput>;
   onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
+  autoComplete?: 'off' | 'username' | 'password' | 'email' | 'name' | 'tel' | 'street-address' | 'postal-code' | 'cc-number' | 'cc-csc' | 'cc-exp' | 'cc-exp-month' | 'cc-exp-year';
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -29,6 +31,8 @@ export const FormField: React.FC<FormFieldProps> = ({
   onSubmitEditing,
   inputRef,
   onFocus,
+  onBlur,
+  autoComplete,
 }) => {
   return (
     <View style={styles.container}>
@@ -47,7 +51,9 @@ export const FormField: React.FC<FormFieldProps> = ({
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
         onFocus={onFocus}
+        onBlur={onBlur}
         blurOnSubmit={false}
+        autoComplete={autoComplete}
       />
       {error && (
         <Text style={styles.errorText}>

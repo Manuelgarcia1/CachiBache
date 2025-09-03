@@ -6,10 +6,15 @@ interface FormFieldProps {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
+  onBlur?: () => void;
   secureTextEntry?: boolean;
   error?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  autoComplete?: 'off' | 'username' | 'password' | 'email' | 'name' | 'tel' | 'street-address' | 'postal-code' | 'cc-number' | 'cc-csc' | 'cc-exp' | 'cc-exp-month' | 'cc-exp-year';
+  autoCorrect?: boolean;
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
+  onSubmitEditing?: () => void;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -21,6 +26,11 @@ export const FormField: React.FC<FormFieldProps> = ({
   error,
   autoCapitalize = 'none',
   keyboardType = 'default',
+  autoComplete,
+  autoCorrect = false,
+  returnKeyType = 'done',
+  onSubmitEditing,
+  onBlur,
 }) => {
   return (
     <View style={styles.container}>
@@ -35,6 +45,11 @@ export const FormField: React.FC<FormFieldProps> = ({
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
+        autoComplete={autoComplete}
+        autoCorrect={autoCorrect}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
+        onBlur={onBlur}
       />
       {error && (
         <Text style={styles.errorText}>

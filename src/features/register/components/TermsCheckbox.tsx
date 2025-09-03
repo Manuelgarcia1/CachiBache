@@ -2,18 +2,20 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface TermsCheckboxProps {
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-  onTermsPress: () => void;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  error?: boolean;
+  onTermsPress?: () => void;
 }
 
 export const TermsCheckbox: React.FC<TermsCheckboxProps> = ({
-  checked,
-  onCheckedChange,
-  onTermsPress,
+  value: checked,
+  onValueChange: onCheckedChange,
+  error,
+  onTermsPress = () => {},
 }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, error && styles.containerError]}>
       <TouchableOpacity
         style={[styles.checkbox, checked && styles.checkboxChecked]}
         onPress={() => onCheckedChange(!checked)}
@@ -43,6 +45,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginVertical: 12,
     paddingHorizontal: 8,
+  },
+  containerError: {
+    borderColor: '#dc2626',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 8,
   },
   checkbox: {
     width: 20,

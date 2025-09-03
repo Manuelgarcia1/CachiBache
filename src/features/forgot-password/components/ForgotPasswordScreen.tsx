@@ -16,12 +16,12 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (email: string) => {
+  const handleSubmit = async (values: { email: string }) => {
     setLoading(true);
     
     try {
       // Aquí iría la lógica de envío de email con tu API
-      console.log('Enviando email de recuperación a:', email);
+      console.log('Enviando email de recuperación a:', values.email);
       
       // Simular llamada a API
       await new Promise(resolve => setTimeout(resolve, 2000));

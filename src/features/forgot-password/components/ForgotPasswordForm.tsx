@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Formik } from 'formik';
 import { ForgotPasswordButton } from './ForgotPasswordButton';
 import { FormField } from './FormField';
+import { forgotPasswordSchema } from '../../../common/validation/schemas';
+
+interface ForgotPasswordFormValues {
+  email: string;
+}
 
 interface ForgotPasswordFormProps {
-  onSubmit: (email: string) => void;
+  onSubmit: (values: ForgotPasswordFormValues) => void;
   loading?: boolean;
   onBackToLogin?: () => void;
 }
@@ -14,72 +20,64 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   loading = false,
   onBackToLogin,
 }) => {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-
-  const validateEmail = (): boolean => {
-    if (!email.trim()) {
-      setError('El email es requerido');
-      return false;
-    }
-    
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('El email no es válido');
-      return false;
-    }
-
-    setError('');
-    return true;
+  const initialValues: ForgotPasswordFormValues = {
+    email: '',
   };
 
-  const handleSubmit = () => {
-    if (validateEmail()) {
-      onSubmit(email);
-    }
-  };
-
-  const handleEmailChange = (text: string) => {
-    setEmail(text);
-    if (error) {
-      setError('');
-    }
+  const handleFormSubmit = (values: ForgotPasswordFormValues) => {
+    onSubmit(values);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        Recuperar Contraseña
-      </Text>
-      
-      <Text style={styles.description}>
-        Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
-      </Text>
-
-      <FormField
-        label="Email"
-        placeholder="tu@email.com"
-        value={email}
-        onChangeText={handleEmailChange}
-        error={error}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <ForgotPasswordButton
-        onPress={handleSubmit}
-        loading={loading}
-        disabled={!email.trim()}
-      />
-
-      {onBackToLogin && (
-        <Text style={styles.backText}>
-          ¿Recordaste tu contraseña?{' '}
-          <Text style={styles.backLink} onPress={onBackToLogin}>
-            Inicia sesión
+    <Formik
+      initialValues={initialValues}
+      validationSchema={forgotPasswordSchema}
+      onSubmit={handleFormSubmit}
+      validateOnChange={false}
+      validateOnBlur={true}
+    >
+      {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldTouched }) => (
+        <View style={styles.container}>
+          <Text style={styles.title}>
+            Recuperar Contraseña
           </Text>
-        </Text>
+          
+          <Text style={styles.description}>
+            Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
+          </Text>
+
+          <FormField
+            label="Email"
+            placeholder="tu@email.com"
+            value={values.email}
+            onChangeText={handleChange('email')}
+            onBlur={() => setFieldTouched('email')}
+            error={touched.email && errors.email ? errors.email : ''}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={() => handleSubmit()}
+          />
+
+          <ForgotPasswordButton
+            onPress={() => handleSubmit()}
+            loading={loading}
+            disabled={loading}
+          />
+
+          {onBackToLogin && (
+            <Text style={styles.backText}>
+              ¿Recordaste tu contraseña?{' '}
+              <Text style={styles.backLink} onPress={onBackToLogin}>
+                Inicia sesión
+              </Text>
+            </Text>
+          )}
+        </View>
       )}
-    </View>
+    </Formik>
   );
 };
 
