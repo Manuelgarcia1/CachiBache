@@ -1,4 +1,4 @@
-import { Stack } from "@tamagui/core";
+import { Stack } from "tamagui";
 import { AppLogo } from "./AppLogo";
 import { GuestOption } from "./GuestOption";
 import { LoginButtons } from "./LoginButtons";
