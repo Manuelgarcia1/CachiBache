@@ -1,9 +1,9 @@
-import { Stack } from '@tamagui/core'
-import { Button } from '@tamagui/button'
+import { Button } from "@tamagui/button";
+import { Stack as StackT } from "@tamagui/core";
 
 export function LoginButtons() {
   return (
-    <Stack space="$3" width="100%" maxWidth={300}>
+    <StackT space="$3" width="100%" maxWidth={300}>
       <Button
         size="$4"
         backgroundColor="$yellow8"
@@ -11,7 +11,7 @@ export function LoginButtons() {
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$yellow9" }}
-        onPress={() => console.log('Login con Google')}
+        onPress={() => console.log("Login con Google")}
       >
         Ingresar con Google
       </Button>
@@ -25,10 +25,10 @@ export function LoginButtons() {
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$blue9" }}
-        onPress={() => console.log('Login con Correo')}
+        onPress={() => console.log("Login con Correo")}
       >
         Ingresar con Correo
       </Button>
-    </Stack>
-  )
+    </StackT>
+  );
 }
