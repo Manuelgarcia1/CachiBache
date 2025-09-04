@@ -6,6 +6,7 @@ interface FormFieldProps {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
+  onBlur?: (e: any) => void;
   secureTextEntry?: boolean;
   error?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
@@ -17,6 +18,7 @@ export function FormField({
   placeholder,
   value,
   onChangeText,
+  onBlur,
   secureTextEntry = false,
   error,
   autoCapitalize = 'none',
@@ -42,6 +44,7 @@ export function FormField({
         placeholder={placeholder}
         value={value}
         onChangeText={onChangeText}
+        onBlur={onBlur}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
