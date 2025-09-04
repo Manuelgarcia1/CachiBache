@@ -39,7 +39,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       onSubmit={handleSubmit}
     >
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-        <Stack space="$4" width="100%" maxWidth={400} padding="$4">
+        <Stack space="$4" width="100%" maxWidth={400} padding="$4" marginBottom="$8">
           <Stack space="$3" alignItems="center">
             <Text
               fontSize="$7"
@@ -70,6 +70,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             error={touched.email ? errors.email : undefined}
             keyboardType="email-address"
             autoCapitalize="none"
+            returnKeyType="done"
+            onSubmitEditing={() => handleSubmit()}
+            blurOnSubmit={true}
           />
 
           <ForgotPasswordButton

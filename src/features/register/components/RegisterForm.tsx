@@ -53,7 +53,7 @@ export function RegisterForm({
       onSubmit={handleSubmit}
     >
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-        <Stack width="100%" padding="$4" space="$4">
+        <Stack width="100%" space="$4" marginBottom="$8">
           <Text
             fontSize="$9"
             fontWeight="bold"

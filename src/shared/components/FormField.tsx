@@ -11,6 +11,9 @@ interface FormFieldProps {
   error?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send' | 'default';
+  onSubmitEditing?: () => void;
+  blurOnSubmit?: boolean;
 }
 
 export function FormField({
@@ -23,6 +26,9 @@ export function FormField({
   error,
   autoCapitalize = 'none',
   keyboardType = 'default',
+  returnKeyType = 'done',
+  onSubmitEditing,
+  blurOnSubmit = true,
 }: FormFieldProps) {
   return (
     <Stack space="$2" marginBottom="$4">
@@ -48,6 +54,9 @@ export function FormField({
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
+        blurOnSubmit={blurOnSubmit}
         focusStyle={{
           borderColor: error ? '$red9' : '$blue8',
         }}
