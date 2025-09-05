@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import { Formik, FormikHelpers } from 'formik';
+import React from 'react';
 import { Alert } from 'react-native';
-import { Button, Stack, Text } from 'tamagui';
+import { Stack, Text } from 'tamagui';
 import { FormField } from '../../../shared/components';
+import { registerSchema } from '../../../shared/validation/schemas';
 import { RegisterButton } from './RegisterButton';
 import { TermsCheckbox } from './TermsCheckbox';
 
@@ -25,167 +27,126 @@ export function RegisterForm({
   loading = false,
   onBackToLogin,
 }: RegisterFormProps) {
-  const [formData, setFormData] = useState<RegisterFormData>({
+  const handleTermsPress = () => {
+    Alert.alert('Términos y Condiciones', 'Aquí irían los términos y condiciones de la aplicación.');
+  };
+
+  const initialValues: RegisterFormData = {
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
     phone: '',
     acceptTerms: false,
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'El nombre completo es requerido';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El email no es válido';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'El teléfono es requerido';
-    }
-
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = 'Debes aceptar los términos y condiciones';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      onSubmit(formData);
-    }
-  };
-
-  const handleTermsPress = () => {
-    // Aquí puedes navegar a la pantalla de términos
-    Alert.alert('Términos y Condiciones', 'Aquí irían los términos y condiciones de la aplicación.');
-  };
-
-  const updateField = (field: keyof RegisterFormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
+  const handleSubmit = (values: RegisterFormData, { setSubmitting }: FormikHelpers<RegisterFormData>) => {
+    Alert.alert('Formulario enviado', '¡Gracias por registrarte!');
+    onSubmit(values);
+    setSubmitting(false);
   };
 
   return (
-    <Stack width="100%" padding="$4" space="$4">
-      <Text
-        fontSize="$9"
-        fontWeight="bold"
-        textAlign="center"
-        color="$gray12"
-        marginBottom="$2"
-      >
-        Crear Cuenta
-      </Text>
-      
-      <FormField
-        label="Nombre Completo"
-        placeholder="Ingresa tu nombre completo"
-        value={formData.fullName}
-        onChangeText={(text) => updateField('fullName', text)}
-        error={errors.fullName}
-        autoCapitalize="words"
-      />
+    <Formik
+      initialValues={initialValues}
+      validationSchema={registerSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
+        <Stack width="100%" space="$4" marginBottom="$8">
+          <Text
+            fontSize="$9"
+            fontWeight="bold"
+            textAlign="center"
+            color="$gray12"
+            marginBottom="$2"
+          >
+            Crear Cuenta
+          </Text>
+          
+          <FormField
+            label="Nombre Completo"
+            placeholder="Ingresa tu nombre completo"
+            value={values.fullName}
+            onChangeText={(text: string) => setFieldValue('fullName', text)}
+            onBlur={handleBlur('fullName')}
+            error={touched.fullName ? errors.fullName : undefined}
+            autoCapitalize="words"
+          />
 
-      <FormField
-        label="Email"
-        placeholder="tu@email.com"
-        value={formData.email}
-        onChangeText={(text) => updateField('email', text)}
-        error={errors.email}
-        keyboardType="email-address"
-      />
+          <FormField
+            label="Email"
+            placeholder="tu@email.com"
+            value={values.email}
+            onChangeText={(text: string) => setFieldValue('email', text)}
+            onBlur={handleBlur('email')}
+            error={touched.email ? errors.email : undefined}
+            keyboardType="email-address"
+          />
 
-      <FormField
-        label="Contraseña"
-        placeholder="Mínimo 6 caracteres"
-        value={formData.password}
-        onChangeText={(text) => updateField('password', text)}
-        error={errors.password}
-        secureTextEntry
-      />
+          <FormField
+            label="Contraseña"
+            placeholder="Mínimo 6 caracteres"
+            value={values.password}
+            onChangeText={(text: string) => setFieldValue('password', text)}
+            onBlur={handleBlur('password')}
+            error={touched.password ? errors.password : undefined}
+            secureTextEntry
+          />
 
-      <FormField
-        label="Confirmar Contraseña"
-        placeholder="Repite tu contraseña"
-        value={formData.confirmPassword}
-        onChangeText={(text) => updateField('confirmPassword', text)}
-        error={errors.confirmPassword}
-        secureTextEntry
-      />
+          <FormField
+            label="Confirmar Contraseña"
+            placeholder="Repite tu contraseña"
+            value={values.confirmPassword}
+            onChangeText={(text: string) => setFieldValue('confirmPassword', text)}
+            onBlur={handleBlur('confirmPassword')}
+            error={touched.confirmPassword ? errors.confirmPassword : undefined}
+            secureTextEntry
+          />
 
-      <FormField
-        label="Teléfono"
-        placeholder="+54 9 11 1234-5678"
-        value={formData.phone}
-        onChangeText={(text) => updateField('phone', text)}
-        error={errors.phone}
-        keyboardType="phone-pad"
-      />
+          <FormField
+            label="Teléfono"
+            placeholder="+54 9 11 1234-5678"
+            value={values.phone}
+            onChangeText={(text: string) => setFieldValue('phone', text)}
+            onBlur={handleBlur('phone')}
+            error={touched.phone ? errors.phone : undefined}
+            keyboardType="phone-pad"
+          />
 
-      <TermsCheckbox
-        checked={formData.acceptTerms}
-        onCheckedChange={(checked) => updateField('acceptTerms', checked)}
-        onTermsPress={handleTermsPress}
-      />
+          <Stack>
+            <TermsCheckbox
+              checked={values.acceptTerms}
+              onCheckedChange={(checked) => setFieldValue('acceptTerms', checked, true)}
+              onTermsPress={handleTermsPress}
+            />
+            {touched.acceptTerms && errors.acceptTerms && (
+              <Text color="$red10" fontSize="$2" marginTop="$1">
+                {errors.acceptTerms}
+              </Text>
+            )}
+          </Stack>
 
-      {errors.acceptTerms && (
-        <Text
-          fontSize="$3"
-          color="$red10"
-          textAlign="center"
-          marginTop="$2"
-        >
-          {errors.acceptTerms}
-        </Text>
+          <RegisterButton
+            onPress={() => handleSubmit()}
+            loading={loading}
+            disabled={!values.acceptTerms}
+          />
+
+          {onBackToLogin && (
+            <Text
+              color="$blue10"
+              fontSize="$3"
+              textAlign="center"
+              marginTop="$2"
+              onPress={onBackToLogin}
+              textDecorationLine="underline"
+            >
+              ¿Ya tienes cuenta? Inicia sesión
+            </Text>
+          )}
+        </Stack>
       )}
-
-      <RegisterButton
-        onPress={handleSubmit}
-        loading={loading}
-        disabled={!formData.acceptTerms}
-      />
-
-      {onBackToLogin && (
-        <Button
-          backgroundColor="transparent"
-          color="$blue10"
-          fontSize="$3"
-          padding="$2"
-          marginTop="$2"
-          onPress={onBackToLogin}
-        >
-          ¿Ya tienes cuenta? Inicia sesión
-        </Button>
-      )}
-    </Stack>
+    </Formik>
   );
 }

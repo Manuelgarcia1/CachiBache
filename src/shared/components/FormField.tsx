@@ -6,10 +6,14 @@ interface FormFieldProps {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
+  onBlur?: (e: any) => void;
   secureTextEntry?: boolean;
   error?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send' | 'default';
+  onSubmitEditing?: () => void;
+  blurOnSubmit?: boolean;
 }
 
 export function FormField({
@@ -17,10 +21,14 @@ export function FormField({
   placeholder,
   value,
   onChangeText,
+  onBlur,
   secureTextEntry = false,
   error,
   autoCapitalize = 'none',
   keyboardType = 'default',
+  returnKeyType = 'done',
+  onSubmitEditing,
+  blurOnSubmit = true,
 }: FormFieldProps) {
   return (
     <Stack space="$2" marginBottom="$4">
@@ -42,9 +50,13 @@ export function FormField({
         placeholder={placeholder}
         value={value}
         onChangeText={onChangeText}
+        onBlur={onBlur}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
+        blurOnSubmit={blurOnSubmit}
         focusStyle={{
           borderColor: error ? '$red9' : '$blue8',
         }}

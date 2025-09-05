@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { ScrollView, Stack, Text } from "tamagui";
 import { AppLogo } from "../../auth/components/AppLogo";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
@@ -44,21 +44,25 @@ export const ForgotPasswordScreen: React.FC = () => {
   };
 
   return (
-    <Stack 
-      flex={1} 
-      backgroundColor="$blue8"
-      padding="$4"
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
+      <Stack flex={1} backgroundColor="$blue8">
+      <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
+          padding: 16,
           justifyContent: 'center',
-          alignItems: 'center',
+          alignItems: 'center'
         }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets={true}
       >
-        <Stack alignItems="center" space="$4" width="100%" marginTop="$8">
+        <Stack alignItems="center" space="$4" width="100%" marginTop="$4">
           <AppLogo />
           <Text
             fontSize="$6"
@@ -83,6 +87,7 @@ export const ForgotPasswordScreen: React.FC = () => {
           />
         </Stack>
       </ScrollView>
-    </Stack>
+      </Stack>
+    </KeyboardAvoidingView>
   );
 };

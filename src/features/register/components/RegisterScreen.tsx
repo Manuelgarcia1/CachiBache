@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { KeyboardAvoidingView, Platform } from "react-native";
 import { ScrollView, Stack, Text } from "tamagui";
 import { AppLogo } from "../../auth/components/AppLogo";
 import { RegisterForm, RegisterFormData } from "./RegisterForm";
@@ -21,17 +22,22 @@ export function RegisterScreen() {
   };
 
   return (
-    <Stack flex={1} backgroundColor="$blue8" padding="$4">
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+      <Stack flex={1} backgroundColor="$blue8">
       <ScrollView
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: "center",
-          alignItems: "center",
+          padding: 16,
+          paddingBottom: 40
         }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets={true}
       >
-        <Stack alignItems="center" space="$4" width="100%" marginTop="$8">
+        <Stack alignItems="center" space="$4" width="100%" marginTop="$4">
           <AppLogo />
           <Text fontSize="$8" fontWeight="600" color="white" textAlign="center">
             Únete a CachiBache
@@ -46,6 +52,7 @@ export function RegisterScreen() {
           />
         </Stack>
       </ScrollView>
-    </Stack>
+      </Stack>
+    </KeyboardAvoidingView>
   );
 }
