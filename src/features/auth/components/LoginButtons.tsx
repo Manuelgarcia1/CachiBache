@@ -1,8 +1,9 @@
+// Ubicación: src/features/auth/components/LoginButtons.tsx
+
+import { router } from "expo-router";
 import { Button, Stack } from "tamagui";
-import { useRouter } from "expo-router";
 
 export function LoginButtons() {
-  const router = useRouter();
   return (
     <Stack space="$3" width="100%" maxWidth={300}>
       <Button
@@ -26,7 +27,7 @@ export function LoginButtons() {
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$blue9" }}
-        onPress={() => {}}
+        onPress={() => router.push("/(tabs)" as any)}
       >
         Ingresar con Correo
       </Button>

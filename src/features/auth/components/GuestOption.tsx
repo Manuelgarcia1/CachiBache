@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Stack, Text } from "tamagui";
 
 export function GuestOption() {
@@ -7,7 +8,7 @@ export function GuestOption() {
         color="$blue3"
         fontSize="$4"
         textDecorationLine="underline"
-        onPress={() => {}}
+        onPress={() => router.push("/(tabs)" as any)}
       >
         Ingresar como Invitado
       </Text>

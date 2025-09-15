@@ -1,3 +1,5 @@
+// Ubicación: src/features/auth/components/WelcomeScreen.tsx
+
 import { Stack } from "tamagui";
 import { AppLogo } from "./AppLogo";
 import { GuestOption } from "./GuestOption";
