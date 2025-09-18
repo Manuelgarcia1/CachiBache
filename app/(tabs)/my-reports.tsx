@@ -1,9 +1,63 @@
-import { Text, YStack } from 'tamagui';
+import { MyReportsScreen } from '../../src/features/reports/components/MyReportsScreen';
 
-export default function MyReportsScreen() {
-  return (
-    <YStack flex={1} justifyContent="center" alignItems="center">
-      <Text fontSize={24}>Mis Reportes</Text>
-    </YStack>
-  );
+const reports = [
+  {
+    title: 'Entre Ríos 742',
+    status: 'PENDIENTE',
+    date: '25 abr, 2025',
+    location: 'Entre Ríos 742',
+  },
+  {
+    title: 'Av. San Lorenzo 123',
+    status: 'EN REPARACION',
+    date: '17 abr, 2025',
+    location: 'Av. San Lorenzo 123',
+  },
+  {
+    title: 'Boulevard Central 456',
+    status: 'FINALIZADO',
+    date: '5 abr, 2025',
+    location: 'Boulevard Central 456',
+  },
+    {
+      title: 'Entre Ríos 742',
+      status: 'PENDIENTE',
+      date: '25 abr, 2025',
+      location: 'Entre Ríos 742',
+    },
+    {
+      title: 'Av. San Lorenzo 123',
+      status: 'EN REPARACION',
+      date: '17 abr, 2025',
+      location: 'Av. San Lorenzo 123',
+    },
+    {
+      title: 'Boulevard Central 456',
+      status: 'FINALIZADO',
+      date: '5 abr, 2025',
+      location: 'Boulevard Central 456',
+    },
+  {
+    title: 'Entre Ríos 742',
+    status: 'PENDIENTE',
+    date: '25 abr, 2025',
+    location: 'Entre Ríos 742',
+  },
+  {
+    title: 'Av. San Lorenzo 123',
+    status: 'EN REPARACION',
+    date: '17 abr, 2025',
+    location: 'Av. San Lorenzo 123',
+  },
+  {
+    title: 'Boulevard Central 456',
+    status: 'FINALIZADO',
+    date: '5 abr, 2025',
+    location: 'Boulevard Central 456',
+  },
+  //
+];
+
+export default function MyReportsTab() {
+  return <MyReportsScreen reports={reports} />;
 }
