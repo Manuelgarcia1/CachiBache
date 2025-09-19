@@ -13,7 +13,7 @@ export function LoginButtons() {
         fontWeight="600"
         borderRadius="$6"
         pressStyle={{ backgroundColor: "$yellow9" }}
-        onPress={() => {}}
+        onPress={() => router.push("/(tabs)" as any)}
       >
         Ingresar con Google
       </Button>
