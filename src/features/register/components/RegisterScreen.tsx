@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { router } from "expo-router";
 import { Button, ScrollView, Stack, Text } from "tamagui";
-import { AppLogo } from "../../auth/components/AppLogo";
+import { AppLogo } from "@features/auth/components/AppLogo";
 import { RegisterForm, RegisterFormData } from "./RegisterForm";
 
 export function RegisterScreen() {

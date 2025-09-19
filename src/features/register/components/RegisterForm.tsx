@@ -2,8 +2,8 @@ import { Formik, FormikHelpers } from 'formik';
 import React from 'react';
 import { Alert } from 'react-native';
 import { Stack, Text } from 'tamagui';
-import { FormField } from '../../../shared/components';
-import { registerSchema } from '../../../shared/validation/schemas';
+import { FormField } from '@sharedcomponents/index';
+import { registerSchema } from '@sharedvalidation/schemas';
 import { RegisterButton } from './RegisterButton';
 import { TermsCheckbox } from './TermsCheckbox';
 

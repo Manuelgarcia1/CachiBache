@@ -3,10 +3,15 @@
   "compilerOptions": {
     "strict": true,
     "jsx": "react-native",
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@app/*": ["./app/*"],
+      "@src/*": ["./src/*"],
+      "@features/*": ["./src/features/*"],
+      "@assets/*": ["./assets/*"],
+      "@sharedcomponents/*": ["./src/shared/components/*"],
+      "@sharedvalidation/*": ["./src/shared/validation/*"]
     }
   },
   "include": [
