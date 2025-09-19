@@ -55,9 +55,8 @@ const reports = [
     date: "5 abr, 2025",
     location: "Boulevard Central 456",
   },
-  //
 ];
 
-export default function MyReportsTab() {
+export default function ReportsTab() {
   return <MyReportsScreen reports={reports} />;
 }

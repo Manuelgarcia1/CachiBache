@@ -1,8 +1,9 @@
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
+import { useAuth } from "@/src/shared/contexts/AuthContext";
 
-const user = {
-  name: "Juan Pérez",
-  email: "juan.perez@email.com",
+const defaultUser = {
+  name: "Usuario",
+  email: "usuario@email.com",
   avatar: "https://randomuser.me/api/portraits/men/4.jpg",
 };
 
@@ -20,6 +21,14 @@ const dashboard = {
 };
 
 export default function ProfileTab() {
+  const { user: authUser } = useAuth();
+
+  const user = {
+    name: authUser?.name || defaultUser.name,
+    email: authUser?.email || defaultUser.email,
+    avatar: defaultUser.avatar,
+  };
+
   return (
     <ProfileScreen
       user={user}
