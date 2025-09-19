@@ -1,8 +1,8 @@
+import { AppLogo } from "@features/auth/components/AppLogo";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
-import { router } from "expo-router";
 import { Button, ScrollView, Stack, Text } from "tamagui";
-import { AppLogo } from "../../auth/components/AppLogo";
 import { RegisterForm, RegisterFormData } from "./RegisterForm";
 
 export function RegisterScreen() {
@@ -16,7 +16,7 @@ export function RegisterScreen() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Usuario registrado exitosamente");
       // Navegar al home después del registro exitoso
-      router.push("/(tabs)" as any);
+      router.push("/(app)/home" as any);
     } catch (error) {
       console.error("Error en el registro:", error);
     } finally {

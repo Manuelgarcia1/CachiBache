@@ -2,8 +2,8 @@ import React from 'react';
 import { Stack, Text } from 'tamagui';
 import { Formik, FormikHelpers } from 'formik';
 import { ForgotPasswordButton } from './ForgotPasswordButton';
-import { FormField } from '../../../shared/components';
-import { forgotPasswordSchema } from '../../../shared/validation/schemas';
+import { FormField } from '@sharedcomponents/index';
+import { forgotPasswordSchema } from '@sharedvalidation/schemas';
 
 interface ForgotPasswordFormProps {
   onSubmit: (email: string) => void;

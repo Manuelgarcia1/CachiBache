@@ -1,17 +1,34 @@
-// Ubicación: app/_layout.tsx
+import { useEffect } from "react";
 import { Stack } from "expo-router";
 import { TamaguiProvider } from "tamagui";
-import tamaguiConfig from "../tamagui.config";
+import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import tamaguiConfig from "@/tamagui.config";
+import { AuthProvider } from "@/src/shared/contexts/AuthContext";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useEffect(() => {
+    SplashScreen.setOptions({
+      duration: 1000,
+      fade: true,
+    });
+  }, []);
+
   return (
-    <TamaguiProvider config={tamaguiConfig}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="register" options={{ headerShown: false }} />
-        <Stack.Screen name="ForgotPassword" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-    </TamaguiProvider>
+    <SafeAreaProvider>
+      <TamaguiProvider config={tamaguiConfig}>
+        <AuthProvider>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(app)" options={{ headerShown: false }} />
+            <Stack.Screen name="register" options={{ headerShown: false }} />
+            <Stack.Screen name="ForgotPassword" options={{ headerShown: false }} />
+          </Stack>
+        </AuthProvider>
+      </TamaguiProvider>
+    </SafeAreaProvider>
   );
 }
