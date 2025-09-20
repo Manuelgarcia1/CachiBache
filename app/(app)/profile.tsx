@@ -1,5 +1,5 @@
-import { ProfileScreen } from "@features/profile/components/ProfileScreen";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
+import { ProfileScreen } from "@features/profile/components/ProfileScreen";
 
 const defaultUser = {
   name: "Usuario",
