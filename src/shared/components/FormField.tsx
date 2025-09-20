@@ -1,75 +1,61 @@
-import React from 'react';
-import { Input, Label, Stack, Text } from 'tamagui';
+// Ubicación: src/shared/components/FormField.tsx
 
-interface FormFieldProps {
+import React from 'react';
+// 1. Imports de React Native
+import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
+
+// Extendemos las props de TextInput para máxima flexibilidad
+interface FormFieldProps extends TextInputProps {
   label: string;
-  placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  onBlur?: (e: any) => void;
-  secureTextEntry?: boolean;
   error?: string;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
-  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send' | 'default';
-  onSubmitEditing?: () => void;
-  blurOnSubmit?: boolean;
 }
 
 export function FormField({
   label,
-  placeholder,
-  value,
-  onChangeText,
-  onBlur,
-  secureTextEntry = false,
   error,
-  autoCapitalize = 'none',
-  keyboardType = 'default',
-  returnKeyType = 'done',
-  onSubmitEditing,
-  blurOnSubmit = true,
+  ...textInputProps // Pasamos el resto de las props al TextInput
 }: FormFieldProps) {
   return (
-    <Stack space="$2" marginBottom="$4">
-      <Label
-        fontSize="$4"
-        fontWeight="600"
-        color="white"
-      >
-        {label}
-      </Label>
-      <Input
-        size="$4"
-        borderWidth={2}
-        borderColor={error ? '$red8' : '$gray6'}
-        backgroundColor="$gray2"
-        borderRadius="$4"
-        fontSize="$4"
-        padding="$3"
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        onBlur={onBlur}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize={autoCapitalize}
-        keyboardType={keyboardType}
-        returnKeyType={returnKeyType}
-        onSubmitEditing={onSubmitEditing}
-        blurOnSubmit={blurOnSubmit}
-        focusStyle={{
-          borderColor: error ? '$red9' : '$blue8',
-        }}
+    <View style={styles.container}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        style={[styles.input, error ? styles.inputError : null]}
+        placeholderTextColor="#9CA3AF" // Un gris suave para el placeholder
+        {...textInputProps} // Aplicamos props como value, onChangeText, etc.
       />
-      {error && (
-        <Text
-          fontSize="$3"
-          color="$red10"
-          marginTop="$1"
-        >
-          {error}
-        </Text>
-      )}
-    </Stack>
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
   );
 }
+
+// 2. Estilos definidos con StyleSheet
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: 'white',
+    borderRadius: 12, // Bordes más redondeados
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#111827', // Texto oscuro
+    borderWidth: 2,
+    borderColor: 'transparent', // Sin borde por defecto
+  },
+  inputError: {
+    borderColor: '#EF4444', // Borde rojo para errores
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#FBBF24', // Amarillo para errores, para no usar rojo sobre azul
+    marginTop: 4,
+  },
+});

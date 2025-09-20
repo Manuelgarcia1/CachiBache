@@ -1,5 +1,9 @@
-import React from "react";
-import { Checkbox, Stack, Text, XStack } from "tamagui";
+// Ubicación: src/features/register/components/TermsCheckbox.tsx
+
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+// 1. Importamos el ícono que usaremos
+import { Feather } from '@expo/vector-icons';
 
 interface TermsCheckboxProps {
   checked: boolean;
@@ -13,52 +17,65 @@ export function TermsCheckbox({
   onTermsPress,
 }: TermsCheckboxProps) {
   return (
-    <XStack
-      alignItems="flex-start"
-      space="$3"
-      paddingHorizontal="$2"
-      marginVertical="$3"
+    // Usamos TouchableOpacity para que toda el área sea clickeable
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => onCheckedChange(!checked)}
+      activeOpacity={0.7}
     >
-      <Checkbox
-        size="$4"
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-        borderRadius="$2"
-        marginTop="$1"
-      >
-        <Checkbox.Indicator>
-          <Text color="$background" fontSize="$2" fontWeight="bold">
-            ✓
-          </Text>
-        </Checkbox.Indicator>
-      </Checkbox>
+      {/* La caja del checkbox */}
+      <View style={[styles.box, checked && styles.boxChecked]}>
+        {checked && <Feather name="check" size={18} color="#3b82f6" />}
+      </View>
 
-      <Stack flex={1}>
-        <XStack flexWrap="wrap" alignItems="center">
-          <Text fontSize="$3" color="$gray11">
-            Acepto los 
-          </Text>
-          <Text
-            fontSize="$3"
-            color="$blue10"
-            textDecorationLine="underline"
-            onPress={onTermsPress}
-          >
+      {/* El texto de los términos */}
+      <View style={styles.textContainer}>
+        <Text style={styles.text}>
+          Acepto los{' '}
+          <Text style={styles.linkText} onPress={onTermsPress}>
             términos y condiciones
           </Text>
-          <Text fontSize="$3" color="$gray11">
-            {" "}y la 
-          </Text>
-          <Text
-            fontSize="$3"
-            color="$blue10"
-            textDecorationLine="underline"
-            onPress={onTermsPress}
-          >
+          {' '}y la{' '}
+          <Text style={styles.linkText} onPress={onTermsPress}>
             política de privacidad
           </Text>
-        </XStack>
-      </Stack>
-    </XStack>
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginVertical: 16,
+  },
+  box: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: 'white',
+    backgroundColor: 'transparent',
+    marginRight: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  boxChecked: {
+    backgroundColor: 'white', // Fondo blanco cuando está seleccionado
+    borderColor: 'white',
+  },
+  textContainer: {
+    flex: 1, // Permite que el texto se ajuste
+  },
+  text: {
+    fontSize: 14,
+    color: 'white',
+  },
+  linkText: {
+    color: '#FACC15', // Amarillo para los enlaces, como en la pantalla de inicio
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
+});

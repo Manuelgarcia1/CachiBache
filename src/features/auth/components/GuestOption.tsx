@@ -1,4 +1,4 @@
-import { Stack, Text } from "tamagui";
+import { YStack, Text } from "tamagui";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 
 export function GuestOption() {
@@ -19,15 +19,15 @@ export function GuestOption() {
   };
 
   return (
-    <Stack marginTop="$6">
+    <YStack position="absolute" bottom="$6">
       <Text
-        color="$blue3"
-        fontSize="$4"
-        textDecorationLine="underline"
+        color="$blue3" // Mismo color que "¿Olvidaste tu contraseña?"
+        fontSize="$3" // Mismo tamaño
+        pressStyle={{ color: 'white' }}
         onPress={handleGuestLogin}
       >
         Ingresar como Invitado
       </Text>
-    </Stack>
+    </YStack>
   );
 }
