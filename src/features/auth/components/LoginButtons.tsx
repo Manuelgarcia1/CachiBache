@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Button, Stack } from "tamagui";
+import { Button, YStack, Text, Separator, XStack } from "tamagui";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 
 export function LoginButtons() {
@@ -35,60 +35,65 @@ export function LoginButtons() {
   };
 
   return (
-    <Stack space="$3" width="100%" maxWidth={300}>
+    // Usamos YStack para apilar los elementos verticalmente
+    <YStack space="$3" width="100%" maxWidth={300} alignItems="center">
+
+      {/* --- BOTONES DE INGRESO PRINCIPALES --- */}
       <Button
         size="$4"
         backgroundColor="$yellow8"
-        color="$gray12"
-        fontWeight="600"
-        borderRadius="$6"
+        color="$black" // Texto negro para mejor contraste
+        fontWeight="bold" // Hacemos el texto más fuerte
+        borderRadius="$10" // Bordes más redondeados
         pressStyle={{ backgroundColor: "$yellow9" }}
         onPress={handleGoogleLogin}
+        width="100%"
       >
         Ingresar con Google
       </Button>
 
       <Button
         size="$4"
-        backgroundColor="transparent"
-        borderColor="$blue3"
-        borderWidth={2}
-        color="white"
-        fontWeight="600"
-        borderRadius="$6"
-        pressStyle={{ backgroundColor: "$blue9" }}
+        backgroundColor="white" // <-- CAMBIO: Fondo blanco como en la imagen
+        color="$blue10" // <-- CAMBIO: Texto azul
+        fontWeight="bold"
+        borderRadius="$10"
+        pressStyle={{ backgroundColor: "$gray4" }}
         onPress={handleEmailNavigation}
+        width="100%"
       >
         Ingresar con Correo
       </Button>
 
-      <Button
-        size="$4"
-        backgroundColor="transparent"
-        borderColor="$green8"
-        borderWidth={2}
-        color="white"
-        fontWeight="600"
-        borderRadius="$6"
-        pressStyle={{ backgroundColor: "$green9" }}
-        onPress={handleRegisterNavigation}
-      >
-        Crear Cuenta Nueva
-      </Button>
+      {/* --- ENLACES DE ACCIONES SECUNDARIAS --- */}
+      <YStack space="$3" marginTop="$4" alignItems="center">
+        {/* Enlace para registrarse */}
+        <XStack>
+          <Text color="white" fontSize="$3">
+            ¿No tienes una cuenta?{' '}
+          </Text>
+          <Text
+            color="$yellow8"
+            fontWeight="bold"
+            fontSize="$3"
+            pressStyle={{ opacity: 0.7 }}
+            onPress={handleRegisterNavigation}
+          >
+            Regístrate
+          </Text>
+        </XStack>
 
-      <Button
-        size="$4"
-        backgroundColor="transparent"
-        borderColor="$orange8"
-        borderWidth={2}
-        color="white"
-        fontWeight="600"
-        borderRadius="$6"
-        pressStyle={{ backgroundColor: "$orange9" }}
-        onPress={handleForgotPasswordNavigation}
-      >
-        ¿Olvidaste tu contraseña?
-      </Button>
-    </Stack>
+        {/* Enlace para recuperar contraseña */}
+        <Text
+          color="$blue3"
+          fontSize="$3"
+          textDecorationLine="underline"
+          pressStyle={{ color: 'white' }}
+          onPress={handleForgotPasswordNavigation}
+        >
+          ¿Olvidaste tu contraseña?
+        </Text>
+      </YStack>
+    </YStack>
   );
 }

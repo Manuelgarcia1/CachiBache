@@ -1,5 +1,7 @@
+// Ubicación: src/features/register/components/RegisterButton.tsx
+
 import React from 'react';
-import { Button, Spinner, Text, XStack } from 'tamagui';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
 
 interface RegisterButtonProps {
   onPress: () => void;
@@ -14,25 +16,39 @@ export function RegisterButton({
   loading = false,
   title = 'Crear Cuenta',
 }: RegisterButtonProps) {
+  const isDisabled = disabled || loading;
+
   return (
-    <Button
-      size="$4"
-      backgroundColor="$blue10"
-      borderRadius="$6"
-      fontWeight="600"
-      width="100%"
-      marginVertical="$4"
-      pressStyle={{ backgroundColor: "$blue11" }}
-      disabled={disabled || loading}
-      opacity={disabled || loading ? 0.6 : 1}
+    <TouchableOpacity
+      style={[styles.button, isDisabled && styles.buttonDisabled]}
       onPress={onPress}
+      disabled={isDisabled}
     >
-      <XStack alignItems="center" space="$2">
-        <Text color="white" fontWeight="600">
-          {loading ? 'Creando cuenta...' : title}
-        </Text>
-        {loading && <Spinner size="small" color="white" />}
-      </XStack>
-    </Button>
+      {loading ? (
+        <ActivityIndicator size="small" color="#111827" />
+      ) : (
+        <Text style={styles.buttonText}>{title}</Text>
+      )}
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#FACC15', // Amarillo principal
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#111827', // Texto oscuro
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});

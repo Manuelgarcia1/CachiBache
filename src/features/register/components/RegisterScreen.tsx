@@ -1,9 +1,18 @@
-import { AppLogo } from "@features/auth/components/AppLogo";
-import { router } from "expo-router";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform } from "react-native";
-import { Button, ScrollView, Stack, Text } from "tamagui";
+import {
+  StyleSheet,
+  View,
+  SafeAreaView,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  Text,
+} from "react-native";
+import { router } from "expo-router";
 import { RegisterForm, RegisterFormData } from "./RegisterForm";
+import { Header } from '@sharedcomponents/index';
+
 
 export function RegisterScreen() {
   const [loading, setLoading] = useState(false);
@@ -24,54 +33,49 @@ export function RegisterScreen() {
     }
   };
 
+   const handleBackToLogin = () => {
+    router.back();
+  };
+
   return (
-    <KeyboardAvoidingView 
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
-      <Stack flex={1} backgroundColor="$blue8">
-      <ScrollView
-        contentContainerStyle={{
-          padding: 16,
-          paddingBottom: 40
-        }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        automaticallyAdjustKeyboardInsets={true}
+    <SafeAreaView style={styles.safeArea}>
+      {/* 1. Pasamos la función handleBackToLogin al Header */}
+      <Header onPress={handleBackToLogin} />
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Stack alignItems="center" space="$4" width="100%" marginTop="$4">
-          <AppLogo />
-          <Text fontSize="$8" fontWeight="600" color="white" textAlign="center">
-            Únete a CachiBache
-          </Text>
-          <Text fontSize="$4" color="white" textAlign="center" maxWidth={300}>
-            Reporta baches en tu ciudad y ayuda a mejorar las calles
-          </Text>
-
-          <RegisterForm
-            onSubmit={handleRegister}
-            loading={loading}
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.mainTitle}>Crear Cuenta</Text>
+          
+          {/* 2. Pasamos la misma función al RegisterForm para el enlace de texto de abajo */}
+          <RegisterForm 
+            onSubmit={handleRegister} 
+            loading={loading} 
+            onBackToLogin={handleBackToLogin} 
           />
-
-          <Button
-            size="$4"
-            backgroundColor="transparent"
-            borderColor="$gray8"
-            borderWidth={2}
-            color="white"
-            fontWeight="600"
-            borderRadius="$6"
-            pressStyle={{ backgroundColor: "$gray9" }}
-            onPress={() => router.back()}
-            width="100%"
-            maxWidth={300}
-          >
-            Volver
-          </Button>
-        </Stack>
-      </ScrollView>
-      </Stack>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
+
+// Los estilos de RegisterScreen se mantienen igual
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#5eb0ef',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingTop: 24,
+  },
+  mainTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+});
