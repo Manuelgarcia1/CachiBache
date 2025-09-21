@@ -40,9 +40,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('🚀 Iniciando app - Verificando estado de autenticación...');
       const storedToken = await getToken();
       if (storedToken) {
-        setTokenState(storedToken);
         console.log('✅ Usuario ya autenticado encontrado');
         console.log('🔑 Token actual:', storedToken);
+        // Ocultar splash nativo para mostrar nuestro loading
+        await SplashScreen.hideAsync();
+        // Primero establecer el token
+        setTokenState(storedToken);
+        // Delay para ver el loading de reautenticación
+        await new Promise(resolve => setTimeout(resolve, 1500));
       } else {
         console.log('ℹ️ No hay sesión activa - Mostrando pantalla de bienvenida');
       }
@@ -50,7 +55,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('❌ Error verificando estado de autenticación:', error);
     } finally {
       setIsLoading(false);
-      await SplashScreen.hideAsync();
+      // Solo ocultar splash si no fue ocultado antes (para usuarios sin token)
+      try {
+        await SplashScreen.hideAsync();
+      } catch (error) {
+        // Ya fue ocultado
+      }
     }
   };
 
