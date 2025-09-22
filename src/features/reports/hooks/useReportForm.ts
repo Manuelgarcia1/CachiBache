@@ -44,13 +44,16 @@ export const useReportForm = () => {
     setMapRegion(region);
   };
 
-  const handleMapPress = (coordinate: { latitude: number; longitude: number }) => {
-    const newLocation: ReportLocation = {
-      latitude: coordinate.latitude,
-      longitude: coordinate.longitude,
-      address: `${coordinate.latitude.toFixed(4)}, ${coordinate.longitude.toFixed(4)}`,
-    };
-    updateLocation(newLocation);
+  const handleMapPress = (event: any) => {
+    const coordinate = event.nativeEvent.coordinate;
+    if (coordinate && coordinate.latitude !== undefined && coordinate.longitude !== undefined) {
+      const newLocation: ReportLocation = {
+        latitude: coordinate.latitude,
+        longitude: coordinate.longitude,
+        address: `${coordinate.latitude.toFixed(4)}, ${coordinate.longitude.toFixed(4)}`,
+      };
+      updateLocation(newLocation);
+    }
   };
 
   const validateForm = (): boolean => {
