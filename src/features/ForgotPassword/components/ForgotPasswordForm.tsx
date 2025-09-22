@@ -1,9 +1,9 @@
-import React from 'react';
-import { Stack, Text } from 'tamagui';
-import { Formik, FormikHelpers } from 'formik';
-import { ForgotPasswordButton } from './ForgotPasswordButton';
 import { FormField } from '@sharedcomponents/index';
 import { forgotPasswordSchema } from '@sharedvalidation/schemas';
+import { Formik, FormikHelpers } from 'formik';
+import React from 'react';
+import { Stack, Text } from 'tamagui';
+import { ForgotPasswordButton } from './ForgotPasswordButton';
 
 interface ForgotPasswordFormProps {
   onSubmit: (email: string) => void;
@@ -39,7 +39,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       onSubmit={handleSubmit}
     >
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-        <Stack space="$4" width="100%" maxWidth={400} padding="$4" marginBottom="$8">
+        <Stack space="$4" width="100%" maxWidth={400} padding="$4" marginBottom="$0">
           <Stack space="$3" alignItems="center">
             <Text
               fontSize="$7"
