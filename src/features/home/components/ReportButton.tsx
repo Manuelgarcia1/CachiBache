@@ -1,11 +1,12 @@
 // Ubicación: src/features/home/components/ReportButton.tsx
 
 import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Button } from 'tamagui';
 
 export function ReportButton() {
   const handlePress = () => {
-    console.log('Botón "Reportar Bache" presionado!');
+    router.push('/create-report');
   };
 
   return (
