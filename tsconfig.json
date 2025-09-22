@@ -25,6 +25,9 @@
       ],
       "@sharedvalidation/*": [
         "./src/shared/validation/*"
+      ],
+      "@reports/*": [
+        "./src/features/reports/*"
       ]
     }
   },

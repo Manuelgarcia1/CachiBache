@@ -1,10 +1,10 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, ScrollView, YStack } from 'tamagui';
-import { useReportForm } from '../hooks/useReportForm';
-import { useLocationPermissions } from '../hooks/useLocationPermissions';
-import { ReportHeader } from './create-report/ReportHeader';
-import { ReportFormSection } from './create-report/ReportFormSection';
-import { LocationMapSection } from './create-report/LocationMapSection';
+import { useReportForm } from '@features/reports/hooks/useReportForm';
+import { useLocationPermissions } from '@features/reports/hooks/useLocationPermissions';
+import { ReportHeader } from '@features/reports/components/create-report/ReportHeader';
+import { ReportFormSection } from '@features/reports/components/create-report/ReportFormSection';
+import { LocationMapSection } from '@features/reports/components/create-report/LocationMapSection';
 
 export function CreateReportScreen() {
   const insets = useSafeAreaInsets();

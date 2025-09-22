@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { Button, Text, YStack, Image } from 'tamagui';
-import { useImagePicker } from '../../hooks/useImagePicker';
+import { useImagePicker } from '@features/reports/hooks/useImagePicker';
 
 interface ImagePickerButtonProps {
   imageUri?: string;
