@@ -1,4 +1,4 @@
-import { MyReportsScreen } from "@features/reports/components/MyReportsScreen";
+import { MyReportsScreen } from "@features/reports";
 
 const reports = [
   {

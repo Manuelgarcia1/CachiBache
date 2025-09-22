@@ -1,4 +1,4 @@
-export { MyReportsScreen } from './components/MyReportsScreen';
-export { CreateReportScreen } from './components/CreateReportScreen';
-export { ReportItem } from './components/ReportItem';
-export { ReportList } from './components/ReportList';
+export { MyReportsScreen } from './components/my-reports/MyReportsScreen';
+export { CreateReportScreen } from './components/create-report/CreateReportScreen';
+export { ReportItem } from './components/my-reports/ReportItem';
+export { ReportList } from './components/my-reports/ReportList';

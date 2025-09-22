@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { ImagePickerResult } from '../types';
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { Alert } from "react-native";
+import { ImagePickerResult } from "../types";
 
 export const useImagePicker = () => {
   const [isPickingImage, setIsPickingImage] = useState(false);
@@ -10,10 +10,14 @@ export const useImagePicker = () => {
     setIsPickingImage(true);
 
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permisos requeridos', 'Necesitamos acceso a tu galería para adjuntar fotos');
-        return { error: 'Permisos de galería denegados' };
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permisos requeridos",
+          "Necesitamos acceso a tu galería para adjuntar fotos"
+        );
+        return { error: "Permisos de galería denegados" };
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -27,10 +31,16 @@ export const useImagePicker = () => {
         return { uri: result.assets[0].uri };
       }
 
-      return { error: 'Selección de imagen cancelada' };
+      return { error: "Selección de imagen cancelada" };
     } catch (error) {
-      Alert.alert('Error', 'No se pudo seleccionar la imagen');
-      return { error: 'Error al seleccionar imagen de galería' };
+      console.error("Error al seleccionar imagen de galería:", error);
+      Alert.alert(
+        "Error",
+        `No se pudo seleccionar la imagen: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
+      return { error: "Error al seleccionar imagen de galería" };
     } finally {
       setIsPickingImage(false);
     }
@@ -41,9 +51,12 @@ export const useImagePicker = () => {
 
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permisos requeridos', 'Necesitamos acceso a tu cámara para tomar fotos');
-        return { error: 'Permisos de cámara denegados' };
+      if (status !== "granted") {
+        Alert.alert(
+          "Permisos requeridos",
+          "Necesitamos acceso a tu cámara para tomar fotos"
+        );
+        return { error: "Permisos de cámara denegados" };
       }
 
       const result = await ImagePicker.launchCameraAsync({
@@ -56,10 +69,10 @@ export const useImagePicker = () => {
         return { uri: result.assets[0].uri };
       }
 
-      return { error: 'Captura de foto cancelada' };
+      return { error: "Captura de foto cancelada" };
     } catch (error) {
-      Alert.alert('Error', 'No se pudo tomar la foto');
-      return { error: 'Error al tomar la foto' };
+      Alert.alert("Error", "No se pudo tomar la foto");
+      return { error: "Error al tomar la foto" };
     } finally {
       setIsPickingImage(false);
     }
@@ -67,15 +80,15 @@ export const useImagePicker = () => {
 
   const showImagePickerOptions = (onImageSelected: (uri: string) => void) => {
     Alert.alert(
-      'Seleccionar imagen',
-      'Elige una opción para agregar la foto del bache',
+      "Seleccionar imagen",
+      "Elige una opción para agregar la foto del bache",
       [
         {
-          text: 'Cancelar',
-          style: 'cancel',
+          text: "Cancelar",
+          style: "cancel",
         },
         {
-          text: 'Tomar foto',
+          text: "Tomar foto",
           onPress: async () => {
             const result = await takePhoto();
             if (result.uri) {
@@ -84,7 +97,7 @@ export const useImagePicker = () => {
           },
         },
         {
-          text: 'Elegir de galería',
+          text: "Elegir de galería",
           onPress: async () => {
             const result = await pickImageFromGallery();
             if (result.uri) {
