@@ -1,12 +1,18 @@
-import React, { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform } from "react-native";
-import { router } from "expo-router";
-import { Button, ScrollView, Stack, Text } from "tamagui";
 import { AppLogo } from "@features/auth/components/AppLogo";
+import { Header } from "@sharedcomponents/index";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button, ScrollView, Stack, Text } from "tamagui";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 export const ForgotPasswordScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
+
+  const handleBack = () => {
+    router.back();
+  };
 
   const handleSubmit = async (email: string) => {
     setLoading(true);
@@ -46,28 +52,20 @@ export const ForgotPasswordScreen: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
-      <Stack flex={1} backgroundColor="$blue8">
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          padding: 16,
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        automaticallyAdjustKeyboardInsets={true}
+    <SafeAreaView style={styles.safeArea}>
+      <Header onPress={handleBack} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Stack alignItems="center" space="$4" width="100%" marginTop="$4">
-          <AppLogo />
-          <Text
-            fontSize="$6"
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Stack alignItems="center" space="$0" width="100%">
+            <AppLogo />
+            <Text
+              fontSize="$6"
             fontWeight="600"
             color="white"
             textAlign="center"
@@ -83,10 +81,7 @@ export const ForgotPasswordScreen: React.FC = () => {
             No te preocupes, te ayudamos a recuperarla
           </Text>
 
-          <ForgotPasswordForm
-            onSubmit={handleSubmit}
-            loading={loading}
-          />
+          <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
 
           <Button
             size="$4"
@@ -97,7 +92,7 @@ export const ForgotPasswordScreen: React.FC = () => {
             fontWeight="600"
             borderRadius="$6"
             pressStyle={{ backgroundColor: "$gray9" }}
-            onPress={() => router.back()}
+            onPress={handleBack}
             width="100%"
             maxWidth={300}
           >
@@ -105,7 +100,20 @@ export const ForgotPasswordScreen: React.FC = () => {
           </Button>
         </Stack>
       </ScrollView>
-      </Stack>
     </KeyboardAvoidingView>
+  </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#5eb0ef",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

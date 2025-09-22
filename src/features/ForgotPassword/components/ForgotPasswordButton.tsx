@@ -27,7 +27,6 @@ export const ForgotPasswordButton: React.FC<ForgotPasswordButtonProps> = ({
       onPress={onPress}
       disabled={disabled || loading}
       width="100%"
-      marginVertical="$4"
     >
       <Stack flexDirection="row" alignItems="center" space="$2">
         <Text color="white" fontWeight="600">

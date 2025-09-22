@@ -1,17 +1,15 @@
+import { Header } from '@sharedcomponents/index';
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  StyleSheet,
-  View,
-  SafeAreaView,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
-  Text,
+  ScrollView,
+  StyleSheet,
+  Text
 } from "react-native";
-import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { RegisterForm, RegisterFormData } from "./RegisterForm";
-import { Header } from '@sharedcomponents/index';
 
 
 export function RegisterScreen() {
