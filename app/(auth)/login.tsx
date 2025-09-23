@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Input, Stack, Text } from 'tamagui';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppLogo } from '@features/auth/components/AppLogo';
 import { useAuth } from '@/src/shared/contexts/AuthContext';
+import { Header } from '@sharedcomponents/index';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -37,26 +39,32 @@ export default function LoginScreen() {
     }
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <Stack
-        flex={1}
-        backgroundColor="$blue8"
-        justifyContent="center"
-        alignItems="center"
-        padding="$4"
-        space="$4"
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#5eb0ef' }}>
+      <Header onPress={handleBack} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <AppLogo />
+        <Stack
+          flex={1}
+          backgroundColor="$blue8"
+          justifyContent="center"
+          alignItems="center"
+          padding="$4"
+          space="$4"
+        >
+          <AppLogo />
 
-        <Text fontSize="$6" fontWeight="600" color="white" textAlign="center">
-          Ingresar con Email
-        </Text>
+          <Text fontSize="$6" fontWeight="600" color="white" textAlign="center">
+            Ingresar con Email
+          </Text>
 
-        <Stack space="$3" width="100%" maxWidth={300}>
+          <Stack space="$3" width="100%" maxWidth={300}>
           <Input
             placeholder="Email"
             value={email}
@@ -89,21 +97,9 @@ export default function LoginScreen() {
             {loading ? 'Ingresando...' : 'Ingresar'}
           </Button>
 
-          <Button
-            size="$4"
-            backgroundColor="transparent"
-            borderColor="$gray8"
-            borderWidth={2}
-            color="white"
-            fontWeight="600"
-            borderRadius="$6"
-            pressStyle={{ backgroundColor: "$gray9" }}
-            onPress={() => router.back()}
-          >
-            Volver
-          </Button>
+          </Stack>
         </Stack>
-      </Stack>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

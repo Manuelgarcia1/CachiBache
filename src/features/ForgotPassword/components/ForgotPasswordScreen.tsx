@@ -82,22 +82,6 @@ export const ForgotPasswordScreen: React.FC = () => {
           </Text>
 
           <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
-
-          <Button
-            size="$4"
-            backgroundColor="transparent"
-            borderColor="$gray8"
-            borderWidth={2}
-            color="white"
-            fontWeight="600"
-            borderRadius="$6"
-            pressStyle={{ backgroundColor: "$gray9" }}
-            onPress={handleBack}
-            width="100%"
-            maxWidth={300}
-          >
-            Volver
-          </Button>
         </Stack>
       </ScrollView>
     </KeyboardAvoidingView>
