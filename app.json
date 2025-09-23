@@ -26,6 +26,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-secure-store",
       [
         "expo-splash-screen",
         {
@@ -33,6 +34,19 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#f8f9fa"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Esta aplicación necesita acceso a tu ubicación para mostrar baches cercanos y permitir reportar nuevos baches."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Esta aplicación necesita acceso a tus fotos para permitir adjuntar imágenes a los reportes de baches.",
+          "cameraPermission": "Esta aplicación necesita acceso a tu cámara para permitir tomar fotos de los baches directamente."
         }
       ]
     ],
