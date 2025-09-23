@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (token: string, userData?: User) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  isGuest: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,6 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setTokenState] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   const checkAuthStatus = async () => {
     try {
@@ -69,6 +71,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await setToken(newToken);
       setTokenState(newToken);
       setUser(userData || null);
+      if (newToken.startsWith('guest-')) {
+            setIsGuest(true);
+            console.log('👤 Usuario invitado');
+          } else {
+            setIsGuest(false);
+            console.log('👤 Usuario registrado');
+          }
       console.log('✅ Login exitoso - Token guardado en SecureStore');
       console.log('🔑 Token generado:', newToken);
     } catch (error) {
@@ -81,6 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await deleteToken();
       setTokenState(null);
       setUser(null);
+      setIsGuest(false);
       console.log('✅ Logout exitoso - Sesión cerrada completamente');
     } catch (error) {
       console.error('❌ Error durante logout:', error);
@@ -98,6 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     checkAuthStatus,
+    isGuest,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
