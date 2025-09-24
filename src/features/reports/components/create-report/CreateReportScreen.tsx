@@ -1,8 +1,9 @@
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Button, ScrollView, YStack } from 'tamagui';
+import { router } from 'expo-router';
 import { useReportForm } from '@features/reports/hooks/useReportForm';
 import { useLocationPermissions } from '@features/reports/hooks/useLocationPermissions';
-import { ReportHeader } from '@features/reports/components/create-report/ReportHeader';
+import { Header } from '@sharedcomponents/index';
 import { ReportFormSection } from '@features/reports/components/create-report/ReportFormSection';
 import { LocationMapSection } from '@features/reports/components/create-report/LocationMapSection';
 
@@ -31,10 +32,14 @@ export function CreateReportScreen() {
     }
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
       <YStack flex={1}>
-        <ReportHeader />
+        <Header onPress={handleBack} />
 
         <ScrollView flex={1} showsVerticalScrollIndicator={false}>
         <YStack padding="$4" gap="$4">

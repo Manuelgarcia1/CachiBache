@@ -14,7 +14,7 @@ interface HeaderProps {
 export function Header({ onPress }: HeaderProps) {
   return (
     <LinearGradient
-      colors={['#FACC15', '#5eb0ef']}
+      colors={['#094b7eff', '#5eb0ef']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.gradient}
