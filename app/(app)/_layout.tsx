@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useAuth } from '@/src/shared/contexts/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import { Tabs, router } from 'expo-router';
-import { useAuth } from '@/src/shared/contexts/AuthContext';
+import { useEffect } from 'react';
+import { Button, Text, XStack, YStack } from 'tamagui';
 
 export default function AppLayout() {
-  const { token, isLoading } = useAuth();
+  const { token, isLoading, isGuest, logout } = useAuth();
 
   useEffect(() => {
     if (!isLoading && !token) {
@@ -21,6 +22,55 @@ export default function AppLayout() {
     return null; // Prevenir flash antes del redirect
   }
 
+  // Footer especial para invitados
+  if (isGuest) {
+    return (
+      <YStack flex={1}>
+        <Tabs
+          screenOptions={{
+            headerShown: false,
+            tabBarStyle: { display: 'none' }, // Ocultar tabs normales
+          }}
+        >
+          <Tabs.Screen name="home" />
+        </Tabs>
+
+        <YStack
+          backgroundColor="#094b7eff"
+          height={120}
+          paddingHorizontal="$4"
+          paddingVertical="$3"
+          justifyContent="center"
+          alignItems="center"
+          gap="$2"
+          paddingBottom="$8"
+        >
+          <XStack alignItems="center" gap="$2">
+            <Feather name="user-x" size={20} color="#facc15" />
+            <Text color="#ffffff" fontSize="$3" fontWeight="500">
+              Navegando como invitado
+            </Text>
+          </XStack>
+
+          <Button
+            size="$4"
+            color="#000"
+            backgroundColor="#facc15"
+            fontWeight="600"
+            borderRadius="$4"
+            onPress={() => {
+              logout();
+              router.replace('/');
+            }}
+          >
+            Iniciar Sesión
+          </Button>
+        </YStack>
+      </YStack>
+    );
+  }
+
+  // Footer normal para usuarios registrados
   return (
     <Tabs
       screenOptions={{

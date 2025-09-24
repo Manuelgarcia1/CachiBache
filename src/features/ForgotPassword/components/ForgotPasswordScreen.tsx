@@ -2,9 +2,14 @@ import { AppLogo } from "@features/auth/components/AppLogo";
 import { Header } from "@sharedcomponents/index";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, ScrollView, Stack, Text } from "tamagui";
+import { ScrollView, Stack, Text } from "tamagui";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 export const ForgotPasswordScreen: React.FC = () => {
@@ -66,49 +71,33 @@ export const ForgotPasswordScreen: React.FC = () => {
             <AppLogo />
             <Text
               fontSize="$6"
-            fontWeight="600"
-            color="white"
-            textAlign="center"
-          >
-            ¿Olvidaste tu contraseña?
-          </Text>
-          <Text
-            fontSize="$4"
-            color="$blue3"
-            textAlign="center"
-            maxWidth={300}
-          >
-            No te preocupes, te ayudamos a recuperarla
-          </Text>
+              fontWeight="600"
+              color="white"
+              textAlign="center"
+            >
+              ¿Olvidaste tu contraseña?
+            </Text>
+            <Text
+              fontSize="$4"
+              color="$blue3"
+              textAlign="center"
+              maxWidth={300}
+            >
+              No te preocupes, te ayudamos a recuperarla
+            </Text>
 
-          <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
-
-          <Button
-            size="$4"
-            backgroundColor="transparent"
-            borderColor="$gray8"
-            borderWidth={2}
-            color="white"
-            fontWeight="600"
-            borderRadius="$6"
-            pressStyle={{ backgroundColor: "$gray9" }}
-            onPress={handleBack}
-            width="100%"
-            maxWidth={300}
-          >
-            Volver
-          </Button>
-        </Stack>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  </SafeAreaView>
+            <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
+          </Stack>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#5eb0ef",
+    backgroundColor: "#094b7eff",
   },
   scrollContent: {
     flexGrow: 1,

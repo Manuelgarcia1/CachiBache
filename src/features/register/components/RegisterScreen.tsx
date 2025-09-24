@@ -1,4 +1,4 @@
-import { Header } from '@sharedcomponents/index';
+import { Header } from "@sharedcomponents/index";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -6,11 +6,10 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text
+  Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RegisterForm, RegisterFormData } from "./RegisterForm";
-
 
 export function RegisterScreen() {
   const [loading, setLoading] = useState(false);
@@ -31,7 +30,7 @@ export function RegisterScreen() {
     }
   };
 
-   const handleBackToLogin = () => {
+  const handleBackToLogin = () => {
     router.back();
   };
 
@@ -46,12 +45,12 @@ export function RegisterScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.mainTitle}>Crear Cuenta</Text>
-          
+
           {/* 2. Pasamos la misma función al RegisterForm para el enlace de texto de abajo */}
-          <RegisterForm 
-            onSubmit={handleRegister} 
-            loading={loading} 
-            onBackToLogin={handleBackToLogin} 
+          <RegisterForm
+            onSubmit={handleRegister}
+            loading={loading}
+            onBackToLogin={handleBackToLogin}
           />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -63,7 +62,7 @@ export function RegisterScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#5eb0ef',
+    backgroundColor: "#094b7eff",
   },
   scrollContent: {
     padding: 16,
@@ -71,9 +70,9 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
     marginBottom: 24,
   },
 });
