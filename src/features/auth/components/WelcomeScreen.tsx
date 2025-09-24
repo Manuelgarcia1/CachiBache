@@ -9,7 +9,7 @@ export function WelcomeScreen() {
   return (
     <Stack
       flex={1}
-      backgroundColor="$blue8"
+      backgroundColor="#094b7eff"
       justifyContent="center"
       alignItems="center"
       padding="$4"
