@@ -2,13 +2,13 @@ import { FormField } from '@sharedcomponents/index';
 import { forgotPasswordSchema } from '@sharedvalidation/schemas';
 import { Formik, FormikHelpers } from 'formik';
 import React from 'react';
-import { Stack, Text } from 'tamagui';
+// CAMBIO: Usamos YStack para un mejor control del layout
+import { YStack, Text } from 'tamagui'; 
 import { ForgotPasswordButton } from './ForgotPasswordButton';
 
 interface ForgotPasswordFormProps {
   onSubmit: (email: string) => void;
   loading?: boolean;
-  onBackToLogin?: () => void;
 }
 
 interface ForgotPasswordValues {
@@ -18,7 +18,6 @@ interface ForgotPasswordValues {
 export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onSubmit,
   loading = false,
-  onBackToLogin,
 }) => {
   const initialValues: ForgotPasswordValues = {
     email: '',
@@ -38,12 +37,14 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       validationSchema={forgotPasswordSchema}
       onSubmit={handleSubmit}
     >
-      {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-        <Stack space="$4" width="100%" maxWidth={400} padding="$4" marginBottom="$0">
-          <Stack space="$3" alignItems="center">
+      {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        // --- CAMBIOS DE ESTILO AQUÍ ---
+        <YStack width="100%" maxWidth={400} paddingHorizontal="$2" space="$5">
+          {/* Títulos y textos mejorados */}
+          <YStack space="$2" alignItems="center">
             <Text
-              fontSize="$7"
-              fontWeight="600"
+              fontSize="$8" // Más grande y consistente
+              fontWeight="bold"
               textAlign="center"
               color="white"
             >
@@ -52,54 +53,37 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             
             <Text
               fontSize="$4"
-              color="$blue3"
+              color="white" // Mejor contraste
+              opacity={0.8}
               textAlign="center"
-              lineHeight="$1"
               paddingHorizontal="$4"
             >
-              Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
+              Ingresa tu email y te enviaremos un enlace para restablecerla
             </Text>
-          </Stack>
+          </YStack>
 
+          {/* El FormField usará automáticamente los nuevos estilos de StyleSheet */}
           <FormField
             label="Email"
             placeholder="tu@email.com"
             value={values.email}
-            onChangeText={(text: string) => setFieldValue('email', text)}
+            onChangeText={handleChange('email')}
             onBlur={handleBlur('email')}
             error={touched.email ? errors.email : undefined}
             keyboardType="email-address"
             autoCapitalize="none"
             returnKeyType="done"
             onSubmitEditing={() => handleSubmit()}
-            blurOnSubmit={true}
           />
 
           <ForgotPasswordButton
             onPress={() => handleSubmit()}
             loading={loading}
-            disabled={!values.email.trim()}
+            disabled={!values.email || !!errors.email}
           />
-
-          {onBackToLogin && (
-            <Text
-              fontSize="$4"
-              color="white"
-              textAlign="center"
-              marginTop="$4"
-            >
-              ¿Recordaste tu contraseña?{' '}
-              <Text
-                color="$yellow8"
-                fontWeight="600"
-                onPress={onBackToLogin}
-                textDecorationLine="underline"
-              >
-                Inicia sesión
-              </Text>
-            </Text>
-          )}
-        </Stack>
+          
+          {/* ELIMINADO: El enlace de texto de "Inicia sesión" se quita de aquí */}
+        </YStack>
       )}
     </Formik>
   );
