@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator } from 'react-native';
-import { Button, Stack, Text } from 'tamagui';
+import { Button, Text, XStack } from 'tamagui'; // CAMBIO: Usamos XStack para alinear
 
 interface ForgotPasswordButtonProps {
   onPress: () => void;
@@ -15,27 +15,27 @@ export const ForgotPasswordButton: React.FC<ForgotPasswordButtonProps> = ({
   loading = false,
   title = 'Enviar Enlace',
 }) => {
+  const isDisabled = disabled || loading;
+
   return (
+    // --- CAMBIOS DE ESTILO AQUÍ ---
     <Button
       size="$4"
-      backgroundColor="$green8"
-      color="white"
-      fontWeight="600"
-      borderRadius="$6"
-      pressStyle={{ backgroundColor: "$green9" }}
-      opacity={disabled || loading ? 0.6 : 1}
+      backgroundColor="$yellow8" // Amarillo principal
+      color="$black" // Texto oscuro para contraste
+      fontWeight="bold"
+      borderRadius="$10" // Bordes más redondeados
+      pressStyle={{ backgroundColor: "$yellow9" }}
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={isDisabled}
+      opacity={isDisabled ? 0.6 : 1}
       width="100%"
+      marginVertical="$4" // Espacio vertical
+      icon={loading ? () => <ActivityIndicator size="small" color="#111827" /> : undefined}
     >
-      <Stack flexDirection="row" alignItems="center" space="$2">
-        <Text color="white" fontWeight="600">
-          {loading ? "Enviando..." : title}
-        </Text>
-        {loading && (
-          <ActivityIndicator size="small" color="white" />
-        )}
-      </Stack>
+      <Text color="$black" fontWeight="bold" fontSize="$4">
+        {loading ? "Enviando..." : title}
+      </Text>
     </Button>
   );
 };

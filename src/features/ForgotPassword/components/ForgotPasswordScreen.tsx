@@ -1,49 +1,34 @@
 import { AppLogo } from "@features/auth/components/AppLogo";
-import { Header } from "@sharedcomponents/index";
+import { Header } from "@sharedcomponents/index"; // Usamos alias
 import { router } from "expo-router";
 import React, { useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, Stack, Text } from "tamagui";
-import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { ScrollView, YStack } from "tamagui"; // CAMBIO: Usamos YStack
+import { ForgotPasswordForm } from "./ForgotPasswordForm"; // Usamos ruta relativa limpia
 
 export const ForgotPasswordScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const handleBack = () => {
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
   };
 
   const handleSubmit = async (email: string) => {
     setLoading(true);
-
     try {
-      // Aquí iría la lógica de envío de email con tu API
       console.log("Enviando email de recuperación a:", email);
-
-      // Simular llamada a API
       await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Si el envío es exitoso
       console.log("Email de recuperación enviado exitosamente");
 
       Alert.alert(
         "Email Enviado",
         "Hemos enviado un enlace de recuperación a tu email. Revisa tu bandeja de entrada.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              // Email sent successfully - navigate back
-              router.back();
-            },
-          },
-        ]
+        [{ text: "OK", onPress: handleBack }]
       );
     } catch (error) {
       console.error("Error al enviar email de recuperación:", error);
@@ -63,37 +48,25 @@ export const ForgotPasswordScreen: React.FC = () => {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Stack alignItems="center" space="$0" width="100%">
-            <AppLogo />
-            <Text
-              fontSize="$6"
-              fontWeight="600"
-              color="white"
-              textAlign="center"
-            >
-              ¿Olvidaste tu contraseña?
-            </Text>
-            <Text
-              fontSize="$4"
-              color="$blue3"
-              textAlign="center"
-              maxWidth={300}
-            >
-              No te preocupes, te ayudamos a recuperarla
-            </Text>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {/* --- CAMBIOS DE ESTRUCTURA AQUÍ --- */}
+          <YStack flex={1} justifyContent="center" alignItems="center" width="100%" space="$4">
+            <AppLogo size={250} /> 
+            
+            {/* ELIMINADOS los Text duplicados que estaban aquí */}
 
-            <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
-          </Stack>
+            <ForgotPasswordForm 
+              onSubmit={handleSubmit} 
+              loading={loading}
+            />
+          </YStack>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
+// Los estilos se mantienen simples ya que Tamagui maneja el layout
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -102,7 +75,5 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: 16,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
