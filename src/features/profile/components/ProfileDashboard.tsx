@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { Card, Text, View, XStack, YStack } from 'tamagui';
+import { Card, Text, View, XStack, YStack, Separator } from 'tamagui';
 
 interface ProfileDashboardProps {
   tiempoPromedioPendiente: number;
@@ -14,71 +14,76 @@ export function ProfileDashboard({ tiempoPromedioPendiente, tiempoPromedioRepara
   const lastBaches = bachesMes.slice(-4);
   return (
     <XStack gap="$3">
-      {/* Dash 1: Tiempo promedio */}
+      {/* --- TARJETA DE TIEMPO PROMEDIO (REDİSEÑADA) --- */}
       <Card
-  flex={1}
-  padding="$4"
-  paddingLeft={8}
-  backgroundColor="#094b7e"
-  borderRadius={16}
-  alignItems="flex-start"
-  justifyContent="center"
-  shadowColor="#000"
-  shadowOpacity={0.07}
-  height={180}
-  gap="$3"
+        flex={1}
+        padding="$4"
+        backgroundColor="#094b7e" // Mantenemos el azul oscuro
+        borderRadius="$6" // Bordes consistentes
+        height={180}
+        elevation={5} // Sutil sombra
       >
-  <Text fontSize={14} color="#fff" fontWeight="700" marginBottom={0} marginTop={-18}>
-          TIEMPO PROMEDIO (DÍAS)
-        </Text>
-        <YStack width="100%" alignItems="flex-start" justifyContent="center">
-          <XStack width="100%" alignItems="flex-end" gap="$4" alignSelf="flex-start" justifyContent="flex-start">
-            <YStack alignItems="center" maxWidth={50}>
-              <Text fontSize={26} color="#fff" fontWeight="700" marginBottom={2}>
+        <YStack flex={1} space="$3">
+          <Text fontSize="$5" color="white" fontWeight="bold" opacity={0.8}>
+            TIEMPO PROMEDIO (DÍAS)
+          </Text>
+
+          <XStack flex={1} alignItems="center" justifyContent="space-between">
+            {/* Dato de Pendientes */}
+            <YStack alignItems="center" space="$2">
+              <Text fontSize="$9" color="white" fontWeight="bold">
                 {tiempoPromedioPendiente.toFixed(1)}
               </Text>
-              <Text fontSize={13} color="#cbd5e1">Pendiente</Text>
+              <Text fontSize="$3" color="white">
+                Pendiente
+              </Text>
             </YStack>
-            <YStack alignItems="center" maxWidth={40}>
-              <Feather name="clock" size={22} color="#facc15" style={{ marginBottom: 2 }} />
-            </YStack>
-            <YStack alignItems="center" maxWidth={60}>
-              <Text fontSize={26} color="#fff" fontWeight="700" marginBottom={2}>
+
+            {/* Separador vertical */}
+            <Separator vertical borderColor="$blue7" height="60%" />
+
+            {/* Dato de Reparación */}
+            <YStack alignItems="center" space="$2">
+              <Text fontSize="$9" color="white" fontWeight="bold">
                 {tiempoPromedioReparacion.toFixed(1)}
               </Text>
-              <Text fontSize={13} color="#cbd5e1" textAlign="center" numberOfLines={2}>
-                En reparación
+              <Text fontSize="$3" color="white">
+                Reparación
               </Text>
             </YStack>
           </XStack>
         </YStack>
       </Card>
-      {/* Dash 2: Baches reportados por mes */}
+
+      {/* --- TARJETA DE BACHES REPORTADOS (se mantiene similar) --- */}
       <Card
         flex={1}
         padding="$4"
         backgroundColor="#094b7e"
-        borderRadius={16}
-        alignItems="center"
-        justifyContent="center"
-        shadowColor="#000"
-        shadowOpacity={0.07}
+        borderRadius="$6"
         height={180}
-        gap="$3"
+        elevation={5}
       >
-        <Text fontSize={14} color="#fff" fontWeight="700" marginBottom="$2">
-          BACHES REPORTADOS (MES)
-        </Text>
-        <XStack gap={8} alignItems="flex-end" height={70} width="100%" justifyContent="center" marginTop={20}>
-          {lastBaches.map((val, idx) => (
-            <YStack key={idx} alignItems="center" justifyContent="flex-end" width={32}>
-              <View width={22} height={val * 7 + 10} backgroundColor="#fff" borderRadius={6} />
-              <Text fontSize={13} color="#fff" marginTop={2} textAlign="center">
-                {lastMonths[idx]}
-              </Text>
-            </YStack>
-          ))}
-        </XStack>
+        <YStack flex={1} alignItems="center" space="$4">
+          <Text fontSize="$5" color="white" fontWeight="bold" opacity={0.8}>
+            REPORTES POR MES
+          </Text>
+          <XStack flex={1} gap="$3" alignItems="flex-end" justifyContent="center">
+            {lastBaches.map((val, idx) => (
+              <YStack key={idx} alignItems="center" space="$2">
+                <View
+                  width={24}
+                  height={Math.max(val * 10, 10)} // Aseguramos una altura mínima
+                  backgroundColor="white"
+                  borderRadius="$2"
+                />
+                <Text fontSize="$2" color="white">
+                  {lastMonths[idx]}
+                </Text>
+              </YStack>
+            ))}
+          </XStack>
+        </YStack>
       </Card>
     </XStack>
   );

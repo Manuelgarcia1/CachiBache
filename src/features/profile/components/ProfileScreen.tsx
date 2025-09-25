@@ -1,9 +1,10 @@
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 import { getToken } from "@/src/shared/utils/secure-store";
-import { Button, ScrollView, Text, YStack } from "tamagui";
+import { Button, ScrollView, Text, YStack, XStack } from "tamagui";
 import { ProfileDashboard } from "./ProfileDashboard";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileStats } from "./ProfileStats";
+import { Feather } from "@expo/vector-icons";
 
 interface User {
   name: string;
@@ -62,45 +63,56 @@ export function ProfileScreen({
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
       >
-        <YStack paddingHorizontal="$3" paddingVertical="$3" gap="$3">
-          <Text fontSize={30} fontWeight="700" color="#000">
-            Historial de reportes
-          </Text>
-          <ProfileStats {...reportStats} />
-          <Text fontSize={30} fontWeight="700" color="#000">
-            Dashboard
-          </Text>
-          <ProfileDashboard {...dashboard} />
+        <YStack padding="$4" space="$5">
+          {/* Sección de Historial */}
+          <YStack space="$2">
+            <Text fontSize="$7" fontWeight="bold" color="#000">
+              Historial de Reportes
+            </Text>
+            <ProfileStats {...reportStats} />
+          </YStack>
 
-          <YStack gap="$3" marginTop="$4">
-            <Text fontSize={24} fontWeight="700" color="#000">
-              Opciones de cuenta
+          {/* Sección de Dashboard */}
+          <YStack space="$2">
+            <Text fontSize="$7" fontWeight="bold" color="#000">
+              Dashboard
+            </Text>
+            <ProfileDashboard {...dashboard} />
+          </YStack>
+
+          {/* --- SECCIÓN DE OPCIONES (CON BOTONES REDISEÑADOS) --- */}
+          <YStack space="$3" marginTop="$4">
+            <Text fontSize="$6" fontWeight="bold" color="#000" marginBottom="$2">
+              Opciones de Cuenta
             </Text>
 
+            {/* Botón "Ver Token" con estilo blanco */}
             <Button
               size="$4"
-              backgroundColor="$purple8"
               color="white"
-              fontWeight="600"
-              borderRadius="$6"
-              pressStyle={{ backgroundColor: "$purple9" }}
+              fontWeight="bold"
+              backgroundColor={"#094b7eff"}
+              borderRadius="$10"
               onPress={handleReadToken}
+              icon={<Feather name="key" size={18} color="#094b7eff" />}
             >
-              🔍 Ver Token Actual
+              Ver Token Actual (Dev)
             </Button>
 
+            {/* Botón "Cerrar Sesión" con estilo amarillo */}
             <Button
               size="$4"
-              backgroundColor="$red8"
-              color="white"
-              fontWeight="600"
-              borderRadius="$6"
-              pressStyle={{ backgroundColor: "$red9" }}
+              backgroundColor="$yellow8"
+              color="$black"
+              fontWeight="bold"
+              borderRadius="$10"
+              pressStyle={{ backgroundColor: "$yellow9" }}
               onPress={handleLogout}
+              icon={<Feather name="log-out" size={18} color="#111827" />}
             >
-              🚪 Cerrar Sesión
+              Cerrar Sesión
             </Button>
           </YStack>
         </YStack>
