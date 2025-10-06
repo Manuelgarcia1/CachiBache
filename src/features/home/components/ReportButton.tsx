@@ -19,7 +19,7 @@ export function ReportButton() {
         [
           { text: 'Cancelar', style: 'cancel' },
           { text: 'Ya tengo una cuenta', onPress: () => logout() },
-          { text: 'Crear cuenta', onPress: () => router.push('/register') }
+          { text: 'Crear cuenta', onPress: () => router.push('/(auth)/register') }
         ]
       );
       return;
@@ -29,7 +29,7 @@ export function ReportButton() {
   };
 
   const proceedWithReport = () => {
-    router.push('/create-report');
+    router.push('/(app)/create-report');
   };
 
   return (

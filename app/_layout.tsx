@@ -28,9 +28,6 @@ export default function RootLayout() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(app)" options={{ headerShown: false }} />
-            <Stack.Screen name="register" options={{ headerShown: false }} />
-            <Stack.Screen name="ForgotPassword" options={{ headerShown: false }} />
-            <Stack.Screen name="create-report" options={{ headerShown: false }} />
           </Stack>
         </AuthProvider>
       </TamaguiProvider>
