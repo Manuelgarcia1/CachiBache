@@ -111,6 +111,12 @@ export default function AppLayout() {
           tabBarIcon: ({ color }) => <Feather size={28} name="user" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="create-report"
+        options={{
+          href: null, // Ocultar de tabs
+        }}
+      />
     </Tabs>
   );
 }

@@ -26,12 +26,12 @@ export function LoginButtons() {
 
   const handleRegisterNavigation = () => {
     console.log('👤 Navegando a pantalla de registro...');
-    router.navigate('/register');
+    router.navigate('/(auth)/register');
   };
 
   const handleForgotPasswordNavigation = () => {
     console.log('🔑 Navegando a pantalla de olvido de contraseña...');
-    router.navigate('/ForgotPassword');
+    router.navigate('/(auth)/forgot-password');
   };
 
   return (
