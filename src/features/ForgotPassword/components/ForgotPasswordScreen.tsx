@@ -1,8 +1,13 @@
-import { AppLogo } from "@features/auth/components/AppLogo";
+import { AppLogo } from "@features/welcome/components/AppLogo";
 import { Header } from "@sharedcomponents/index"; // Usamos alias
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView, YStack } from "tamagui"; // CAMBIO: Usamos YStack
 import { ForgotPasswordForm } from "./ForgotPasswordForm"; // Usamos ruta relativa limpia
@@ -14,7 +19,7 @@ export const ForgotPasswordScreen: React.FC = () => {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace('/');
+      router.replace("/");
     }
   };
 
@@ -50,15 +55,18 @@ export const ForgotPasswordScreen: React.FC = () => {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* --- CAMBIOS DE ESTRUCTURA AQUÍ --- */}
-          <YStack flex={1} justifyContent="center" alignItems="center" width="100%" space="$4">
-            <AppLogo size={250} /> 
-            
+          <YStack
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            width="100%"
+            space="$4"
+          >
+            <AppLogo size={250} />
+
             {/* ELIMINADOS los Text duplicados que estaban aquí */}
 
-            <ForgotPasswordForm 
-              onSubmit={handleSubmit} 
-              loading={loading}
-            />
+            <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
           </YStack>
         </ScrollView>
       </KeyboardAvoidingView>
