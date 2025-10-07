@@ -7,11 +7,13 @@ import Constants from 'expo-constants';
 import tamaguiConfig from "@/tamagui.config";
 import { AuthProvider } from "@/src/shared/contexts/AuthContext";
 
+// Previene que el splash screen se oculte automáticamente (control manual desde AuthContext)
 SplashScreen.preventAutoHideAsync();
 
+// Layout raíz: configura todos los providers y la estructura de navegación de la app
 export default function RootLayout() {
   useEffect(() => {
-    // Solo configurar opciones de splash screen en development builds
+    // Configura duración y fade del splash solo en development builds (no en Expo Go)
     if (!Constants.expoConfig?.extra?.isExpoGo) {
       SplashScreen.setOptions({
         duration: 1000,

@@ -1,10 +1,12 @@
 import { router } from "expo-router";
-import { Button, YStack, Text, Separator, XStack } from "tamagui";
+import { Button, YStack, Text, XStack } from "tamagui";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 
+// Componente de botones de autenticación: maneja login con Google/Email y navegación a registro/recuperación
 export function LoginButtons() {
   const { login } = useAuth();
 
+  // Login directo con Google (genera token mock)
   const handleGoogleLogin = async () => {
     try {
       const mockToken = `google-${Date.now()}`;
@@ -19,32 +21,32 @@ export function LoginButtons() {
     }
   };
 
+  // Navegación a pantalla de login con email
   const handleEmailNavigation = () => {
     console.log('📧 Navegando a pantalla de login con email...');
     router.navigate('/(auth)/login');
   };
 
+  // Navegación a pantalla de registro
   const handleRegisterNavigation = () => {
     console.log('👤 Navegando a pantalla de registro...');
     router.navigate('/(auth)/register');
   };
 
+  // Navegación a pantalla de recuperación de contraseña
   const handleForgotPasswordNavigation = () => {
     console.log('🔑 Navegando a pantalla de olvido de contraseña...');
     router.navigate('/(auth)/forgot-password');
   };
 
   return (
-    // Usamos YStack para apilar los elementos verticalmente
     <YStack space="$3" width="100%" maxWidth={300} alignItems="center">
-
-      {/* --- BOTONES DE INGRESO PRINCIPALES --- */}
       <Button
         size="$4"
         backgroundColor="$yellow8"
-        color="$black" // Texto negro para mejor contraste
-        fontWeight="bold" // Hacemos el texto más fuerte
-        borderRadius="$10" // Bordes más redondeados
+        color="$black"
+        fontWeight="bold"
+        borderRadius="$10"
         pressStyle={{ backgroundColor: "$yellow9" }}
         onPress={handleGoogleLogin}
         width="100%"
@@ -54,8 +56,8 @@ export function LoginButtons() {
 
       <Button
         size="$4"
-        backgroundColor="white" // <-- CAMBIO: Fondo blanco como en la imagen
-        color="$blue10" // <-- CAMBIO: Texto azul
+        backgroundColor="white"
+        color="$blue10"
         fontWeight="bold"
         borderRadius="$10"
         pressStyle={{ backgroundColor: "$gray4" }}
@@ -65,9 +67,7 @@ export function LoginButtons() {
         Ingresar con Correo
       </Button>
 
-      {/* --- ENLACES DE ACCIONES SECUNDARIAS --- */}
       <YStack space="$3" marginTop="$4" alignItems="center">
-        {/* Enlace para registrarse */}
         <XStack>
           <Text color="white" fontSize="$3">
             ¿No tienes una cuenta?{' '}
@@ -83,7 +83,6 @@ export function LoginButtons() {
           </Text>
         </XStack>
 
-        {/* Enlace para recuperar contraseña */}
         <Text
           color="$blue3"
           fontSize="$3"

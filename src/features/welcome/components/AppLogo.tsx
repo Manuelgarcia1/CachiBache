@@ -5,6 +5,7 @@ interface AppLogoProps {
   size?: number;
 }
 
+// Componente de logo de la aplicación: muestra el icono principal con tamaño configurable
 export function AppLogo({ size = 290 }: AppLogoProps) {
   return (
     <Stack space="$4" alignItems="center" marginBottom="$6">
