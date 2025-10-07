@@ -1,56 +1,67 @@
-import { Header } from "@sharedcomponents/index";
-import { router } from "expo-router";
+// Ubicación: src/features/register/components/RegisterScreen.tsx
+
+import { Header } from "@sharedcomponents/index"; // Importa el componente de encabezado compartido.
+import { router } from "expo-router"; // Herramienta de navegación de Expo Router.
 import React, { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
+  KeyboardAvoidingView, // Para ajustar la vista cuando el teclado aparece.
+  Platform, // Para detectar la plataforma (iOS/Android).
+  ScrollView, // Para permitir el desplazamiento del contenido.
+  StyleSheet, // Para definir estilos.
+  Text, // Componente de texto.
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { RegisterForm, RegisterFormData } from "./RegisterForm";
+import { SafeAreaView } from "react-native-safe-area-context"; // Para asegurar que el contenido no se superponga con las áreas seguras del dispositivo.
+import { RegisterForm, RegisterFormData } from "./RegisterForm"; // Importa el formulario de registro y su tipo de datos.
 
+// Componente de pantalla para el registro de usuarios.
 export function RegisterScreen() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado para controlar el indicador de carga.
 
+  // Función para manejar el envío del formulario de registro.
   const handleRegister = async (formData: RegisterFormData) => {
-    setLoading(true);
+    setLoading(true); // Activa el estado de carga.
 
     try {
       console.log("Datos del formulario:", formData);
+      // Simula una llamada a la API con un retardo de 2 segundos.
       await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Usuario registrado exitosamente");
-      // Navegar al home después del registro exitoso
+      // Navegar al home después del registro exitoso.
       router.push("/(app)/home" as any);
     } catch (error) {
       console.error("Error en el registro:", error);
+      // Aquí se podría mostrar una alerta de error al usuario.
     } finally {
-      setLoading(false);
+      setLoading(false); // Desactiva el estado de carga.
     }
   };
 
+  // Función para manejar el botón de retroceso o el enlace "Volver a Iniciar Sesión".
   const handleBackToLogin = () => {
-    router.back();
+    router.back(); // Vuelve a la pantalla anterior (normalmente la de login).
   };
 
   return (
+    // Área segura para el contenido de la pantalla.
     <SafeAreaView style={styles.safeArea}>
-      {/* 1. Pasamos la función handleBackToLogin al Header */}
+      {/* Encabezado con botón de retroceso. */}
       <Header onPress={handleBackToLogin} />
 
+      {/* Ajusta la vista para evitar que el teclado oculte los campos. */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
+        {/* Contenedor con scroll para el contenido. */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
+          {/* Título principal de la pantalla. */}
           <Text style={styles.mainTitle}>Crear Cuenta</Text>
 
-          {/* 2. Pasamos la misma función al RegisterForm para el enlace de texto de abajo */}
+          {/* Formulario de registro. */}
           <RegisterForm
-            onSubmit={handleRegister}
-            loading={loading}
-            onBackToLogin={handleBackToLogin}
+            onSubmit={handleRegister} // Pasa la función para manejar el envío.
+            loading={loading} // Pasa el estado de carga.
+            onBackToLogin={handleBackToLogin} // Pasa la función para el enlace de "Volver a Iniciar Sesión".
           />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -58,11 +69,11 @@ export function RegisterScreen() {
   );
 }
 
-// Los estilos de RegisterScreen se mantienen igual
+// Estilos de la pantalla de registro.
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#094b7eff",
+    backgroundColor: "#094b7eff", // Color de fondo.
   },
   scrollContent: {
     padding: 16,

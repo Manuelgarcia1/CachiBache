@@ -1,25 +1,25 @@
 // Ubicación: src/features/register/components/RegisterForm.tsx
 
-import { Formik, FormikHelpers } from 'formik';
+import { Formik, FormikHelpers } from 'formik'; // Herramientas de Formik para la gestión de formularios.
 import React from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // Imports con alias que configuramos previamente
-import { FormField } from '@sharedcomponents/index';
-import { registerSchema } from '@sharedvalidation/schemas';
+import { FormField } from '@sharedcomponents/index'; // Importa el componente genérico de campo de formulario.
+import { registerSchema } from '@sharedvalidation/schemas'; // Importa el esquema de validación para el formulario de registro.
 
 // Imports de componentes locales
-import { RegisterButton } from './RegisterButton';
-import { TermsCheckbox } from './TermsCheckbox';
+import { RegisterButton } from './RegisterButton'; // Importa el botón de registro.
+import { TermsCheckbox } from './TermsCheckbox'; // Importa el componente de checkbox para términos y condiciones.
 
-// Interface de las props que el componente recibe
+// Interface de las props que el componente recibe.
 interface RegisterFormProps {
-  onSubmit: (data: RegisterFormData) => void;
-  loading?: boolean;
-  onBackToLogin?: () => void;
+  onSubmit: (data: RegisterFormData) => void; // Función que se ejecuta al enviar el formulario.
+  loading?: boolean; // Indica si el formulario está en estado de carga.
+  onBackToLogin?: () => void; // Función opcional para navegar de vuelta al login.
 }
 
-// Interface de la data del formulario
+// Interface de la data del formulario de registro.
 export interface RegisterFormData {
   fullName: string;
   email: string;
@@ -29,13 +29,14 @@ export interface RegisterFormData {
   acceptTerms: boolean;
 }
 
+// Componente funcional para el formulario de registro.
 export function RegisterForm({
   onSubmit,
   loading = false,
   onBackToLogin,
 }: RegisterFormProps) {
 
-  // Función para mostrar la alerta de términos
+  // Función para mostrar la alerta de términos y condiciones.
   const handleTermsPress = () => {
     Alert.alert(
       'Términos y Condiciones',
@@ -43,7 +44,7 @@ export function RegisterForm({
     );
   };
 
-  // Valores iniciales para el formulario
+  // Valores iniciales para el formulario.
   const initialValues: RegisterFormData = {
     fullName: '',
     email: '',
@@ -53,20 +54,21 @@ export function RegisterForm({
     acceptTerms: false,
   };
 
-  // Función que se ejecuta cuando el formulario es válido y se envía
+  // Función que se ejecuta cuando el formulario es válido y se envía.
   const handleFormSubmit = (
     values: RegisterFormData,
     { setSubmitting }: FormikHelpers<RegisterFormData>
   ) => {
-    onSubmit(values); // Llama a la función del padre (RegisterScreen)
-    setSubmitting(false);
+    onSubmit(values); // Llama a la función onSubmit pasada por props (en RegisterScreen).
+    setSubmitting(false); // Indica que el envío ha terminado.
   };
 
   return (
+    // Componente Formik para la gestión del formulario.
     <Formik
-      initialValues={initialValues}
-      validationSchema={registerSchema}
-      onSubmit={handleFormSubmit}
+      initialValues={initialValues} // Valores iniciales.
+      validationSchema={registerSchema} // Esquema de validación de Yup.
+      onSubmit={handleFormSubmit} // Función a ejecutar al enviar.
     >
       {({
         handleChange,
@@ -77,15 +79,16 @@ export function RegisterForm({
         touched,
         setFieldValue,
       }) => (
+        // Contenedor principal del formulario.
         <View style={styles.formContainer}>
           {/* Campo de Nombre Completo */}
           <FormField
             label="Nombre Completo"
             placeholder="Ingresa tu nombre completo"
             value={values.fullName}
-            onChangeText={handleChange('fullName')}
-            onBlur={handleBlur('fullName')}
-            error={touched.fullName ? errors.fullName : undefined}
+            onChangeText={handleChange('fullName')} // Maneja el cambio de texto.
+            onBlur={handleBlur('fullName')} // Maneja el evento de desenfoque.
+            error={touched.fullName ? errors.fullName : undefined} // Muestra error si el campo ha sido tocado y hay un error.
             autoCapitalize="words"
           />
 
@@ -137,9 +140,10 @@ export function RegisterForm({
           <View>
             <TermsCheckbox
               checked={values.acceptTerms}
-              onCheckedChange={(checked) => setFieldValue('acceptTerms', checked)}
-              onTermsPress={handleTermsPress}
+              onCheckedChange={(checked) => setFieldValue('acceptTerms', checked)} // Actualiza el valor del checkbox.
+              onTermsPress={handleTermsPress} // Abre la alerta de términos.
             />
+            {/* Muestra error si el checkbox ha sido tocado y no está marcado. */}
             {touched.acceptTerms && errors.acceptTerms && (
               <Text style={styles.errorText}>{errors.acceptTerms}</Text>
             )}
@@ -147,12 +151,12 @@ export function RegisterForm({
 
           {/* Botón de Registro */}
           <RegisterButton
-            onPress={() => handleSubmit()}
-            loading={loading}
-            disabled={!values.acceptTerms}
+            onPress={() => handleSubmit()} // Asigna la función de envío.
+            loading={loading} // Pasa el estado de carga.
+            disabled={!values.acceptTerms} // Deshabilita si los términos no han sido aceptados.
           />
 
-          {/* Enlace para volver a Iniciar Sesión */}
+          {/* Enlace para volver a Iniciar Sesión (condicional). */}
           {onBackToLogin && (
             <TouchableOpacity onPress={onBackToLogin}>
               <Text style={styles.backLink}>
@@ -166,14 +170,14 @@ export function RegisterForm({
   );
 }
 
-// Estilos definidos con StyleSheet para mantener la consistencia visual
+// Estilos definidos con StyleSheet para mantener la consistencia visual.
 const styles = StyleSheet.create({
   formContainer: {
     width: '100%',
   },
   errorText: {
     fontSize: 14,
-    color: '#FBBF24', // Color amarillo para errores
+    color: '#FBBF24', // Color amarillo para errores.
     marginTop: -10,
     marginBottom: 10,
     paddingLeft: 10,

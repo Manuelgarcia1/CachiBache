@@ -1,34 +1,35 @@
 // Ubicación: src/shared/components/FormField.tsx
 
 import React from 'react';
-// 1. Imports de React Native
-import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native'; // Componentes de React Native para UI.
 
-// Extendemos las props de TextInput para máxima flexibilidad
+// Define las propiedades que el componente FormField puede recibir, extendiendo las de TextInput.
 interface FormFieldProps extends TextInputProps {
-  label: string;
-  error?: string;
+  label: string; // Etiqueta del campo de formulario.
+  error?: string; // Mensaje de error a mostrar, si existe.
 }
 
+// Componente funcional genérico para un campo de formulario.
 export function FormField({
-  label,
-  error,
-  ...textInputProps // Pasamos el resto de las props al TextInput
+  label, // La etiqueta del campo.
+  error, // El mensaje de error.
+  ...textInputProps // Todas las demás propiedades de TextInput se pasan directamente.
 }: FormFieldProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        style={[styles.input, error ? styles.inputError : null]}
-        placeholderTextColor="#9CA3AF" // Un gris suave para el placeholder
-        {...textInputProps} // Aplicamos props como value, onChangeText, etc.
+        style={[styles.input, error ? styles.inputError : null]} // Aplica estilos base y de error condicionalmente.
+        placeholderTextColor="#9CA3AF" // Color del texto del placeholder.
+        {...textInputProps} // Pasa todas las props restantes al TextInput (value, onChangeText, etc.).
       />
+      {/* Muestra el mensaje de error si existe. */}
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }
 
-// 2. Estilos definidos con StyleSheet
+// Estilos definidos con StyleSheet para el componente FormField.
 const styles = StyleSheet.create({
   container: {
     width: '100%',
@@ -42,20 +43,20 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'white',
-    borderRadius: 12, // Bordes más redondeados
+    borderRadius: 12, // Bordes más redondeados.
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#111827', // Texto oscuro
+    color: '#111827', // Texto oscuro.
     borderWidth: 2,
-    borderColor: 'transparent', // Sin borde por defecto
+    borderColor: 'transparent', // Sin borde por defecto.
   },
   inputError: {
-    borderColor: '#EF4444', // Borde rojo para errores
+    borderColor: '#EF4444', // Borde rojo para indicar un error.
   },
   errorText: {
     fontSize: 14,
-    color: '#FBBF24', // Amarillo para errores, para no usar rojo sobre azul
+    color: '#FBBF24', // Amarillo para errores.
     marginTop: 4,
   },
 });
