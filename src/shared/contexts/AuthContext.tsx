@@ -2,23 +2,27 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { deleteToken, getToken, setToken } from "../utils/secure-store";
 
+// Interfaz que define los datos del usuario autenticado
 interface User {
   email?: string;
   name?: string;
 }
 
+// Interfaz del contexto: define todos los valores y métodos disponibles para autenticación
 interface AuthContextType {
-  token: string | null;
-  user: User | null;
-  isLoading: boolean;
-  login: (token: string, userData?: User) => Promise<void>;
-  logout: () => Promise<void>;
-  checkAuthStatus: () => Promise<void>;
-  isGuest: boolean;
+  token: string | null; // Token JWT almacenado
+  user: User | null; // Datos del usuario actual
+  isLoading: boolean; // Estado de carga durante verificación inicial
+  login: (token: string, userData?: User) => Promise<void>; // Método para iniciar sesión
+  logout: () => Promise<void>; // Método para cerrar sesión
+  checkAuthStatus: () => Promise<void>; // Verifica si hay sesión activa al iniciar
+  isGuest: boolean; // Indica si el usuario es invitado (token guest-*)
 }
 
+// Creación del contexto de autenticación
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Hook personalizado para acceder al contexto de autenticación desde cualquier componente
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -31,12 +35,15 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+// Provider que envuelve la app y proporciona el contexto de autenticación
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  // Estados principales de autenticación
   const [token, setTokenState] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
 
+  // Verifica al iniciar la app si existe una sesión guardada en SecureStore
   const checkAuthStatus = async () => {
     try {
       console.log("🚀 Iniciando app - Verificando estado de autenticación...");
@@ -44,11 +51,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (storedToken) {
         console.log("✅ Usuario ya autenticado encontrado");
         console.log("🔑 Token actual:", storedToken);
-        // Ocultar splash nativo para mostrar nuestro loading
         await SplashScreen.hideAsync();
-        // Primero establecer el token
         setTokenState(storedToken);
-        // Delay para ver el loading de reautenticación
         await new Promise((resolve) => setTimeout(resolve, 1500));
       } else {
         console.log(
@@ -59,7 +63,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error("❌ Error verificando estado de autenticación:", error);
     } finally {
       setIsLoading(false);
-      // Solo ocultar splash si no fue ocultado antes (para usuarios sin token)
       try {
         await SplashScreen.hideAsync();
       } catch (error) {
@@ -68,11 +71,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Gestiona el login: guarda el token en SecureStore y actualiza el estado
   const login = async (newToken: string, userData?: User) => {
     try {
       await setToken(newToken);
       setTokenState(newToken);
       setUser(userData || null);
+      // Detecta si es usuario invitado por el prefijo del token
       if (newToken.startsWith("guest-")) {
         setIsGuest(true);
         console.log("👤 Usuario invitado");
@@ -87,6 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Cierra sesión: elimina el token de SecureStore y resetea todos los estados
   const logout = async () => {
     try {
       await deleteToken();
@@ -99,6 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Ejecuta checkAuthStatus al montar el componente (inicio de la app)
   useEffect(() => {
     checkAuthStatus();
   }, []);

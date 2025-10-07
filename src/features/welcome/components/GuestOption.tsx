@@ -1,9 +1,11 @@
 import { YStack, Text } from "tamagui";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 
+// Componente de opción invitado: permite acceso sin registro con funcionalidad limitada
 export function GuestOption() {
   const { login } = useAuth();
 
+  // Genera token de invitado (prefijo "guest-") para acceso temporal
   const handleGuestLogin = async () => {
     try {
       const guestToken = `guest-${Date.now()}`;
@@ -21,8 +23,8 @@ export function GuestOption() {
   return (
     <YStack position="absolute" bottom="$8">
       <Text
-        color="$blue3" // Mismo color que "¿Olvidaste tu contraseña?"
-        fontSize="$3" // Mismo tamaño
+        color="$blue3"
+        fontSize="$3"
         textDecorationLine="underline"
         pressStyle={{ color: 'white' }}
         onPress={handleGuestLogin}

@@ -1,35 +1,39 @@
-import { useAuth } from '@/src/shared/contexts/AuthContext';
-import { Feather } from '@expo/vector-icons';
-import { Tabs, router } from 'expo-router';
-import { useEffect } from 'react';
-import { Button, Text, XStack, YStack } from 'tamagui';
+import { useAuth } from "@/src/shared/contexts/AuthContext";
+import { Feather } from "@expo/vector-icons";
+import { Tabs, router } from "expo-router";
+import { useEffect } from "react";
+import { Button, Text, XStack, YStack } from "tamagui";
 
+// Layout de la sección autenticada: maneja navegación por tabs y protege rutas privadas
 export default function AppLayout() {
   const { token, isLoading, isGuest, logout } = useAuth();
 
+  // Protección de rutas: redirige a inicio si no hay token válido
   useEffect(() => {
     if (!isLoading && !token) {
-      console.log('🚫 Acceso denegado - No hay token - Redirigiendo a inicio');
-      router.replace('/');
+      console.log("🚫 Acceso denegado - No hay token - Redirigiendo a inicio");
+      router.replace("/");
     }
   }, [token, isLoading]);
 
+  // Previene renderizado durante verificación de autenticación
   if (isLoading) {
-    return null; // Mostrar loading mientras verifica
+    return null;
   }
 
+  // Previene flash de contenido antes del redirect
   if (!token) {
-    return null; // Prevenir flash antes del redirect
+    return null;
   }
 
-  // Footer especial para invitados
+  // UI especial para usuarios invitados: sin tabs, solo home + banner de registro
   if (isGuest) {
     return (
       <YStack flex={1}>
         <Tabs
           screenOptions={{
             headerShown: false,
-            tabBarStyle: { display: 'none' }, // Ocultar tabs normales
+            tabBarStyle: { display: "none" },
           }}
         >
           <Tabs.Screen name="home" />
@@ -60,7 +64,7 @@ export default function AppLayout() {
             borderRadius="$4"
             onPress={() => {
               logout();
-              router.replace('/');
+              router.replace("/");
             }}
           >
             Iniciar Sesión
@@ -70,45 +74,51 @@ export default function AppLayout() {
     );
   }
 
-  // Footer normal para usuarios registrados
+  // Navegación completa por tabs para usuarios registrados
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#facc15',
-        tabBarInactiveTintColor: '#ffffff',
+        tabBarActiveTintColor: "#facc15",
+        tabBarInactiveTintColor: "#ffffff",
         tabBarStyle: {
-          backgroundColor: '#094b7eff',
+          backgroundColor: "#094b7eff",
           borderTopWidth: 0,
           height: 100,
           paddingTop: 10,
-          justifyContent: 'center'
+          justifyContent: "center",
         },
         tabBarLabelStyle: {
-          fontWeight: '600',
+          fontWeight: "600",
           fontSize: 12,
-        }
+        },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Reportar',
-          tabBarIcon: ({ color }) => <Feather size={28} name="map-pin" color={color} />,
+          title: "Reportar",
+          tabBarIcon: ({ color }) => (
+            <Feather size={28} name="map-pin" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="reports"
         options={{
-          title: 'Mis Reportes',
-          tabBarIcon: ({ color }) => <Feather size={28} name="file-text" color={color} />,
+          title: "Mis Reportes",
+          tabBarIcon: ({ color }) => (
+            <Feather size={28} name="file-text" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Perfil',
-          tabBarIcon: ({ color }) => <Feather size={28} name="user" color={color} />,
+          title: "Perfil",
+          tabBarIcon: ({ color }) => (
+            <Feather size={28} name="user" color={color} />
+          ),
         }}
       />
       <Tabs.Screen

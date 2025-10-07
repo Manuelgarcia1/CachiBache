@@ -1,6 +1,6 @@
-import { AppLogo } from "@features/auth";
-import { Stack, Text, Circle } from "tamagui";
+import { AppLogo } from "@features/welcome";
 import { useEffect, useState } from "react";
+import { Circle, Stack, Text } from "tamagui";
 
 export function ReauthLoadingScreen() {
   const [activeDot, setActiveDot] = useState(0);
@@ -29,7 +29,9 @@ export function ReauthLoadingScreen() {
             <Circle
               key={index}
               size={12}
-              backgroundColor={activeDot === index ? "$white1" : "rgba(255,255,255,0.3)"}
+              backgroundColor={
+                activeDot === index ? "$white1" : "rgba(255,255,255,0.3)"
+              }
               animation="bouncy"
               scale={activeDot === index ? 1.3 : 1}
             />
