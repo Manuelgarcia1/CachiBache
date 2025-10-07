@@ -53,6 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log("🔑 Token actual:", storedToken);
         await SplashScreen.hideAsync();
         setTokenState(storedToken);
+        // Delay intencional de 1.5s para mostrar ReauthLoadingScreen y evitar transición abrupta
         await new Promise((resolve) => setTimeout(resolve, 1500));
       } else {
         console.log(
@@ -62,6 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error("❌ Error verificando estado de autenticación:", error);
     } finally {
+      // Finaliza el estado de carga, permitiendo que app/index.tsx redirija según el token
       setIsLoading(false);
       try {
         await SplashScreen.hideAsync();
