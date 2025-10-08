@@ -2,7 +2,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { Feather } from '@expo/vector-icons';
 import { Button, Text, XStack, YStack } from 'tamagui';
 import { ReportLocation, MapRegion } from '@features/reports/types';
-import { CustomMarker } from './CustomMarker';
+import { SelectionMarker } from '@sharedcomponents/map';
 
 interface LocationMapSectionProps {
   location: ReportLocation;
@@ -64,7 +64,9 @@ export function LocationMapSection({
             title="Ubicación del bache"
             description={location.address}
           >
-            <CustomMarker />
+            <SelectionMarker
+              locationKey={`${location.latitude}-${location.longitude}`}
+            />
           </Marker>
         </MapView>
       </YStack>
