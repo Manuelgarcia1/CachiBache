@@ -32,8 +32,6 @@ export function LoginScreen() {
       await login(mockToken, { email, name: email.split("@")[0] });
 
       console.log("✅ Login exitoso - Navegando a la app");
-      router.dismissAll();
-      router.replace("/(app)/home");
     } catch (error) {
       console.error("❌ Error en login con email:", error);
     } finally {
