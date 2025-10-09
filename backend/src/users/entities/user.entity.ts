@@ -34,6 +34,14 @@ export class User {
     @Column({ name: 'avatar_url', nullable: true })
     avatarUrl?: string;
 
+    // ✨ --- NUEVO CAMPO: TELÉFONO --- ✨
+    @Column({ nullable: true })
+    phone?: string;
+
+    // ✨ --- NUEVO CAMPO: TÉRMINOS Y CONDICIONES --- ✨
+    @Column({ name: 'terms_accepted', default: false })
+    termsAccepted: boolean;
+
     @Column({
         type: 'enum', // Define la columna como de tipo enum
         enum: UserRole,
