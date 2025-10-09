@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Res, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth') // Ruta base es /api/auth
 export class AuthController {
@@ -46,5 +47,12 @@ export class AuthController {
         });
 
         return { message: 'Login exitoso', user };
+    }
+    @Post('logout')
+    @UseGuards(JwtAuthGuard) // 2. Proteger la ruta
+    logout(@Res({ passthrough: true }) response: Response) {
+        // 3. Limpiar la cookie
+        response.clearCookie('accessToken');
+        return { message: 'Sesión cerrada exitosamente' };
     }
 }
