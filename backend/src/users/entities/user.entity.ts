@@ -52,7 +52,7 @@ export class User {
 
     @OneToMany(() => ReportHistory, (history) => history.updatedBy)
     reportHistoryUpdates: ReportHistory[];
-    
+
     //Hook que se ejecuta antes de insertar el usuario en la BD
     @BeforeInsert()
     async hashPassword() {
@@ -61,5 +61,12 @@ export class User {
             const salt = await bcrypt.genSalt();
             this.password = await bcrypt.hash(this.password, salt);
         }
+    }
+    async validatePassword(password: string): Promise<boolean> {
+        // Si el usuario no tiene contraseña (ej. login con Google), la validación falla.
+        if (!this.password) {
+            return false;
+        }
+        return bcrypt.compare(password, this.password);
     }
 }

@@ -24,10 +24,4 @@ export class CreateReportDto {
   @IsEnum(ReportSeverity)
   @IsNotEmpty()
   severity: ReportSeverity;
-  
-  // NOTA: En un sistema real con autenticación, el userId se obtendría del token JWT,
-  // no se pasaría en el body. Por ahora lo incluimos para poder asociar el reporte.
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
 }
