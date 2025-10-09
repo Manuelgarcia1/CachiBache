@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'; // He quitado NotFoundException porque no se usa
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -13,16 +13,20 @@ export class ReportsService {
     ) { }
 
     async create(createReportDto: CreateReportDto, user: User): Promise<Report> {
+        // ✨ --- AÑADIR ESTA LÍNEA PARA DEPURAR --- ✨
+        console.log('DTO RECIBIDO EN EL SERVICIO:', JSON.stringify(createReportDto, null, 2));
+
+        const { location, ...reportData } = createReportDto;
+
         const newReport = this.reportRepository.create({
-            ...createReportDto,
-            location: `${createReportDto.location.x},${createReportDto.location.y}`,
-            user: user, // Asignamos el objeto de usuario completo
+            ...reportData,
+            location: `${location.x},${location.y}`,
+            user: user,
         });
+
         return this.reportRepository.save(newReport);
     }
-
     async findAll(): Promise<Report[]> {
-        // Usamos 'relations' para que TypeORM traiga también los datos del usuario asociado
         return this.reportRepository.find({
             relations: ['user'],
         });

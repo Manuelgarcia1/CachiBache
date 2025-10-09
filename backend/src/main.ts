@@ -5,14 +5,18 @@ import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // ✨ --- AÑADIR ESTA LÍNEA --- ✨
   app.setGlobalPrefix('api');
-
+  
+  // ✨ --- LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ --- ✨
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true, // No permite propiedades que no estén en el DTO
-    forbidNonWhitelisted: true, // Lanza error si se envían propiedades no permitidas
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true, // Habilita la transformación automática de DTOs
+    transformOptions: {
+      enableImplicitConversion: true, // Convierte tipos primitivos automáticamente
+    },
   }));
+
   app.use(cookieParser());
   await app.listen(3000);
 }

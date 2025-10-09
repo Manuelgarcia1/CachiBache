@@ -1,27 +1,32 @@
-import { IsString, IsNotEmpty, IsEnum, IsObject, ValidateNested } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsObject, ValidateNested, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ReportSeverity } from '../entities/report-severity.enum';
 
 // Un DTO anidado para validar las coordenadas
 class LocationDto {
-  @IsNotEmpty()
-  x: number;
+    // ✨ --- AÑADIR DECORADORES DE TIPO --- ✨
+    @IsNumber()
+    @IsNotEmpty()
+    x: number;
 
-  @IsNotEmpty()
-  y: number;
+    // ✨ --- AÑADIR DECORADORES DE TIPO --- ✨
+    @IsNumber()
+    @IsNotEmpty()
+    y: number;
 }
 
+
 export class CreateReportDto {
-  @IsObject()
-  @ValidateNested() // Le dice al validador que también valide el objeto anidado
-  @Type(() => LocationDto) // Le dice a class-transformer qué clase usar para la transformación
-  location: LocationDto;
+    @IsObject()
+    @ValidateNested() // Le dice al validador que también valide el objeto anidado
+    @Type(() => LocationDto) // Le dice a class-transformer qué clase usar para la transformación
+    location: LocationDto;
 
-  @IsString()
-  @IsNotEmpty()
-  address: string;
+    @IsString()
+    @IsNotEmpty()
+    address: string;
 
-  @IsEnum(ReportSeverity)
-  @IsNotEmpty()
-  severity: ReportSeverity;
+    @IsEnum(ReportSeverity)
+    @IsNotEmpty()
+    severity: ReportSeverity;
 }
