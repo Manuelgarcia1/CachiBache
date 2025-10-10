@@ -14,12 +14,12 @@ export class RegisterUserDto {
   email: string;
 
   // El nombre completo es requerido solo si no es un registro con Google
-  @ValidateIf(o => !o.googleId)
+  @ValidateIf((o: RegisterUserDto) => !o.googleId)
   @IsString()
   fullName: string;
 
   // La contraseña es requerida solo si no es un registro con Google
-  @ValidateIf(o => !o.googleId)
+  @ValidateIf((o: RegisterUserDto) => !o.googleId)
   @IsString()
   @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
   password: string;
@@ -30,14 +30,14 @@ export class RegisterUserDto {
     message: 'El formato del teléfono debe ser "+54 9 XX XXXX-XXXX"',
   })
   phone?: string;
-  
+
   // El googleId es opcional
   @IsOptional()
   @IsString()
   googleId?: string;
 
   // La aceptación de términos es requerida solo si no es un registro con Google
-  @ValidateIf(o => !o.googleId)
+  @ValidateIf((o: RegisterUserDto) => !o.googleId)
   @IsBoolean()
   @Equals(true, { message: 'Debes aceptar los términos y condiciones' })
   termsAccepted: boolean;

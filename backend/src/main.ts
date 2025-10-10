@@ -6,18 +6,24 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  
+
   // ✨ --- LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ --- ✨
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true, // Habilita la transformación automática de DTOs
-    transformOptions: {
-      enableImplicitConversion: true, // Convierte tipos primitivos automáticamente
-    },
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true, // Habilita la transformación automática de DTOs
+      transformOptions: {
+        enableImplicitConversion: true, // Convierte tipos primitivos automáticamente
+      },
+    }),
+  );
 
   app.use(cookieParser());
   await app.listen(3000);
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  console.error('Error during bootstrap:', err);
+  process.exit(1);
+});

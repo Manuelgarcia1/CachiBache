@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
@@ -30,6 +31,9 @@ import { ReportsModule } from './reports/reports.module';
         synchronize: true, // ¡Solo para desarrollo! Sincroniza el esquema de la BD con las entidades
       }),
     }),
+
+    // 3. Módulo común con servicios compartidos
+    CommonModule,
 
     AuthModule,
 

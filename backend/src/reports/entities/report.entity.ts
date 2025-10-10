@@ -1,12 +1,12 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    ManyToOne,
-    OneToMany,
-    JoinColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity'; // Importar User
 import { ReportStatus } from './report-status.enum';
@@ -14,42 +14,41 @@ import { ReportSeverity } from './report-severity.enum';
 import { Photo } from './photo.entity';
 import { ReportHistory } from './report-history.entity';
 
-
 @Entity('reports')
 export class Report {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    // ✨ --- CORRECCIÓN AQUÍ: ELIMINAR EL TRANSFORMER --- ✨
-    @Column({
-        type: 'point',
-    })
-    location: string;
+  // ✨ --- CORRECCIÓN AQUÍ: ELIMINAR EL TRANSFORMER --- ✨
+  @Column({
+    type: 'point',
+  })
+  location: string;
 
-    @Column()
-    address: string;
+  @Column()
+  address: string;
 
-    @Column({ type: 'enum', enum: ReportStatus, default: ReportStatus.PENDIENTE })
-    status: ReportStatus;
+  @Column({ type: 'enum', enum: ReportStatus, default: ReportStatus.PENDIENTE })
+  status: ReportStatus;
 
-    @Column({ type: 'enum', enum: ReportSeverity })
-    severity: ReportSeverity;
+  @Column({ type: 'enum', enum: ReportSeverity })
+  severity: ReportSeverity;
 
-    // --- Relaciones ---
+  // --- Relaciones ---
 
-    @ManyToOne(() => User, (user) => user.reports)
-    @JoinColumn({ name: 'user_id' }) // Especifica el nombre de la columna FK
-    user: User;
+  @ManyToOne(() => User, (user) => user.reports)
+  @JoinColumn({ name: 'user_id' }) // Especifica el nombre de la columna FK
+  user: User;
 
-    @OneToMany(() => Photo, (photo) => photo.report)
-    photos: Photo[];
+  @OneToMany(() => Photo, (photo) => photo.report)
+  photos: Photo[];
 
-    @OneToMany(() => ReportHistory, (history) => history.report)
-    history: ReportHistory[];
+  @OneToMany(() => ReportHistory, (history) => history.report)
+  history: ReportHistory[];
 
-    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-    createdAt: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
-    @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
-    updatedAt: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 }
