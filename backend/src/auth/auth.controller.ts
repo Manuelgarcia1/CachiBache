@@ -1,9 +1,12 @@
-import { Controller, Post, Body, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Res, UnauthorizedException, UseGuards, Get, Patch } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { GetUser } from './get-user.decorator';
+import { User } from '../users/entities/user.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('auth') // Ruta base es /api/auth
 export class AuthController {
@@ -54,5 +57,20 @@ export class AuthController {
         // 3. Limpiar la cookie
         response.clearCookie('accessToken');
         return { message: 'Sesión cerrada exitosamente' };
+    }
+
+    @Get('user')
+    @UseGuards(JwtAuthGuard)
+    getUser(@GetUser() user: User) {
+        return user;
+    }
+
+    @Patch('profile')
+    @UseGuards(JwtAuthGuard)
+    async updateProfile(
+        @GetUser() user: User,
+        @Body() updateProfileDto: UpdateProfileDto,
+    ) {
+        return this.authService.updateProfile(user.id, updateProfileDto);
     }
 }

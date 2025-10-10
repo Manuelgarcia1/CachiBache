@@ -1,8 +1,10 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { classToPlain } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -46,5 +48,18 @@ export class AuthService {
             accessToken: this.jwtService.sign(payload),
             user, // Devolvemos también el usuario
         };
+    }
+
+    async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
+        const user = await this.usersService.findOneById(userId);
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        // Actualizar solo los campos proporcionados en el DTO
+        Object.assign(user, updateProfileDto);
+
+        const updatedUser = await this.usersService.save(user);
+        return classToPlain(updatedUser);
     }
 }
