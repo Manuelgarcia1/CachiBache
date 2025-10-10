@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateReportDto } from './dto/create-report.dto';
+import { UpdateReportDto } from './dto/update-report.dto';
 import { Report } from './entities/report.entity';
 import { User } from '../users/entities/user.entity';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class ReportsService {
@@ -30,5 +32,97 @@ export class ReportsService {
         return this.reportRepository.find({
             relations: ['user'],
         });
+    }
+
+    async getReportStats() {
+        const stats = await this.reportRepository
+            .createQueryBuilder('report')
+            .select('report.status', 'status')
+            .addSelect('COUNT(report.id)', 'count')
+            .groupBy('report.status')
+            .getRawMany();
+
+        return stats.reduce((acc, curr) => {
+            acc[curr.status] = parseInt(curr.count, 10);
+            return acc;
+        }, {});
+    }
+
+    async getDashboardMetrics() {
+        const totalReports = await this.reportRepository.count();
+        const reportsBySeverity = await this.reportRepository
+            .createQueryBuilder('report')
+            .select('report.severity', 'severity')
+            .addSelect('COUNT(report.id)', 'count')
+            .groupBy('report.severity')
+            .getRawMany();
+
+        const reportsByStatus = await this.reportRepository
+            .createQueryBuilder('report')
+            .select('report.status', 'status')
+            .addSelect('COUNT(report.id)', 'count')
+            .groupBy('report.status')
+            .getRawMany();
+
+        return {
+            totalReports,
+            reportsBySeverity: reportsBySeverity.reduce((acc, curr) => {
+                acc[curr.severity] = parseInt(curr.count, 10);
+                return acc;
+            }, {}),
+            reportsByStatus: reportsByStatus.reduce((acc, curr) => {
+                acc[curr.status] = parseInt(curr.count, 10);
+                return acc;
+            }, {}),
+        };
+    }
+
+    async findReportsByUserId(
+        userId: string,
+        page = 1,
+        limit = 10,
+        search?: string,
+    ): Promise<{ reports: Report[]; total: number }> {
+        const query = this.reportRepository
+            .createQueryBuilder('report')
+            .leftJoinAndSelect('report.user', 'user')
+            .where('user.id = :userId', { userId });
+
+        if (search) {
+            query.andWhere('report.address ILIKE :search', { search: `%${search}%` });
+        }
+
+        const [reports, total] = await query
+            .skip((page - 1) * limit)
+            .take(limit)
+            .getManyAndCount();
+
+        return { reports, total };
+    }
+
+    async findOneReport(id: string): Promise<Report> {
+        const report = await this.reportRepository.findOne({
+            where: { id },
+            relations: ['user', 'photos', 'history'],
+        });
+        if (!report) {
+            throw new NotFoundException(`Reporte con ID "${id}" no encontrado`);
+        }
+        return report;
+    }
+
+    async updateReport(
+        id: string,
+        updateReportDto: UpdateReportDto,
+    ): Promise<Report> {
+        const report = await this.findOneReport(id);
+
+        if (updateReportDto.location) {
+            report.location = `${updateReportDto.location.x},${updateReportDto.location.y}`;
+            delete updateReportDto.location; // Eliminar para que Object.assign no lo sobreescriba
+        }
+
+        Object.assign(report, updateReportDto);
+        return this.reportRepository.save(report);
     }
 }

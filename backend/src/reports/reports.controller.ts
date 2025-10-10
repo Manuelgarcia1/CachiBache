@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Param, Query, Patch, ParseUUIDPipe } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
+import { UpdateReportDto } from './dto/update-report.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // 2. Importar el Guard
 import { GetUser } from '../auth/get-user.decorator'; // 3. Importar el Decorador
 import { User } from '../users/entities/user.entity';
@@ -21,5 +22,43 @@ export class ReportsController {
     @Get()
     findAll() {
         return this.reportsService.findAll();
+    }
+
+    @Get('stats')
+    @UseGuards(JwtAuthGuard)
+    getReportStats() {
+        return this.reportsService.getReportStats();
+    }
+
+    @Get('metrics/dashboard')
+    @UseGuards(JwtAuthGuard)
+    getDashboardMetrics() {
+        return this.reportsService.getDashboardMetrics();
+    }
+
+    @Get('user/:userId')
+    @UseGuards(JwtAuthGuard)
+    findReportsByUserId(
+        @Param('userId', ParseUUIDPipe) userId: string,
+        @Query('page') page = 1,
+        @Query('limit') limit = 10,
+        @Query('search') search?: string,
+    ) {
+        return this.reportsService.findReportsByUserId(userId, +page, +limit, search);
+    }
+
+    @Get(':reportId')
+    @UseGuards(JwtAuthGuard)
+    findOneReport(@Param('reportId', ParseUUIDPipe) reportId: string) {
+        return this.reportsService.findOneReport(reportId);
+    }
+
+    @Patch(':reportId')
+    @UseGuards(JwtAuthGuard)
+    updateReport(
+        @Param('reportId', ParseUUIDPipe) reportId: string,
+        @Body() updateReportDto: UpdateReportDto,
+    ) {
+        return this.reportsService.updateReport(reportId, updateReportDto);
     }
 }
