@@ -2,6 +2,23 @@
 
 Aplicación móvil desarrollada con **React Native** y **Expo** cuyo objetivo es empoderar a los ciudadanos para participar activamente en la mejora de su entorno urbano, facilitando la detección y reparación de baches en la vía pública.
 
+## 🚀 Configuración inicial
+
+### Variables de entorno
+
+1. Copia el archivo `.env.example` y renómbralo a `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Obtén una Google Maps API Key:
+   - Ve a [Google Cloud Console](https://console.cloud.google.com/)
+   - Habilita "Maps SDK for Android" en tu proyecto
+   - Crea una API Key en Credentials
+   - Copia la API Key en el archivo `.env`
+
+3. El archivo `.env` no debe subirse a GitHub (ya está en `.gitignore`)
+
 ## 🔁 Flujo de trabajo
 
 - [Flujo de trabajo](./docs/flujo-de-trabajo.md)

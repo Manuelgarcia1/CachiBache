@@ -1,23 +1,44 @@
 import { router } from "expo-router";
-import { Button, YStack, Text, XStack } from "tamagui";
+import { useState } from "react";
+import { Button, YStack, Text, XStack, Spinner } from "tamagui";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
+import { authService } from "@/src/shared/services/authService";
 
 // Componente de botones de autenticación: maneja login con Google/Email y navegación a registro/recuperación
 export function LoginButtons() {
   const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Login directo con Google (genera token mock)
+  // Iniciar login con Google
   const handleGoogleLogin = async () => {
     try {
-      const mockToken = `google-${Date.now()}`;
+      setIsLoading(true);
+      setError(null);
       console.log('🚀 Iniciando login con Google...');
-      console.log('🔑 Generando token mock:', mockToken);
 
-      await login(mockToken, { name: 'Usuario Google' });
+      // Autenticar con Google y obtener respuesta del backend
+      const { accessToken, user } = await authService.loginWithGoogle();
 
-      console.log('✅ Login exitoso - La navegación será automática');
+      console.log('✅ Autenticación con backend exitosa');
+      console.log('👤 Usuario:', user);
+
+      // Guardar el token JWT en SecureStore
+      await login(accessToken, {
+        name: user.fullName,
+        email: user.email,
+      });
+
+      console.log('✅ Login completado - La navegación será automática');
     } catch (error) {
       console.error('❌ Error en login con Google:', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Error al iniciar sesión con Google'
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -41,6 +62,12 @@ export function LoginButtons() {
 
   return (
     <YStack space="$3" width="100%" maxWidth={300} alignItems="center">
+      {error && (
+        <Text color="$red10" fontSize="$3" textAlign="center">
+          {error}
+        </Text>
+      )}
+
       <Button
         size="$4"
         backgroundColor="$yellow8"
@@ -50,8 +77,10 @@ export function LoginButtons() {
         pressStyle={{ backgroundColor: "$yellow9" }}
         onPress={handleGoogleLogin}
         width="100%"
+        disabled={isLoading}
+        icon={isLoading ? <Spinner color="$black" /> : undefined}
       >
-        Ingresar con Google
+        {isLoading ? 'Iniciando sesión...' : 'Ingresar con Google'}
       </Button>
 
       <Button
