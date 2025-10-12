@@ -16,9 +16,10 @@ module.exports = {
       },
     },
     android: {
+      icon: "./assets/images/icon.png",
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#FF6B35",
       },
       edgeToEdgeEnabled: true,
       package: "com.anonymous.cachibache",
