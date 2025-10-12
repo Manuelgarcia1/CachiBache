@@ -49,6 +49,14 @@ logs
 
 # Environment variables
 .env
+.env.local
+.env.production
+.env.development
+
+# Backup files (can contain sensitive data)
+*.backup
+*.bak
+*~
 
 app-example
 
