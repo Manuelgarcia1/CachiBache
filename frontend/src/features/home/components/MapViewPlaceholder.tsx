@@ -107,7 +107,7 @@ export function MapViewPlaceholder() {
   }, []);
 
   return (
-    <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$gray3">
+    <YStack flex={1}>
       <MapView
         style={{ flex: 1 }}
         region={region}

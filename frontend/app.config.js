@@ -16,9 +16,8 @@ module.exports = {
       },
     },
     android: {
-      icon: "./assets/images/icon.png",
       adaptiveIcon: {
-        foregroundImage: "./assets/images/adaptive-icon.png",
+        foregroundImage: "./assets/images/icon.png",
         backgroundColor: "#FF6B35",
       },
       edgeToEdgeEnabled: true,
