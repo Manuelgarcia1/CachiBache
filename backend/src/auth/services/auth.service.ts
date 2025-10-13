@@ -5,7 +5,6 @@ import { EncryptionService } from '../../common/services/encryption.service';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { type UserWithoutPassword } from '../../users/entities/user.entity';
-import { type GoogleProfile } from '../strategies/google.strategy';
 
 // Tipo para la respuesta de autenticación
 export interface AuthResponse {
@@ -64,38 +63,5 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
       user, // Devolvemos también el usuario
     };
-  }
-
-  async validateGoogleUser(
-    googleProfile: GoogleProfile,
-  ): Promise<UserWithoutPassword> {
-    // 1. Buscar usuario por googleId
-    let user = await this.usersService.findOneByGoogleId(googleProfile.id);
-
-    // 2. Si no existe, buscar por email
-    if (!user) {
-      user = await this.usersService.findOneByEmail(googleProfile.email);
-
-      // 3. Si existe por email, actualizar con googleId
-      if (user) {
-        user.googleId = googleProfile.id;
-        user.avatarUrl = googleProfile.avatarUrl;
-        await this.usersService.create(user); // Actualizar usuario
-      } else {
-        // 4. Si no existe, crear nuevo usuario
-        user = await this.usersService.create({
-          email: googleProfile.email,
-          fullName: googleProfile.fullName,
-          googleId: googleProfile.id,
-          avatarUrl: googleProfile.avatarUrl,
-          termsAccepted: true, // Asumimos que aceptó términos al usar Google
-        });
-      }
-    }
-
-    // 5. Devolver usuario sin contraseña
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
   }
 }
