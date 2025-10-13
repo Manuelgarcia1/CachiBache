@@ -21,7 +21,6 @@ export function LoginButtons() {
       const { accessToken, user } = await authService.loginWithGoogle();
 
       console.log('✅ Autenticación con backend exitosa');
-      console.log('👤 Usuario:', user);
 
       // Guardar el token JWT en SecureStore
       await login(accessToken, {

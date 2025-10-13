@@ -86,6 +86,7 @@ class AuthService {
     idToken: string,
   ): Promise<BackendAuthResponse> {
     try {
+      console.log('🔄 Enviando token al backend...', ENV.API_URL);
       const response = await fetch(`${ENV.API_URL}/auth/google/mobile`, {
         method: 'POST',
         headers: {
@@ -94,14 +95,18 @@ class AuthService {
         body: JSON.stringify({ idToken }),
       });
 
+      console.log('📡 Respuesta del backend recibida:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ Error del backend:', errorData);
         throw new Error(
           errorData.message || 'Error al validar con el backend',
         );
       }
 
       const data: BackendAuthResponse = await response.json();
+      console.log('✅ Datos del usuario recibidos:', data.user.email);
       return data;
     } catch (error) {
       console.error('❌ Error al validar token con backend:', error);

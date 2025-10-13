@@ -7,7 +7,6 @@ const TOKEN_KEY = 'auth_token';
 export const setToken = async (token: string): Promise<void> => {
   try {
     await SecureStore.setItemAsync(TOKEN_KEY, token);
-    console.log('Token guardado en SecureStore:', token);
   } catch (error) {
     console.error('Error guardando token:', error);
   }
