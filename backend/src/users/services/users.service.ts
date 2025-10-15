@@ -14,7 +14,6 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    // Hash password if provided (for normal registration, not Google auth)
     if (createUserDto.password) {
       createUserDto.password = await this.encryptionService.hashPassword(
         createUserDto.password,
@@ -24,14 +23,12 @@ export class UsersService {
     const newUser = this.userRepository.create(createUserDto);
     return this.userRepository.save(newUser);
   }
+
   async findOneByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOneBy({ email });
   }
+
   async findOneById(id: string): Promise<User | null> {
     return this.userRepository.findOneBy({ id });
-  }
-
-  async findOneByGoogleId(googleId: string): Promise<User | null> {
-    return this.userRepository.findOneBy({ googleId });
   }
 }

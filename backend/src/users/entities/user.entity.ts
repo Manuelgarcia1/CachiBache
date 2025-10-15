@@ -22,17 +22,10 @@ export class User {
   @Column({ unique: true }) // El email debe ser único en la tabla
   email: string;
 
-  @Exclude() // Excluir este campo de cualquier respuesta JSON
+  @Exclude()
   @Column({ nullable: true })
   password?: string;
 
-  @Column({ name: 'google_id', nullable: true }) // Mapea a la columna 'google_id' y permite valores nulos
-  googleId?: string;
-
-  @Column({ name: 'avatar_url', nullable: true })
-  avatarUrl?: string;
-
-  // ✨ --- NUEVO CAMPO: TELÉFONO --- ✨
   @Column({ nullable: true })
   phone?: string;
 

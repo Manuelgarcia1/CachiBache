@@ -20,14 +20,6 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  googleId?: string;
-
-  @IsString()
-  @IsOptional()
-  avatarUrl?: string;
-
-  @IsString()
-  @IsOptional()
   phone?: string;
 
   @IsBoolean()
