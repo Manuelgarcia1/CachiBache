@@ -5,13 +5,20 @@ import {
   Res,
   UnauthorizedException,
   UseGuards,
+  Get,
+  Patch,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { type UserWithoutPassword } from '../../users/entities/user.entity';
+import {
+  type UserWithoutPassword,
+  User,
+} from '../../users/entities/user.entity';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
+import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { GetUser } from '../decorators/get-user.decorator';
 
 @Controller('auth') // Ruta base es /api/auth
 export class AuthController {
@@ -62,5 +69,20 @@ export class AuthController {
   logout(@Res({ passthrough: true }) response: Response): { message: string } {
     response.clearCookie('accessToken');
     return { message: 'Sesión cerrada exitosamente' };
+  }
+
+  @Get('user')
+  @UseGuards(JwtAuthGuard)
+  getUser(@GetUser() user: User): User {
+    return user;
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(
+    @GetUser() user: User,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(user.id, updateProfileDto);
   }
 }

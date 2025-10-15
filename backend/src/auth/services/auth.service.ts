@@ -4,6 +4,7 @@ import { UsersService } from '../../users/services/users.service';
 import { EncryptionService } from '../../common/services/encryption.service';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
+import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { type UserWithoutPassword } from '../../users/entities/user.entity';
 
 // Tipo para la respuesta de autenticación
@@ -63,5 +64,13 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
       user,
     };
+  }
+
+  async updateProfile(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<any> {
+    // Delegar la responsabilidad al UsersService
+    return await this.usersService.updateProfile(userId, updateProfileDto);
   }
 }
