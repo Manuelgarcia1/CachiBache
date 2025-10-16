@@ -57,8 +57,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (storedToken) {
         console.log("✅ Usuario ya autenticado encontrado");
         console.log("🔑 Token actual:", storedToken);
-        await SplashScreen.hideAsync();
+
+        // Establecer el token primero
         setTokenState(storedToken);
+
+        // Detectar si es usuario invitado
+        if (storedToken.startsWith("guest-")) {
+          setIsGuest(true);
+          console.log("👤 Usuario invitado detectado");
+        } else {
+          setIsGuest(false);
+          console.log("👤 Usuario registrado detectado");
+
+          // Cargar datos del usuario desde el backend
+          try {
+            console.log("🔄 Cargando datos del usuario desde el backend...");
+            const userData = await authService.getCurrentUser();
+
+            setUser({
+              email: userData.email,
+              name: userData.fullName,
+              emailVerified: userData.emailVerified,
+            });
+            setIsEmailVerified(userData.emailVerified);
+
+            console.log("✅ Datos del usuario cargados exitosamente");
+            console.log("👤 Usuario:", userData.fullName);
+            console.log("📧 Email:", userData.email);
+            console.log("✔️ Email verificado:", userData.emailVerified);
+          } catch (error) {
+            console.error("❌ Error cargando datos del usuario:", error);
+            // Si el token expiró o es inválido, limpiar la sesión
+            await deleteToken();
+            setTokenState(null);
+            setUser(null);
+            setIsGuest(false);
+            setIsEmailVerified(false);
+            console.log("🔑 Token inválido o expirado - Sesión limpiada");
+          }
+        }
+
+        await SplashScreen.hideAsync();
         await new Promise((resolve) => setTimeout(resolve, 1500));
       } else {
         console.log(
