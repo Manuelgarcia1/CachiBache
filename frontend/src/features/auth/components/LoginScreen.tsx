@@ -1,4 +1,5 @@
 import { useAuth } from "@/src/shared/contexts/AuthContext";
+import { authService } from "@/src/shared/services/auth.service";
 import { AppLogo } from "@features/welcome";
 import { Header } from "@sharedcomponents/index";
 import { loginSchema } from "@sharedvalidation/schemas";
@@ -18,25 +19,47 @@ interface LoginFormData {
 export function LoginScreen() {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Maneja el login con email: valida campos y genera token mock
+  // Maneja el login con email: valida campos y llama al backend para autenticar
   const handleEmailLogin = async (
     values: LoginFormData,
     { setSubmitting }: FormikHelpers<LoginFormData>
   ) => {
     setLoading(true);
+    setError(null);
     console.log("📧 Iniciando login con email...");
     console.log("👤 Email:", values.email);
 
     try {
-      const mockToken = `email-${Date.now()}`;
-      console.log("🔑 Generando token mock para email:", mockToken);
+      // Llamar al servicio de autenticación real
+      const response = await authService.login({
+        email: values.email,
+        password: values.password,
+      });
 
-      await login(mockToken, { email: values.email, name: values.email.split("@")[0] });
+      console.log("✅ Login exitoso - Usuario autenticado");
+      console.log("👤 Usuario:", response.user.email);
 
-      console.log("✅ Login exitoso - Navegando a la app");
-    } catch (error) {
-      console.error("❌ Error en login con email:", error);
+      // Guardar el token y datos del usuario en el contexto
+      await login(response.accessToken, {
+        email: response.user.email,
+        name: response.user.fullName,
+        emailVerified: response.user.emailVerified,
+      });
+
+      console.log("✅ Sesión iniciada - Navegando a la app");
+    } catch (error: any) {
+      console.error("❌ Error en login:", error);
+
+      // Mostrar mensaje de error apropiado al usuario
+      if (error.statusCode === 401) {
+        setError("Email o contraseña incorrectos");
+      } else if (error.statusCode === 0) {
+        setError("No se pudo conectar con el servidor. Verifica tu conexión a internet.");
+      } else {
+        setError(error.message || "Ocurrió un error al iniciar sesión. Por favor, intenta nuevamente.");
+      }
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -73,6 +96,20 @@ export function LoginScreen() {
             <Text fontSize="$6" fontWeight="600" color="white" textAlign="center">
               Ingresar con Email
             </Text>
+
+            {error && (
+              <Stack
+                backgroundColor="$red9"
+                padding="$3"
+                borderRadius="$4"
+                width="100%"
+                maxWidth={300}
+              >
+                <Text color="white" fontSize="$3" textAlign="center">
+                  {error}
+                </Text>
+              </Stack>
+            )}
 
             <Formik
               initialValues={initialValues}
