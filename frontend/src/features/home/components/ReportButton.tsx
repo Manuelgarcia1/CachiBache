@@ -7,7 +7,7 @@ import { Alert } from 'react-native';
 import { Button } from 'tamagui';
 
 export function ReportButton() {
-  const { token, isGuest, logout } = useAuth();
+  const { token, isGuest, isEmailVerified, logout } = useAuth();
 
   const handlePress = () => {
 
@@ -20,6 +20,18 @@ export function ReportButton() {
           { text: 'Cancelar', style: 'cancel' },
           { text: 'Ya tengo una cuenta', onPress: () => logout() },
           { text: 'Crear cuenta', onPress: () => router.push('/(auth)/register') }
+        ]
+      );
+      return;
+    }
+
+    // Si no ha verificado el email
+    if (!isEmailVerified) {
+      Alert.alert(
+        'Verifica tu email',
+        'Para reportar baches necesitas verificar tu correo electrónico. Por favor, revisa tu bandeja de entrada y haz clic en el enlace de verificación.',
+        [
+          { text: 'Entendido', style: 'default' }
         ]
       );
       return;

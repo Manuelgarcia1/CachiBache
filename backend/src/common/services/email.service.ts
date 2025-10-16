@@ -19,7 +19,12 @@ export class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const verificationUrl = `${this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000')}/verify-email?token=${token}`;
+    // Usar la URL del backend para manejar la verificación
+    const backendUrl = this.configService.get<string>(
+      'FRONTEND_URL',
+      'http://localhost:3000',
+    );
+    const verificationUrl = `${backendUrl}/api/auth/verify-email?token=${token}`;
 
     await this.transporter.sendMail({
       from: `"CachiBache" <${this.configService.get<string>('SMTP_USER')}>`,

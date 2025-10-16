@@ -25,26 +25,31 @@ export class AuthService {
 
   // ✨ --- NUEVO MÉTODO DE REGISTRO --- ✨
   async register(registerUserDto: RegisterUserDto): Promise<AuthResponse> {
-    // 1. Verificar si el usuario ya existe
-    const existingUser = await this.usersService.findOneByEmail(
-      registerUserDto.email,
-    );
+    // 1. Normalizar el email a minúsculas para evitar duplicados
+    const normalizedEmail = registerUserDto.email.toLowerCase().trim();
+
+    // 2. Verificar si el usuario ya existe
+    const existingUser =
+      await this.usersService.findOneByEmail(normalizedEmail);
     if (existingUser) {
       throw new ConflictException(
         'No se pudo completar el registro. Por favor, verifica tus datos e intenta nuevamente.',
       );
     }
 
-    // 2. Crear el nuevo usuario usando UsersService
-    const newUser = await this.usersService.create(registerUserDto);
+    // 3. Crear el nuevo usuario usando UsersService con email normalizado
+    const newUser = await this.usersService.create({
+      ...registerUserDto,
+      email: normalizedEmail,
+    });
 
-    // 3. Enviar email de verificación
+    // 4. Enviar email de verificación
     await this.emailVerificationService.sendVerificationEmailToNewUser(
       newUser.id,
       newUser.email,
     );
 
-    // 4. Iniciar sesión automáticamente al nuevo usuario
+    // 5. Iniciar sesión automáticamente al nuevo usuario
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userPayload } = newUser;
     return this.login(userPayload);
@@ -54,7 +59,9 @@ export class AuthService {
     loginUserDto: LoginUserDto,
   ): Promise<UserWithoutPassword | null> {
     const { email, password } = loginUserDto;
-    const user = await this.usersService.findOneByEmail(email);
+    // Normalizar el email a minúsculas para buscar correctamente
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await this.usersService.findOneByEmail(normalizedEmail);
 
     if (
       user &&

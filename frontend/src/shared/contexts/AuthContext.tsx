@@ -1,11 +1,14 @@
 import * as SplashScreen from "expo-splash-screen";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { AppState } from "react-native";
 import { deleteToken, getToken, setToken } from "../utils/secure-store";
+import { authService } from "../services/auth.service";
 
 // Interfaz que define los datos del usuario autenticado
 interface User {
   email?: string;
   name?: string;
+  emailVerified?: boolean; // Indica si el usuario verificó su email
 }
 
 // Interfaz del contexto: define todos los valores y métodos disponibles para autenticación
@@ -16,7 +19,9 @@ interface AuthContextType {
   login: (token: string, userData?: User) => Promise<void>; // Método para iniciar sesión
   logout: () => Promise<void>; // Método para cerrar sesión
   checkAuthStatus: () => Promise<void>; // Verifica si hay sesión activa al iniciar
+  refreshUser: () => Promise<void>; // Refresca los datos del usuario desde el servidor
   isGuest: boolean; // Indica si el usuario es invitado (token guest-*)
+  isEmailVerified: boolean; // Indica si el usuario verificó su email
 }
 
 // Creación del contexto de autenticación
@@ -42,6 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   // Verifica al iniciar la app si existe una sesión guardada en SecureStore
   const checkAuthStatus = async () => {
@@ -59,14 +65,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           "ℹ️ No hay sesión activa - Mostrando pantalla de bienvenida"
         );
       }
-    } catch (error) {
-      console.error("❌ Error verificando estado de autenticación:", error);
+    } catch (err) {
+      console.error("❌ Error verificando estado de autenticación:", err);
     } finally {
       setIsLoading(false);
       try {
         await SplashScreen.hideAsync();
-      } catch (error) {
-        console.error("❌ Error durante checkstatus:", error);
+      } catch (err) {
+        console.error("❌ Error durante checkstatus:", err);
       }
     }
   };
@@ -77,6 +83,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await setToken(newToken);
       setTokenState(newToken);
       setUser(userData || null);
+
+      // Actualizar estado de verificación de email
+      setIsEmailVerified(userData?.emailVerified || false);
+
       // Detecta si es usuario invitado por el prefijo del token
       if (newToken.startsWith("guest-")) {
         setIsGuest(true);
@@ -87,10 +97,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       console.log("✅ Login exitoso - Token guardado en SecureStore");
       console.log("🔑 Token generado:", newToken);
-    } catch (error) {
-      console.error("❌ Error durante login:", error);
+      console.log("📧 Email verificado:", userData?.emailVerified || false);
+    } catch (err) {
+      console.error("❌ Error durante login:", err);
     }
   };
+
+  // Refresca los datos del usuario desde el servidor
+  const refreshUser = useCallback(async () => {
+    if (!token) {
+      console.log("⚠️ No hay token, no se puede refrescar usuario");
+      return;
+    }
+
+    try {
+      console.log("🔄 Refrescando datos del usuario...");
+      const userData = await authService.getCurrentUser();
+
+      setUser({
+        email: userData.email,
+        name: userData.fullName,
+        emailVerified: userData.emailVerified,
+      });
+      setIsEmailVerified(userData.emailVerified);
+
+      console.log("✅ Usuario refrescado exitosamente");
+      console.log("📧 Email verificado:", userData.emailVerified);
+    } catch (err) {
+      console.error("❌ Error refrescando usuario:", err);
+      // Si el token expiró, hacer logout
+      if (err instanceof Error && err.message.includes("401")) {
+        console.log("🔑 Token expirado, cerrando sesión...");
+        await logout();
+      }
+    }
+  }, [token]);
 
   // Cierra sesión: elimina el token de SecureStore y resetea todos los estados
   const logout = async () => {
@@ -99,9 +140,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setTokenState(null);
       setUser(null);
       setIsGuest(false);
+      setIsEmailVerified(false);
       console.log("✅ Logout exitoso - Sesión cerrada completamente");
-    } catch (error) {
-      console.error("❌ Error durante logout:", error);
+    } catch (err) {
+      console.error("❌ Error durante logout:", err);
     }
   };
 
@@ -110,6 +152,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
+  // Listener para refrescar usuario cuando la app vuelve del background
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      // Si la app pasa a estar activa (foreground)
+      if (nextAppState === "active" && token) {
+        console.log("📱 App volvió a primer plano - Refrescando usuario...");
+        refreshUser();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [token, refreshUser]);
+
   const value: AuthContextType = {
     token,
     user,
@@ -117,7 +174,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     checkAuthStatus,
+    refreshUser,
     isGuest,
+    isEmailVerified,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -12,17 +12,20 @@ export const registerSchema = yup.object().shape({
   password: yup
     .string()
     .required('La contraseña es requerida')
-    .min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&)'
+    ),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref('password'), undefined], 'Las contraseñas no coinciden')
     .required('Debes confirmar tu contraseña'),
   phone: yup
     .string()
-    .required('El teléfono es requerido')
-    .matches(/^[0-9]+$/, 'El teléfono solo debe contener números')
-    .min(8, 'El teléfono debe tener al menos 8 dígitos'),
-  acceptTerms: yup
+    .min(8, 'El teléfono debe tener al menos 8 caracteres')
+    .max(20, 'El teléfono no puede tener más de 20 caracteres'),
+  termsAccepted: yup
     .boolean()
     .oneOf([true], 'Debes aceptar los términos y condiciones')
     .required('Debes aceptar los términos y condiciones')

@@ -13,6 +13,7 @@ import { ReportsService } from '../services/reports.service';
 import { CreateReportDto } from '../dto/create-report.dto';
 import { UpdateReportDto } from '../dto/update-report.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'; // 2. Importar el Guard
+import { EmailVerifiedGuard } from '../../auth/guards/email-verified.guard'; // Guard de verificación de email
 import { GetUser } from '../../auth/decorators/get-user.decorator'; // 3. Importar el Decorador
 import { User } from '../../users/entities/user.entity';
 
@@ -21,7 +22,7 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard) // 4. Proteger la ruta
+  @UseGuards(JwtAuthGuard, EmailVerifiedGuard) // Requiere autenticación Y email verificado
   create(
     @Body() createReportDto: CreateReportDto,
     @GetUser() user: User, // 5. Obtener el usuario del token
@@ -69,7 +70,7 @@ export class ReportsController {
   }
 
   @Patch(':reportId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, EmailVerifiedGuard) // Requiere email verificado para actualizar
   updateReport(
     @Param('reportId', ParseUUIDPipe) reportId: string,
     @Body() updateReportDto: UpdateReportDto,

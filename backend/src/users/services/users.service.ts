@@ -26,7 +26,11 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOneBy({ email });
+    // Búsqueda case-insensitive usando query builder
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('LOWER(user.email) = LOWER(:email)', { email })
+      .getOne();
   }
 
   async findOneById(id: string): Promise<User | null> {
