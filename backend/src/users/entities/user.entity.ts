@@ -33,6 +33,9 @@ export class User {
   @Column({ name: 'terms_accepted', default: false })
   termsAccepted: boolean;
 
+  @Column({ name: 'email_verified', default: false })
+  emailVerified: boolean;
+
   @Column({
     type: 'enum', // Define la columna como de tipo enum
     enum: UserRole,

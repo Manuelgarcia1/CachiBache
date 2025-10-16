@@ -7,9 +7,12 @@ import {
   UseGuards,
   Get,
   Patch,
+  Param,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
+import { EmailVerificationService } from '../services/email-verification.service';
 import {
   type UserWithoutPassword,
   User,
@@ -22,10 +25,14 @@ import { GetUser } from '../decorators/get-user.decorator';
 
 @Controller('auth') // Ruta base es /api/auth
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly emailVerificationService: EmailVerificationService,
+  ) {}
 
   // ✨ --- NUEVO ENDPOINT DE REGISTRO --- ✨
   @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 registros por hora
   async register(
     @Body() registerUserDto: RegisterUserDto,
     @Res({ passthrough: true }) response: Response,
@@ -35,7 +42,7 @@ export class AuthController {
 
     response.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === 'production', // Automático según entorno
       sameSite: 'lax',
       expires: new Date(Date.now() + 3600 * 1000), // 1 hora
     });
@@ -57,7 +64,7 @@ export class AuthController {
 
     response.cookie('accessToken', accessToken, {
       httpOnly: true, // El frontend no puede leer esta cookie
-      secure: false, // En producción debería ser true (solo HTTPS)
+      secure: process.env.NODE_ENV === 'production', // Automático según entorno
       sameSite: 'lax',
       expires: new Date(Date.now() + 3600 * 1000), // 1 hora
     });
@@ -84,5 +91,28 @@ export class AuthController {
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     return this.authService.updateProfile(user.id, updateProfileDto);
+  }
+
+  // ✨ --- NUEVOS ENDPOINTS DE VERIFICACIÓN DE EMAIL --- ✨
+  @Post('verify-email/:token')
+  async verifyEmail(
+    @Param('token') token: string,
+  ): Promise<{ message: string; user: UserWithoutPassword }> {
+    const user = await this.emailVerificationService.verifyEmail(token);
+    return {
+      message: 'Email verificado exitosamente',
+      user,
+    };
+  }
+
+  @Post('resend-verification')
+  async resendVerificationEmail(
+    @Body('email') email: string,
+  ): Promise<{ message: string }> {
+    await this.emailVerificationService.resendVerificationEmail(email);
+    return {
+      message:
+        'Si el correo existe y no está verificado, se enviará un email de verificación',
+    };
   }
 }
