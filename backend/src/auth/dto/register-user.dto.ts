@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsString,
   MinLength,
+  MaxLength,
   IsOptional,
   IsBoolean,
   Matches,
@@ -17,12 +18,16 @@ export class RegisterUserDto {
 
   @IsString()
   @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+    message:
+      'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&)',
+  })
   password: string;
 
   @IsOptional()
-  @Matches(/^\+54\s9\s\d{2,4}\s\d{4}-\d{4}$/, {
-    message: 'El formato del teléfono debe ser "+54 9 XX XXXX-XXXX"',
-  })
+  @IsString()
+  @MinLength(8, { message: 'El teléfono debe tener al menos 8 caracteres' })
+  @MaxLength(20, { message: 'El teléfono no puede tener más de 20 caracteres' })
   phone?: string;
 
   @IsBoolean()

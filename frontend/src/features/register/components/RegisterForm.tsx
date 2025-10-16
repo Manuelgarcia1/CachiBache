@@ -26,7 +26,7 @@ export interface RegisterFormData {
   password: string;
   confirmPassword: string;
   phone: string;
-  acceptTerms: boolean;
+  termsAccepted: boolean;
 }
 
 export function RegisterForm({
@@ -50,7 +50,7 @@ export function RegisterForm({
     password: '',
     confirmPassword: '',
     phone: '',
-    acceptTerms: false,
+    termsAccepted: false,
   };
 
   // Función que se ejecuta cuando el formulario es válido y se envía
@@ -136,12 +136,12 @@ export function RegisterForm({
           {/* Checkbox de Términos y Condiciones */}
           <View>
             <TermsCheckbox
-              checked={values.acceptTerms}
-              onCheckedChange={(checked) => setFieldValue('acceptTerms', checked)}
+              checked={values.termsAccepted}
+              onCheckedChange={(checked) => setFieldValue('termsAccepted', checked)}
               onTermsPress={handleTermsPress}
             />
-            {touched.acceptTerms && errors.acceptTerms && (
-              <Text style={styles.errorText}>{errors.acceptTerms}</Text>
+            {touched.termsAccepted && errors.termsAccepted && (
+              <Text style={styles.errorText}>{errors.termsAccepted}</Text>
             )}
           </View>
 
@@ -149,7 +149,7 @@ export function RegisterForm({
           <RegisterButton
             onPress={() => handleSubmit()}
             loading={loading}
-            disabled={!values.acceptTerms}
+            disabled={!values.termsAccepted}
           />
 
           {/* Enlace para volver a Iniciar Sesión */}

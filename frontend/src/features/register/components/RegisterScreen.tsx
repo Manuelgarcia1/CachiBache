@@ -2,6 +2,7 @@ import { Header } from "@sharedcomponents/index";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,21 +11,96 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RegisterForm, RegisterFormData } from "./RegisterForm";
+import { authService, type RegisterDto } from "@/src/shared/services/auth.service";
+import { ApiError } from "@/src/shared/services/api.service";
+import { useAuth } from "@/src/shared/contexts/AuthContext";
 
 export function RegisterScreen() {
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleRegister = async (formData: RegisterFormData) => {
     setLoading(true);
 
     try {
-      console.log("Datos del formulario:", formData);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Usuario registrado exitosamente");
-      // Navegar al home después del registro exitoso
-      router.push("/(app)/home" as any);
+      console.log("📝 Iniciando registro de usuario...");
+
+      // Preparar datos para el backend (sin confirmPassword)
+      const registerData: RegisterDto = {
+        email: formData.email,
+        fullName: formData.fullName,
+        password: formData.password,
+        phone: formData.phone || undefined,
+        termsAccepted: formData.termsAccepted,
+      };
+
+      // Llamar al servicio de registro
+      const response = await authService.register(registerData);
+
+      console.log("✅ Usuario registrado exitosamente:", response.user);
+
+      // Guardar el token real del backend en el contexto
+      await login(response.accessToken, {
+        email: response.user.email,
+        name: response.user.fullName,
+        emailVerified: response.user.emailVerified,
+      });
+
+      // Mostrar mensaje de éxito
+      Alert.alert(
+        "¡Registro exitoso!",
+        response.user.emailVerified
+          ? "Tu cuenta ha sido creada exitosamente."
+          : "Te hemos enviado un correo de verificación. Por favor, verifica tu email.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Navegar al home después del registro exitoso
+              router.push("/(app)/home" as any);
+            }
+          }
+        ]
+      );
     } catch (error) {
-      console.error("Error en el registro:", error);
+      console.error("❌ Error en el registro:", error);
+
+      // Manejo específico de errores
+      if (error instanceof ApiError) {
+        let errorMessage = error.message;
+
+        // Personalizar mensajes según el código de estado
+        if (error.statusCode === 409) {
+          errorMessage = "Este email ya está registrado. ¿Deseas iniciar sesión en su lugar?";
+
+          Alert.alert(
+            "Email ya registrado",
+            errorMessage,
+            [
+              {
+                text: "Cancelar",
+                style: "cancel"
+              },
+              {
+                text: "Ir a Login",
+                onPress: () => router.push("/(auth)/login")
+              }
+            ]
+          );
+          return;
+        } else if (error.statusCode === 0) {
+          errorMessage = "No se pudo conectar con el servidor. Verifica tu conexión a internet.";
+        } else if (error.statusCode === 408) {
+          errorMessage = "La petición tardó demasiado. Por favor, intenta nuevamente.";
+        }
+
+        Alert.alert("Error en el registro", errorMessage);
+      } else {
+        Alert.alert(
+          "Error inesperado",
+          "Ocurrió un error al registrar tu cuenta. Por favor, intenta nuevamente."
+        );
+      }
     } finally {
       setLoading(false);
     }

@@ -6,6 +6,7 @@ import { YStack } from 'tamagui';
 import { MapViewPlaceholder } from './MapViewPlaceholder';
 import { ReportButton } from './ReportButton';
 import { StatusLegend } from './StatusLegend';
+import { EmailVerificationBanner } from '@/src/shared/components/EmailVerificationBanner';
 
 export function HomeScreen() {
   return (
@@ -19,16 +20,19 @@ export function HomeScreen() {
         pointerEvents="box-none" permite que los toques "atraviesen" las áreas vacías 
         del overlay y lleguen al mapa que está debajo.
       */}
-      <SafeAreaView 
-        style={[StyleSheet.absoluteFillObject]} 
+      <SafeAreaView
+        style={[StyleSheet.absoluteFillObject]}
         pointerEvents="box-none"
       >
         <YStack flex={1} pointerEvents="box-none">
           {/* La leyenda va arriba */}
           <StatusLegend />
-          
+
+          {/* Banner de verificación de email (aparece solo si no está verificado) */}
+          <EmailVerificationBanner />
+
           {/* El botón va abajo, dentro del mismo contenedor flotante */}
-          <YStack flex={1} /> 
+          <YStack flex={1} />
           <ReportButton />
         </YStack>
       </SafeAreaView>
