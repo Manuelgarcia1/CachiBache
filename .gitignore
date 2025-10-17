@@ -1,5 +1,6 @@
-# Claude Code configuration
+# Claude configuration
 .claude/
 
 # Personal documentation
 docs-personales/
+docs/

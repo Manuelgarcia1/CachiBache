@@ -1,5 +1,5 @@
 // Configuración central de la API
-// Este archivo contiene la URL base y configuraciones compartidas para todas las llamadas HTTP
+// Este archivo contiene la URL base y configuraciones compartidas para todas las llamadas HTTP con axios
 
 /**
  * URL base del backend
@@ -14,7 +14,8 @@
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 /**
- * Configuración por defecto para las peticiones fetch
+ * Headers por defecto para todas las peticiones HTTP
+ * Estos headers se configuran en la instancia de axios
  */
 export const DEFAULT_HEADERS = {
   'Content-Type': 'application/json',
@@ -22,6 +23,7 @@ export const DEFAULT_HEADERS = {
 };
 
 /**
- * Timeouts de peticiones (en milisegundos)
+ * Timeout para peticiones HTTP (en milisegundos)
+ * Se aplica globalmente a todas las peticiones de axios
  */
 export const API_TIMEOUT = 30000; // 30 segundos

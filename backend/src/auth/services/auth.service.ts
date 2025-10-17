@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/users.service';
 import { EncryptionService } from '../../common/services/encryption.service';
 import { EmailVerificationService } from './email-verification.service';
+import { RefreshTokenService } from './refresh-token.service';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -11,6 +12,7 @@ import { type UserWithoutPassword } from '../../users/entities/user.entity';
 // Tipo para la respuesta de autenticación
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
   user: UserWithoutPassword;
 }
 
@@ -21,6 +23,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly encryptionService: EncryptionService,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
   // ✨ --- NUEVO MÉTODO DE REGISTRO --- ✨
@@ -75,10 +78,23 @@ export class AuthService {
     return null;
   }
 
-  login(user: UserWithoutPassword): AuthResponse {
+  async login(user: UserWithoutPassword): Promise<AuthResponse> {
     const payload = { email: user.email, sub: user.id };
+
+    // Generar access token (corta duración)
+    const accessToken = this.jwtService.sign(payload);
+
+    // IMPORTANTE: Revocar todos los refresh tokens anteriores del usuario
+    // para asegurar que solo exista una sesión activa
+    await this.refreshTokenService.revokeAllUserTokens(user.id);
+
+    // Generar refresh token (larga duración) y guardarlo en DB
+    const refreshTokenEntity =
+      await this.refreshTokenService.createRefreshToken(user.id);
+
     return {
-      accessToken: this.jwtService.sign(payload),
+      accessToken,
+      refreshToken: refreshTokenEntity.token,
       user,
     };
   }
@@ -89,5 +105,43 @@ export class AuthService {
   ): Promise<any> {
     // Delegar la responsabilidad al UsersService
     return await this.usersService.updateProfile(userId, updateProfileDto);
+  }
+
+  /**
+   * Refresca el access token usando un refresh token válido
+   * @param refreshToken - Refresh token del usuario
+   * @returns Nuevo access token
+   */
+  async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ accessToken: string }> {
+    // Validar el refresh token
+    const refreshTokenEntity =
+      await this.refreshTokenService.validateRefreshToken(refreshToken);
+
+    // Generar nuevo access token
+    const payload = {
+      email: refreshTokenEntity.user.email,
+      sub: refreshTokenEntity.user.id,
+    };
+    const accessToken = this.jwtService.sign(payload);
+
+    return { accessToken };
+  }
+
+  /**
+   * Revoca un refresh token específico (logout en un dispositivo)
+   * @param refreshToken - Token a revocar
+   */
+  async revokeRefreshToken(refreshToken: string): Promise<void> {
+    await this.refreshTokenService.revokeToken(refreshToken);
+  }
+
+  /**
+   * Revoca todos los refresh tokens de un usuario (logout en todos los dispositivos)
+   * @param userId - ID del usuario
+   */
+  async revokeAllRefreshTokens(userId: string): Promise<void> {
+    await this.refreshTokenService.revokeAllUserTokens(userId);
   }
 }

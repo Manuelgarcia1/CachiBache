@@ -36,7 +36,8 @@ export interface User {
 export interface AuthResponse {
   message: string;
   user: User;
-  accessToken: string; // Token JWT para autenticación (también se envía como httpOnly cookie)
+  accessToken: string; // Token JWT de corta duración (1 hora)
+  refreshToken: string; // Token de larga duración para refrescar el accessToken (30 días)
 }
 
 /**
@@ -133,6 +134,23 @@ class AuthService {
       const response = await apiService.post<{ message: string }>(
         '/auth/resend-verification',
         { email }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Refresca el access token usando un refresh token válido
+   * @param refreshToken - Refresh token almacenado
+   * @returns Promise con el nuevo access token
+   */
+  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
+    try {
+      const response = await apiService.post<{ accessToken: string }>(
+        '/auth/refresh',
+        { refreshToken }
       );
       return response;
     } catch (error) {

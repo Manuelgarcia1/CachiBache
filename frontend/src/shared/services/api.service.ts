@@ -1,5 +1,7 @@
-// Servicio HTTP reutilizable para todas las peticiones a la API
+// Servicio HTTP reutilizable para todas las peticiones a la API usando axios
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL, DEFAULT_HEADERS, API_TIMEOUT } from '../config/api';
+import { getRefreshToken, setToken } from '../utils/secure-store';
 
 /**
  * Clase de error personalizada para errores de API
@@ -15,107 +17,153 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Opciones para las peticiones HTTP
- */
-interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  body?: any;
-  headers?: Record<string, string>;
-  timeout?: number;
-}
+// Variable para evitar múltiples llamadas simultáneas al endpoint de refresh
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
 
 /**
- * Servicio centralizado para realizar peticiones HTTP
+ * Servicio centralizado para realizar peticiones HTTP con axios
  */
 class ApiService {
-  private baseURL: string;
+  private axiosInstance: AxiosInstance;
 
   constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
+    // Crear instancia de axios con configuración global
+    this.axiosInstance = axios.create({
+      baseURL,
+      timeout: API_TIMEOUT,
+      headers: DEFAULT_HEADERS,
+      withCredentials: true, // Importante para enviar/recibir cookies
+    });
 
-  /**
-   * Realiza una petición HTTP con timeout y manejo de errores
-   */
-  private async request<T>(
-    endpoint: string,
-    options: RequestOptions = {}
-  ): Promise<T> {
-    const {
-      method = 'GET',
-      body,
-      headers = {},
-      timeout = API_TIMEOUT,
-    } = options;
+    // Interceptor de REQUEST para agregar token automáticamente
+    this.axiosInstance.interceptors.request.use(
+      async (config) => {
+        // Si ya hay un token en el header (ej: después de refresh), no lo sobreescribas
+        if (config.headers?.Authorization) {
+          return config;
+        }
 
-    const url = `${this.baseURL}${endpoint}`;
+        // Obtener el token actual de SecureStore
+        try {
+          const { getToken } = await import('../utils/secure-store');
+          const token = await getToken();
 
-    // Configuración del AbortController para timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+          // Si hay token, agregarlo al header Authorization
+          if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (error) {
+          console.error('❌ Error obteniendo token:', error);
+        }
 
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          ...DEFAULT_HEADERS,
-          ...headers,
-        },
-        body: body ? JSON.stringify(body) : undefined,
-        signal: controller.signal,
-        credentials: 'include', // Importante para enviar/recibir cookies
-      });
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
 
-      clearTimeout(timeoutId);
+    // Interceptor de respuesta para manejo global de errores y refresh automático
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      async (error: AxiosError<any>) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-      // Parsear respuesta JSON
-      const data = await response.json();
+        // Manejar timeout
+        if (error.code === 'ECONNABORTED') {
+          throw new ApiError(
+            408,
+            'La petición tardó demasiado tiempo. Por favor, intenta nuevamente.'
+          );
+        }
 
-      // Verificar si la respuesta fue exitosa
-      if (!response.ok) {
-        throw new ApiError(
-          response.status,
-          data.message || 'Error en la petición',
-          data.errors
-        );
+        // Manejar error de red
+        if (!error.response) {
+          throw new ApiError(
+            0,
+            'No se pudo conectar con el servidor. Verifica tu conexión a internet.'
+          );
+        }
+
+        const statusCode = error.response.status;
+
+        // Si es 401 (Unauthorized) y no es el endpoint de refresh, intentar refrescar el token
+        if (statusCode === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+          originalRequest._retry = true;
+
+          try {
+            // Si ya se está refrescando, esperar a que termine
+            if (isRefreshing) {
+              return new Promise((resolve) => {
+                refreshSubscribers.push((token: string) => {
+                  resolve(
+                    this.axiosInstance({
+                      ...originalRequest,
+                      headers: {
+                        ...originalRequest.headers,
+                        Authorization: `Bearer ${token}`,
+                      },
+                    })
+                  );
+                });
+              });
+            }
+
+            isRefreshing = true;
+            console.log('🔄 REFRESH TOKEN: Token expirado, renovando sesión automáticamente...');
+
+            // Obtener refresh token de SecureStore
+            const refreshToken = await getRefreshToken();
+            if (!refreshToken) {
+              throw new Error('No hay refresh token disponible');
+            }
+
+            // Llamar al endpoint de refresh
+            const response = await this.axiosInstance.post<{ accessToken: string }>(
+              '/auth/refresh',
+              { refreshToken }
+            );
+
+            const newAccessToken = response.data.accessToken;
+            await setToken(newAccessToken);
+
+            console.log('✅ REFRESH TOKEN: Sesión renovada exitosamente');
+
+            // Notificar a todas las peticiones en espera
+            refreshSubscribers.forEach((callback) => callback(newAccessToken));
+            refreshSubscribers = [];
+            isRefreshing = false;
+
+            // Reintentar la petición original con el nuevo token
+            return this.axiosInstance({
+              ...originalRequest,
+              headers: {
+                ...originalRequest.headers,
+                Authorization: `Bearer ${newAccessToken}`,
+              },
+            });
+          } catch (refreshError) {
+            isRefreshing = false;
+            refreshSubscribers = [];
+            console.error('❌ REFRESH TOKEN: Error renovando sesión, debes iniciar sesión nuevamente');
+            throw new ApiError(401, 'Sesión expirada. Por favor, inicia sesión nuevamente.');
+          }
+        }
+
+        // Manejar otros errores HTTP (4xx, 5xx)
+        const message = error.response.data?.message || 'Error en la petición';
+        const errors = error.response.data?.errors;
+
+        throw new ApiError(statusCode, message, errors);
       }
-
-      return data as T;
-    } catch (error: any) {
-      clearTimeout(timeoutId);
-
-      // Manejar timeout
-      if (error.name === 'AbortError') {
-        throw new ApiError(
-          408,
-          'La petición tardó demasiado tiempo. Por favor, intenta nuevamente.'
-        );
-      }
-
-      // Manejar error de red
-      if (error instanceof TypeError) {
-        throw new ApiError(
-          0,
-          'No se pudo conectar con el servidor. Verifica tu conexión a internet.'
-        );
-      }
-
-      // Re-lanzar errores de API
-      if (error instanceof ApiError) {
-        throw error;
-      }
-
-      // Error desconocido
-      throw new ApiError(500, 'Ocurrió un error inesperado');
-    }
+    );
   }
 
   /**
    * Método GET
    */
   async get<T>(endpoint: string, headers?: Record<string, string>): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET', headers });
+    const response = await this.axiosInstance.get<T>(endpoint, { headers });
+    return response.data;
   }
 
   /**
@@ -126,7 +174,8 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'POST', body, headers });
+    const response = await this.axiosInstance.post<T>(endpoint, body, { headers });
+    return response.data;
   }
 
   /**
@@ -137,7 +186,8 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'PUT', body, headers });
+    const response = await this.axiosInstance.put<T>(endpoint, body, { headers });
+    return response.data;
   }
 
   /**
@@ -148,7 +198,8 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'PATCH', body, headers });
+    const response = await this.axiosInstance.patch<T>(endpoint, body, { headers });
+    return response.data;
   }
 
   /**
@@ -158,7 +209,8 @@ class ApiService {
     endpoint: string,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE', headers });
+    const response = await this.axiosInstance.delete<T>(endpoint, { headers });
+    return response.data;
   }
 }
 
