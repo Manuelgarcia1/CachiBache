@@ -39,12 +39,16 @@ export function RegisterScreen() {
 
       console.log("✅ Usuario registrado exitosamente:", response.user);
 
-      // Guardar el token real del backend en el contexto
-      await login(response.accessToken, {
-        email: response.user.email,
-        name: response.user.fullName,
-        emailVerified: response.user.emailVerified,
-      });
+      // Guardar ambos tokens del backend en el contexto
+      await login(
+        response.accessToken,
+        {
+          email: response.user.email,
+          name: response.user.fullName,
+          emailVerified: response.user.emailVerified,
+        },
+        response.refreshToken
+      );
 
       // Mostrar mensaje de éxito
       Alert.alert(

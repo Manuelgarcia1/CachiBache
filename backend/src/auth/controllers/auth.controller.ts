@@ -43,11 +43,12 @@ export class AuthController {
     message: string;
     user: UserWithoutPassword;
     accessToken: string;
+    refreshToken: string;
   }> {
-    const { accessToken, user } =
+    const { accessToken, refreshToken, user } =
       await this.authService.register(registerUserDto);
 
-    // Enviar token en cookie httpOnly (para seguridad web)
+    // Enviar access token en cookie httpOnly (para seguridad web)
     response.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Automático según entorno
@@ -55,8 +56,8 @@ export class AuthController {
       expires: new Date(Date.now() + 3600 * 1000), // 1 hora
     });
 
-    // También devolver el token en el body (para React Native y verificación local)
-    return { message: 'Registro exitoso', user, accessToken };
+    // También devolver ambos tokens en el body (para React Native)
+    return { message: 'Registro exitoso', user, accessToken, refreshToken };
   }
 
   @Post('login')
@@ -67,15 +68,16 @@ export class AuthController {
     message: string;
     user: UserWithoutPassword;
     accessToken: string;
+    refreshToken: string;
   }> {
     const user = await this.authService.validateUser(loginUserDto);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const { accessToken } = this.authService.login(user);
+    const { accessToken, refreshToken } = await this.authService.login(user);
 
-    // Enviar token en cookie httpOnly (para seguridad web)
+    // Enviar access token en cookie httpOnly (para seguridad web)
     response.cookie('accessToken', accessToken, {
       httpOnly: true, // El frontend no puede leer esta cookie
       secure: process.env.NODE_ENV === 'production', // Automático según entorno
@@ -83,14 +85,60 @@ export class AuthController {
       expires: new Date(Date.now() + 3600 * 1000), // 1 hora
     });
 
-    // También devolver el token en el body (para React Native y verificación local)
-    return { message: 'Login exitoso', user, accessToken };
+    // También devolver ambos tokens en el body (para React Native)
+    return { message: 'Login exitoso', user, accessToken, refreshToken };
   }
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  logout(@Res({ passthrough: true }) response: Response): { message: string } {
+  async logout(
+    @Body('refreshToken') refreshToken: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ message: string }> {
+    // Revocar el refresh token si se proporciona
+    if (refreshToken) {
+      try {
+        await this.authService.revokeRefreshToken(refreshToken);
+      } catch (error) {
+        // Si falla la revocación, no importa, el usuario quiere salir igual
+        console.error('Error revocando refresh token:', error);
+      }
+    }
+
+    // Limpiar cookie de access token
     response.clearCookie('accessToken');
     return { message: 'Sesión cerrada exitosamente' };
+  }
+
+  @Post('logout-all')
+  @UseGuards(JwtAuthGuard)
+  async logoutAll(
+    @GetUser() user: User,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ message: string }> {
+    // Revocar TODOS los refresh tokens del usuario
+    await this.authService.revokeAllRefreshTokens(user.id);
+
+    // Limpiar cookie de access token
+    response.clearCookie('accessToken');
+    return { message: 'Sesión cerrada en todos los dispositivos' };
+  }
+
+  @Post('refresh')
+  async refreshToken(
+    @Body('refreshToken') refreshToken: string,
+  ): Promise<{ accessToken: string }> {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token requerido');
+    }
+
+    try {
+      const result = await this.authService.refreshAccessToken(refreshToken);
+      console.log('✅ [BACKEND] REFRESH TOKEN: Sesión renovada automáticamente');
+      return result;
+    } catch (error) {
+      console.error('❌ [BACKEND] REFRESH TOKEN: Error -', error.message);
+      throw error;
+    }
   }
 
   @Get('user')

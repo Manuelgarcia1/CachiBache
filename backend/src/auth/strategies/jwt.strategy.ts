@@ -28,6 +28,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
+        // 1. Primero intentar desde el header Authorization (para React Native y API calls)
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        // 2. Si no hay, intentar desde cookies (para navegadores web)
         (request: RequestWithCookies): string | null => {
           return request?.cookies?.accessToken ?? null;
         },

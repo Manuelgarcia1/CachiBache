@@ -1,6 +1,7 @@
 // Servicio HTTP reutilizable para todas las peticiones a la API usando axios
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL, DEFAULT_HEADERS, API_TIMEOUT } from '../config/api';
+import { getRefreshToken, setToken } from '../utils/secure-store';
 
 /**
  * Clase de error personalizada para errores de API
@@ -15,6 +16,10 @@ export class ApiError extends Error {
     this.name = 'ApiError';
   }
 }
+
+// Variable para evitar múltiples llamadas simultáneas al endpoint de refresh
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
 
 /**
  * Servicio centralizado para realizar peticiones HTTP con axios
@@ -31,10 +36,38 @@ class ApiService {
       withCredentials: true, // Importante para enviar/recibir cookies
     });
 
-    // Interceptor de respuesta para manejo global de errores
+    // Interceptor de REQUEST para agregar token automáticamente
+    this.axiosInstance.interceptors.request.use(
+      async (config) => {
+        // Si ya hay un token en el header (ej: después de refresh), no lo sobreescribas
+        if (config.headers?.Authorization) {
+          return config;
+        }
+
+        // Obtener el token actual de SecureStore
+        try {
+          const { getToken } = await import('../utils/secure-store');
+          const token = await getToken();
+
+          // Si hay token, agregarlo al header Authorization
+          if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (error) {
+          console.error('❌ Error obteniendo token:', error);
+        }
+
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Interceptor de respuesta para manejo global de errores y refresh automático
     this.axiosInstance.interceptors.response.use(
       (response) => response,
-      (error: AxiosError<any>) => {
+      async (error: AxiosError<any>) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
         // Manejar timeout
         if (error.code === 'ECONNABORTED') {
           throw new ApiError(
@@ -51,8 +84,72 @@ class ApiService {
           );
         }
 
-        // Manejar errores HTTP (4xx, 5xx)
         const statusCode = error.response.status;
+
+        // Si es 401 (Unauthorized) y no es el endpoint de refresh, intentar refrescar el token
+        if (statusCode === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+          originalRequest._retry = true;
+
+          try {
+            // Si ya se está refrescando, esperar a que termine
+            if (isRefreshing) {
+              return new Promise((resolve) => {
+                refreshSubscribers.push((token: string) => {
+                  resolve(
+                    this.axiosInstance({
+                      ...originalRequest,
+                      headers: {
+                        ...originalRequest.headers,
+                        Authorization: `Bearer ${token}`,
+                      },
+                    })
+                  );
+                });
+              });
+            }
+
+            isRefreshing = true;
+            console.log('🔄 REFRESH TOKEN: Token expirado, renovando sesión automáticamente...');
+
+            // Obtener refresh token de SecureStore
+            const refreshToken = await getRefreshToken();
+            if (!refreshToken) {
+              throw new Error('No hay refresh token disponible');
+            }
+
+            // Llamar al endpoint de refresh
+            const response = await this.axiosInstance.post<{ accessToken: string }>(
+              '/auth/refresh',
+              { refreshToken }
+            );
+
+            const newAccessToken = response.data.accessToken;
+            await setToken(newAccessToken);
+
+            console.log('✅ REFRESH TOKEN: Sesión renovada exitosamente');
+
+            // Notificar a todas las peticiones en espera
+            refreshSubscribers.forEach((callback) => callback(newAccessToken));
+            refreshSubscribers = [];
+            isRefreshing = false;
+
+            // Reintentar la petición original con el nuevo token
+            return this.axiosInstance({
+              ...originalRequest,
+              headers: {
+                ...originalRequest.headers,
+                Authorization: `Bearer ${newAccessToken}`,
+              },
+            });
+          } catch (refreshError) {
+            isRefreshing = false;
+            refreshSubscribers = [];
+            console.error('❌ REFRESH TOKEN: Error renovando sesión, debes iniciar sesión nuevamente');
+            throw new ApiError(401, 'Sesión expirada. Por favor, inicia sesión nuevamente.');
+          }
+        }
+
+        // Manejar otros errores HTTP (4xx, 5xx)
         const message = error.response.data?.message || 'Error en la petición';
         const errors = error.response.data?.errors;
 

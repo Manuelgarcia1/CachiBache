@@ -41,12 +41,16 @@ export function LoginScreen() {
       console.log("✅ Login exitoso - Usuario autenticado");
       console.log("👤 Usuario:", response.user.email);
 
-      // Guardar el token y datos del usuario en el contexto
-      await login(response.accessToken, {
-        email: response.user.email,
-        name: response.user.fullName,
-        emailVerified: response.user.emailVerified,
-      });
+      // Guardar ambos tokens y datos del usuario en el contexto
+      await login(
+        response.accessToken,
+        {
+          email: response.user.email,
+          name: response.user.fullName,
+          emailVerified: response.user.emailVerified,
+        },
+        response.refreshToken
+      );
 
       console.log("✅ Sesión iniciada - Navegando a la app");
     } catch (error: any) {
