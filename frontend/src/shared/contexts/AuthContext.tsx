@@ -1,5 +1,11 @@
 import * as SplashScreen from "expo-splash-screen";
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { AppState } from "react-native";
 import {
   deleteToken,
@@ -9,20 +15,23 @@ import {
   setRefreshToken,
 } from "../utils/secure-store";
 import { authService } from "../services/auth.service";
-
-// Interfaz que define los datos del usuario autenticado
-interface User {
-  email?: string;
-  name?: string;
-  emailVerified?: boolean; // Indica si el usuario verificó su email
-}
+import {
+  User,
+  isGuestToken,
+  mapApiUserToUser,
+  isAuthError,
+} from "../utils/auth.utils";
 
 // Interfaz del contexto: define todos los valores y métodos disponibles para autenticación
 interface AuthContextType {
   token: string | null; // Token JWT almacenado
   user: User | null; // Datos del usuario actual
   isLoading: boolean; // Estado de carga durante verificación inicial
-  login: (accessToken: string, userData?: User, refreshToken?: string) => Promise<void>; // Método para iniciar sesión
+  login: (
+    accessToken: string,
+    userData?: User,
+    refreshToken?: string
+  ) => Promise<void>; // Método para iniciar sesión
   logout: () => Promise<void>; // Método para cerrar sesión
   checkAuthStatus: () => Promise<void>; // Verifica si hay sesión activa al iniciar
   refreshUser: () => Promise<void>; // Refresca los datos del usuario desde el servidor
@@ -60,15 +69,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log("🚀 Iniciando app - Verificando estado de autenticación...");
       const storedToken = await getToken();
+
       if (storedToken) {
         console.log("✅ Usuario ya autenticado encontrado");
         console.log("🔑 Token actual:", storedToken);
 
-        // Establecer el token primero
         setTokenState(storedToken);
 
         // Detectar si es usuario invitado
-        if (storedToken.startsWith("guest-")) {
+        if (isGuestToken(storedToken)) {
           setIsGuest(true);
           console.log("👤 Usuario invitado detectado");
         } else {
@@ -78,17 +87,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Cargar datos del usuario desde el backend
           try {
             console.log("🔄 Cargando datos del usuario desde el backend...");
-            const userData = await authService.getCurrentUser();
+            const apiUserData = await authService.getCurrentUser();
+            const userData = mapApiUserToUser(apiUserData);
 
-            setUser({
-              email: userData.email,
-              name: userData.fullName,
-              emailVerified: userData.emailVerified,
-            });
-            setIsEmailVerified(userData.emailVerified);
+            setUser(userData);
+            setIsEmailVerified(userData.emailVerified || false);
 
             console.log("✅ Datos del usuario cargados exitosamente");
-            console.log("👤 Usuario:", userData.fullName);
+            console.log("👤 Usuario:", userData.name);
             console.log("📧 Email:", userData.email);
             console.log("✔️ Email verificado:", userData.emailVerified);
           } catch (error) {
@@ -100,7 +106,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(null);
             setIsGuest(false);
             setIsEmailVerified(false);
-            console.log("🔑 Sesión anterior expirada - Limpieza completa realizada");
+            console.log(
+              "🔑 Sesión anterior expirada - Limpieza completa realizada"
+            );
           }
         }
 
@@ -124,33 +132,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Gestiona el login: guarda ambos tokens en SecureStore y actualiza el estado
-  const login = async (accessToken: string, userData?: User, refreshToken?: string) => {
+  const login = async (
+    accessToken: string,
+    userData?: User,
+    refreshToken?: string
+  ) => {
     try {
-      // Guardar access token
+      // Guardar tokens en SecureStore
       await setToken(accessToken);
-      setTokenState(accessToken);
-
-      // Guardar refresh token si se proporciona
       if (refreshToken) {
         await setRefreshToken(refreshToken);
-        console.log("✅ Refresh token guardado en SecureStore");
       }
 
+      // Actualizar estado
+      setTokenState(accessToken);
       setUser(userData || null);
-
-      // Actualizar estado de verificación de email
       setIsEmailVerified(userData?.emailVerified || false);
-
-      // Detecta si es usuario invitado por el prefijo del token
-      if (accessToken.startsWith("guest-")) {
-        setIsGuest(true);
-        console.log("👤 Usuario invitado");
-      } else {
-        setIsGuest(false);
-        console.log("👤 Usuario registrado");
-      }
-      console.log("✅ Login exitoso - Tokens guardados en SecureStore");
-      console.log("📧 Email verificado:", userData?.emailVerified || false);
+      setIsGuest(isGuestToken(accessToken));
     } catch (err) {
       console.error("❌ Error durante login:", err);
     }
@@ -165,21 +163,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       console.log("🔄 Refrescando datos del usuario...");
-      const userData = await authService.getCurrentUser();
+      const apiUserData = await authService.getCurrentUser();
+      const userData = mapApiUserToUser(apiUserData);
 
-      setUser({
-        email: userData.email,
-        name: userData.fullName,
-        emailVerified: userData.emailVerified,
-      });
-      setIsEmailVerified(userData.emailVerified);
+      setUser(userData);
+      setIsEmailVerified(userData.emailVerified || false);
 
       console.log("✅ Usuario refrescado exitosamente");
       console.log("📧 Email verificado:", userData.emailVerified);
     } catch (err) {
       console.error("❌ Error refrescando usuario:", err);
       // Si el token expiró, hacer logout
-      if (err instanceof Error && err.message.includes("401")) {
+      if (isAuthError(err)) {
         console.log("🔑 Token expirado, cerrando sesión...");
         await logout();
       }

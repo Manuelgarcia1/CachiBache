@@ -133,7 +133,9 @@ export class AuthController {
 
     try {
       const result = await this.authService.refreshAccessToken(refreshToken);
-      console.log('✅ [BACKEND] REFRESH TOKEN: Sesión renovada automáticamente');
+      console.log(
+        '✅ [BACKEND] REFRESH TOKEN: Sesión renovada automáticamente',
+      );
       return result;
     } catch (error) {
       console.error('❌ [BACKEND] REFRESH TOKEN: Error -', error.message);
