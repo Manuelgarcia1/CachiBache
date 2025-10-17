@@ -1,4 +1,5 @@
-// Servicio HTTP reutilizable para todas las peticiones a la API
+// Servicio HTTP reutilizable para todas las peticiones a la API usando axios
+import axios, { AxiosInstance, AxiosError } from 'axios';
 import { API_BASE_URL, DEFAULT_HEADERS, API_TIMEOUT } from '../config/api';
 
 /**
@@ -16,106 +17,56 @@ export class ApiError extends Error {
 }
 
 /**
- * Opciones para las peticiones HTTP
- */
-interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  body?: any;
-  headers?: Record<string, string>;
-  timeout?: number;
-}
-
-/**
- * Servicio centralizado para realizar peticiones HTTP
+ * Servicio centralizado para realizar peticiones HTTP con axios
  */
 class ApiService {
-  private baseURL: string;
+  private axiosInstance: AxiosInstance;
 
   constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
+    // Crear instancia de axios con configuración global
+    this.axiosInstance = axios.create({
+      baseURL,
+      timeout: API_TIMEOUT,
+      headers: DEFAULT_HEADERS,
+      withCredentials: true, // Importante para enviar/recibir cookies
+    });
 
-  /**
-   * Realiza una petición HTTP con timeout y manejo de errores
-   */
-  private async request<T>(
-    endpoint: string,
-    options: RequestOptions = {}
-  ): Promise<T> {
-    const {
-      method = 'GET',
-      body,
-      headers = {},
-      timeout = API_TIMEOUT,
-    } = options;
+    // Interceptor de respuesta para manejo global de errores
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error: AxiosError<any>) => {
+        // Manejar timeout
+        if (error.code === 'ECONNABORTED') {
+          throw new ApiError(
+            408,
+            'La petición tardó demasiado tiempo. Por favor, intenta nuevamente.'
+          );
+        }
 
-    const url = `${this.baseURL}${endpoint}`;
+        // Manejar error de red
+        if (!error.response) {
+          throw new ApiError(
+            0,
+            'No se pudo conectar con el servidor. Verifica tu conexión a internet.'
+          );
+        }
 
-    // Configuración del AbortController para timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+        // Manejar errores HTTP (4xx, 5xx)
+        const statusCode = error.response.status;
+        const message = error.response.data?.message || 'Error en la petición';
+        const errors = error.response.data?.errors;
 
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          ...DEFAULT_HEADERS,
-          ...headers,
-        },
-        body: body ? JSON.stringify(body) : undefined,
-        signal: controller.signal,
-        credentials: 'include', // Importante para enviar/recibir cookies
-      });
-
-      clearTimeout(timeoutId);
-
-      // Parsear respuesta JSON
-      const data = await response.json();
-
-      // Verificar si la respuesta fue exitosa
-      if (!response.ok) {
-        throw new ApiError(
-          response.status,
-          data.message || 'Error en la petición',
-          data.errors
-        );
+        throw new ApiError(statusCode, message, errors);
       }
-
-      return data as T;
-    } catch (error: any) {
-      clearTimeout(timeoutId);
-
-      // Manejar timeout
-      if (error.name === 'AbortError') {
-        throw new ApiError(
-          408,
-          'La petición tardó demasiado tiempo. Por favor, intenta nuevamente.'
-        );
-      }
-
-      // Manejar error de red
-      if (error instanceof TypeError) {
-        throw new ApiError(
-          0,
-          'No se pudo conectar con el servidor. Verifica tu conexión a internet.'
-        );
-      }
-
-      // Re-lanzar errores de API
-      if (error instanceof ApiError) {
-        throw error;
-      }
-
-      // Error desconocido
-      throw new ApiError(500, 'Ocurrió un error inesperado');
-    }
+    );
   }
 
   /**
    * Método GET
    */
   async get<T>(endpoint: string, headers?: Record<string, string>): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET', headers });
+    const response = await this.axiosInstance.get<T>(endpoint, { headers });
+    return response.data;
   }
 
   /**
@@ -126,7 +77,8 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'POST', body, headers });
+    const response = await this.axiosInstance.post<T>(endpoint, body, { headers });
+    return response.data;
   }
 
   /**
@@ -137,7 +89,8 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'PUT', body, headers });
+    const response = await this.axiosInstance.put<T>(endpoint, body, { headers });
+    return response.data;
   }
 
   /**
@@ -148,7 +101,8 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'PATCH', body, headers });
+    const response = await this.axiosInstance.patch<T>(endpoint, body, { headers });
+    return response.data;
   }
 
   /**
@@ -158,7 +112,8 @@ class ApiService {
     endpoint: string,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE', headers });
+    const response = await this.axiosInstance.delete<T>(endpoint, { headers });
+    return response.data;
   }
 }
 
