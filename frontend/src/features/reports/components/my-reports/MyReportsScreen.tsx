@@ -4,7 +4,7 @@ import { EmptyState } from './EmptyState';
 import { ReportList } from './ReportList';
 
 interface Report {
-  title: string;
+  address: string;
   status: string;
   date: string;
   location: string;

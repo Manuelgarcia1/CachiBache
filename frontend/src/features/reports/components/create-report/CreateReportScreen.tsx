@@ -13,8 +13,8 @@ export function CreateReportScreen() {
     reportData,
     mapRegion,
     isSubmitting,
-    updateTitle,
-    updateDescription,
+    updateAddress,
+    updateSeverity,
     updateImage,
     updateLocation,
     updateMapRegion,
@@ -44,11 +44,11 @@ export function CreateReportScreen() {
         <ScrollView flex={1} showsVerticalScrollIndicator={false}>
         <YStack padding="$4" gap="$4">
           <ReportFormSection
-            title={reportData.title}
-            description={reportData.description}
+            address={reportData.address}
+            severity={reportData.severity}
             imageUri={reportData.image}
-            onTitleChange={updateTitle}
-            onDescriptionChange={updateDescription}
+            onAddressChange={updateAddress}
+            onSeverityChange={updateSeverity}
             onImageSelected={updateImage}
           />
 

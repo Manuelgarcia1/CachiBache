@@ -25,4 +25,8 @@ export class CreateUserDto {
   @IsBoolean()
   @IsOptional()
   termsAccepted?: boolean;
+
+  @IsString()
+  @IsOptional()
+  avatar?: string;
 }

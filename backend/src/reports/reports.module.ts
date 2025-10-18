@@ -10,5 +10,6 @@ import { ReportHistory } from './entities/report-history.entity';
   imports: [TypeOrmModule.forFeature([Report, Photo, ReportHistory])], // <-- Registra todas las entidades
   controllers: [ReportsController],
   providers: [ReportsService],
+  exports: [ReportsService],
 })
 export class ReportsModule {}

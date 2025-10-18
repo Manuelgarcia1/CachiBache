@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { ReportData, ReportLocation, MapRegion } from '../types';
+import { useAuth } from "@/src/shared/contexts/AuthContext";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const INITIAL_REGION: MapRegion = {
   latitude: -34.6037,
@@ -12,24 +15,25 @@ const INITIAL_REGION: MapRegion = {
 
 export const useReportForm = () => {
   const [reportData, setReportData] = useState<ReportData>({
-    title: '',
-    description: '',
+    address: '',
+    severity: '',
     location: {
       latitude: INITIAL_REGION.latitude,
       longitude: INITIAL_REGION.longitude,
       address: 'Buenos Aires, Argentina',
     },
+    image: null,
   });
 
   const [mapRegion, setMapRegion] = useState<MapRegion>(INITIAL_REGION);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const updateTitle = (title: string) => {
-    setReportData(prev => ({ ...prev, title }));
+  const updateAddress = (address: string) => {
+    setReportData(prev => ({ ...prev, address }));
   };
 
-  const updateDescription = (description: string) => {
-    setReportData(prev => ({ ...prev, description }));
+  const updateSeverity = (severity: string) => {
+    setReportData(prev => ({ ...prev, severity }));
   };
 
   const updateImage = (image: string) => {
@@ -57,31 +61,49 @@ export const useReportForm = () => {
   };
 
   const validateForm = (): boolean => {
-    if (!reportData.title.trim() || !reportData.description.trim()) {
-      Alert.alert('Campos requeridos', 'Por favor completa el título y la descripción del reporte');
+    if (!reportData.address.trim()) {
+      Alert.alert('Campo requerido', 'Por favor completa la dirección');
+      return false;
+    }
+    if (!reportData.severity.trim()) {
+      Alert.alert('Campo requerido', 'Por favor selecciona la severidad');
       return false;
     }
     return true;
   };
 
-  const submitReport = async (): Promise<boolean> => {
-    if (!validateForm()) {
-      return false;
-    }
+  const { token } = useAuth();
 
+  const submitReport = async () => {
+    if (!validateForm()) return;
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch(`${API_URL}/reports`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+        address: reportData.address,
+        severity: reportData.severity,
+        location: {
+          x: reportData.location.longitude,
+          y: reportData.location.latitude,
+        },
+      }),
+      });
 
-      Alert.alert(
-        'Reporte enviado',
-        'Tu reporte ha sido enviado exitosamente. Te notificaremos sobre su estado.',
-        [{ text: 'OK', onPress: () => router.back() }]
-      );
-      return true;
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo enviar el reporte. Intenta nuevamente.');
-      return false;
+      const errorData = await response.json();
+      if (!response.ok) {
+        console.log("Error backend:", errorData);
+        throw new Error(errorData.message || "Error al crear el reporte");
+      }
+
+      Alert.alert("¡Reporte enviado!", "Tu reporte ha sido enviado exitosamente. Te notificaremos sobre su estado.");
+      router.replace("/(app)/reports");
+    } catch (err) {
+      Alert.alert("Error", err.message || "No se pudo crear el reporte");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,8 +113,8 @@ export const useReportForm = () => {
     reportData,
     mapRegion,
     isSubmitting,
-    updateTitle,
-    updateDescription,
+    updateAddress,
+    updateSeverity,
     updateImage,
     updateLocation,
     updateMapRegion,

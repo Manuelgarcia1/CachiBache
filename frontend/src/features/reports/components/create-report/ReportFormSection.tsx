@@ -1,21 +1,22 @@
 import { Input, Text, YStack } from 'tamagui';
 import { ImagePickerButton } from './ImagePickerButton';
+import { Picker } from '@react-native-picker/picker';
 
 interface ReportFormSectionProps {
-  title: string;
-  description: string;
+  address: string;
+  severity: string;
   imageUri?: string;
-  onTitleChange: (title: string) => void;
-  onDescriptionChange: (description: string) => void;
+  onAddressChange: (address: string) => void;
+  onSeverityChange: (severity: string) => void;
   onImageSelected: (uri: string) => void;
 }
 
 export function ReportFormSection({
-  title,
-  description,
+  address,
+  severity,
   imageUri,
-  onTitleChange,
-  onDescriptionChange,
+  onAddressChange,
+  onSeverityChange,
   onImageSelected,
 }: ReportFormSectionProps) {
   return (
@@ -26,12 +27,12 @@ export function ReportFormSection({
 
       <YStack gap="$2">
         <Text fontSize={14} fontWeight="500" color="#64748b">
-          Título *
+          Dirección *
         </Text>
         <Input
           placeholder="Ej: Bache en Av. Corrientes 1234"
-          value={title}
-          onChangeText={onTitleChange}
+          value={address}
+          onChangeText={onAddressChange}
           backgroundColor="#f8fafc"
           borderColor="#e2e8f0"
           borderRadius={8}
@@ -40,23 +41,26 @@ export function ReportFormSection({
       </YStack>
 
       <YStack gap="$2">
-        <Text fontSize={14} fontWeight="500" color="#64748b">
-          Descripción *
-        </Text>
-        <Input
-          placeholder="Describe el estado del bache, tamaño, profundidad, etc."
-          value={description}
-          onChangeText={onDescriptionChange}
-          backgroundColor="#f8fafc"
-          borderColor="#e2e8f0"
-          borderRadius={8}
-          padding="$3"
-          multiline={true}
-          numberOfLines={4}
-          textAlignVertical="top"
-          height={100}
-        />
-      </YStack>
+      <Text fontSize={14} fontWeight="500" color="#64748b">
+        Severidad *
+      </Text>
+      <Picker
+        selectedValue={severity}
+        onValueChange={onSeverityChange}
+        style={{
+          backgroundColor: "#f8fafc",
+          borderColor: "#e2e8f0",
+          borderRadius: 8,
+          padding: 12,
+          height: 48,
+        }}
+      >
+        <Picker.Item label="Selecciona severidad" value="" />
+        <Picker.Item label="Leve" value="LEVE" />
+        <Picker.Item label="Intermedio" value="INTERMEDIO" />
+        <Picker.Item label="Grave" value="GRAVE" />
+      </Picker>
+    </YStack>
 
       <ImagePickerButton imageUri={imageUri} onImageSelected={onImageSelected} />
     </YStack>

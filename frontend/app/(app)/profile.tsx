@@ -1,39 +1,47 @@
+import { useEffect, useState } from "react";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
+import { Text } from 'react-native';
 
-const defaultUser = {
-  name: "Usuario",
-  email: "usuario@email.com",
-  avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-};
-
-const reportStats = {
-  pendiente: 3,
-  reparacion: 2,
-  finalizado: 5,
-};
-
-const dashboard = {
-  tiempoPromedioPendiente: 8,
-  tiempoPromedioReparacion: 12,
-  bachesMes: [4, 7, 3, 6, 5, 8],
-  meses: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
-};
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function ProfileTab() {
-  const { user: authUser } = useAuth();
+  const { token } = useAuth();
+  const [profileData, setProfileData] = useState(null);
 
-  const user = {
-    name: authUser?.name || defaultUser.name,
-    email: authUser?.email || defaultUser.email,
-    avatar: defaultUser.avatar,
-  };
+  useEffect(() => {
+  if (!token) return;
 
-  return (
-    <ProfileScreen
-      user={user}
-      reportStats={reportStats}
-      dashboard={dashboard}
-    />
-  );
+  fetch(`${API_URL}/users/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+        if (data && data.user) {
+          setProfileData({
+            ...data,
+            user: {
+              ...data.user,
+              name: data.user.fullName,
+            },
+          });
+        }
+      })
+    .catch((err) => {
+      console.error("Error al cargar perfil:", err);
+      setProfileData(null);
+    });
+}, [token]);
+
+  if (!profileData || !profileData.user) {
+  return <Text>Cargando perfil...</Text>; // O un loader
+}
+
+return (
+  <ProfileScreen
+    user={profileData.user}
+    reportStats={profileData.reportStats}
+    dashboard={profileData.dashboard}
+  />
+);
 }

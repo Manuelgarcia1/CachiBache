@@ -127,4 +127,40 @@ export class ReportsService {
     Object.assign(report, updateReportDto);
     return this.reportRepository.save(report);
   }
+
+  async getUserStatsAndDashboard(userId: string) {
+  // Estadísticas por estado
+  const stats = await this.reportRepository
+    .createQueryBuilder('report')
+    .select('report.status', 'status')
+    .addSelect('COUNT(report.id)', 'count')
+    .where('report.user_id = :userId', { userId })
+    .groupBy('report.status')
+    .getRawMany();
+
+  const reportStats = stats.reduce((acc, curr) => {
+    acc[curr.status] = parseInt(curr.count, 10);
+    return acc;
+  }, {});
+
+  // Ejemplo de dashboard: reportes por mes (últimos 6 meses)
+  const bachesMes = await this.reportRepository
+    .createQueryBuilder('report')
+    .select("TO_CHAR(report.createdAt, 'Mon')", 'mes')
+    .addSelect('COUNT(report.id)', 'count')
+    .where('report.user_id = :userId', { userId })
+    .groupBy('mes')
+    .orderBy('mes', 'ASC')
+    .getRawMany();
+
+  return {
+    reportStats,
+    dashboard: {
+      tiempoPromedioPendiente: 0, // Calcula según tu modelo si tienes los datos
+      tiempoPromedioReparacion: 0, // Calcula según tu modelo si tienes los datos
+      bachesMes: bachesMes.map((m) => Number(m.count)),
+      meses: bachesMes.map((m) => m.mes),
+    },
+  };
+}
 }

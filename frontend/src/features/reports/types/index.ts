@@ -7,8 +7,8 @@ export interface ReportLocation {
 }
 
 export interface ReportData {
-  title: string;
-  description: string;
+  address: string;
+  severity: string;
   location: ReportLocation;
   image?: string;
 }

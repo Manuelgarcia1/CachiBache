@@ -2,7 +2,7 @@ import { YStack } from 'tamagui';
 import { ReportItem } from './ReportItem';
 
 interface Report {
-  title: string;
+  address: string;
   date: string;
   status: string;
   location: string;
@@ -18,7 +18,7 @@ export function ReportList({ reports }: ReportListProps) {
       {reports.map((report, idx) => (
         <ReportItem
           key={idx}
-          title={report.title}
+          address={report.address}
           date={report.date}
           status={report.status}
           location={report.location}

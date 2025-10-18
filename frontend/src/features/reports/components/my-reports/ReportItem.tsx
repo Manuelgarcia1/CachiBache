@@ -1,7 +1,7 @@
 import { Text, View, XStack, YStack } from 'tamagui';
 
 interface ReportItemProps {
-  title: string;
+  address: string;
   date: string;
   status: string;
   location: string;
@@ -21,11 +21,11 @@ function getBarProps(status: string) {
   }
 }
 
-export function ReportItem({ title, date, status, location }: ReportItemProps) {
+export function ReportItem({ address, date, status, location }: ReportItemProps) {
   const { color, width } = getBarProps(status);
   return (
     <YStack padding="$3" backgroundColor="#fff" borderRadius={12} shadowColor="#000" shadowOpacity={0.05} gap="$2">
-      <Text fontSize={24} fontWeight="600">{title}</Text>
+      <Text fontSize={24} fontWeight="600">{address}</Text>
       {/* Barra de estado visual */}
       <YStack gap="$1">
         <XStack alignItems="center" gap="$2">

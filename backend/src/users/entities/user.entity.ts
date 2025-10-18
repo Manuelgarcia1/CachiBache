@@ -33,6 +33,9 @@ export class User {
   @Column({ nullable: true })
   phone?: string;
 
+  @Column({ nullable: true })
+  avatar?: string;
+
   // ✨ --- NUEVO CAMPO: TÉRMINOS Y CONDICIONES --- ✨
   @Column({ name: 'terms_accepted', default: false })
   termsAccepted: boolean;

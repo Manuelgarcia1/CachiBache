@@ -47,16 +47,16 @@ export class ReportsController {
     return this.reportsService.getDashboardMetrics();
   }
 
-  @Get('user/:userId')
+  @Get('user')
   @UseGuards(JwtAuthGuard)
-  findReportsByUserId(
-    @Param('userId', ParseUUIDPipe) userId: string,
+  findReportsByUser(
+    @GetUser() user: User, // Usa el decorador para obtener el usuario del token
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('search') search?: string,
   ) {
     return this.reportsService.findReportsByUserId(
-      userId,
+      user.id, // Usa el id del usuario autenticado
       +page,
       +limit,
       search,
