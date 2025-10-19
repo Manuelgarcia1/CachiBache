@@ -11,25 +11,26 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
-
-type ReportStatus = 'PENDIENTE' | 'EN REPARACION' | 'FINALIZADO';
+import { ReportStatus, ReportSeverity } from '@/src/shared/types/report.types';
 
 interface ReportMarkerProps {
-  /** Estado del reporte que determina el color y animación */
+  /** Severidad del reporte que determina el color */
+  severity: ReportSeverity;
+  /** Estado del reporte que determina la animación */
   status: ReportStatus;
 }
 
 /**
- * Obtiene el color del marker según el estado del reporte
+ * Obtiene el color del marker según la severidad del reporte
  */
-function getMarkerColor(status: ReportStatus): string {
-  switch (status) {
-    case 'PENDIENTE':
-      return '#EF4444'; // Rojo
-    case 'EN REPARACION':
-      return '#F97316'; // Naranja
-    case 'FINALIZADO':
+function getMarkerColor(severity: ReportSeverity): string {
+  switch (severity) {
+    case 'LEVE':
       return '#22C55E'; // Verde
+    case 'INTERMEDIO':
+      return '#F97316'; // Naranja
+    case 'GRAVE':
+      return '#EF4444'; // Rojo
     default:
       return '#6B7280'; // Gris
   }
@@ -38,10 +39,11 @@ function getMarkerColor(status: ReportStatus): string {
 /**
  * Marker para mostrar reportes existentes en el mapa
  * Usado en la pantalla home
+ * Color: basado en severidad (LEVE/INTERMEDIO/GRAVE)
  * Animación: Pulse continuo solo para reportes pendientes
  */
-export function ReportMarker({ status }: ReportMarkerProps) {
-  const color = getMarkerColor(status);
+export function ReportMarker({ severity, status }: ReportMarkerProps) {
+  const color = getMarkerColor(severity);
   const scale = useSharedValue(1);
   const shouldPulse = status === 'PENDIENTE';
 

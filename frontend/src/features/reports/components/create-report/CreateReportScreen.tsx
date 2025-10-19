@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Button, ScrollView, YStack } from 'tamagui';
 import { router } from 'expo-router';
@@ -35,6 +36,12 @@ export function CreateReportScreen() {
   const handleBack = () => {
     router.back();
   };
+
+  // Obtener ubicación automáticamente al montar el componente
+  useEffect(() => {
+    handleGetCurrentLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>

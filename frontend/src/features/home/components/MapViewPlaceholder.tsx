@@ -1,51 +1,14 @@
 // Ubicación: src/features/home/components/MapViewPlaceholder.tsx
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import * as Location from 'expo-location';
-import { YStack } from 'tamagui';
+import { YStack, Text } from 'tamagui';
 import MapView, { Marker, Region } from 'react-native-maps';
+import { useFocusEffect } from '@react-navigation/native';
 import { ReportMarker } from '@sharedcomponents/map';
+import { MapReport } from '@/src/shared/types/report.types';
+import { getAllReports } from '@/src/shared/services/reports.service';
 
-interface ReportData {
-  id: string;
-  title: string;
-  status: 'PENDIENTE' | 'EN REPARACION' | 'FINALIZADO';
-  coordinate: {
-    latitude: number;
-    longitude: number;
-  };
-  location: string;
-}
-
-/**
- * Genera reportes mock alrededor de una ubicación dada
- * Los markers aparecen en un radio de ~500m alrededor del centro
- */
-function generateMockReportsNearLocation(lat: number, lng: number): ReportData[] {
-  return [
-    {
-      id: '1',
-      title: 'Bache en calle principal',
-      status: 'PENDIENTE',
-      coordinate: { latitude: lat + 0.003, longitude: lng + 0.002 },
-      location: 'Calle Principal 742',
-    },
-    {
-      id: '2',
-      title: 'Bache en avenida',
-      status: 'EN REPARACION',
-      coordinate: { latitude: lat - 0.002, longitude: lng + 0.003 },
-      location: 'Avenida Central 123',
-    },
-    {
-      id: '3',
-      title: 'Bache reparado',
-      status: 'FINALIZADO',
-      coordinate: { latitude: lat + 0.001, longitude: lng - 0.002 },
-      location: 'Boulevard Sur 456',
-    },
-  ];
-}
 
 const INITIAL_REGION: Region = {
   latitude: -34.6037,
@@ -57,9 +20,9 @@ const INITIAL_REGION: Region = {
 export function MapViewPlaceholder() {
   const [region, setRegion] = useState<Region>(INITIAL_REGION);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
-  const [mockReports, setMockReports] = useState<ReportData[]>(
-    generateMockReportsNearLocation(INITIAL_REGION.latitude, INITIAL_REGION.longitude)
-  );
+  const [reports, setReports] = useState<MapReport[]>([]);
+  const [isLoadingReports, setIsLoadingReports] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const requestLocationPermission = async () => {
     try {
@@ -88,16 +51,22 @@ export function MapViewPlaceholder() {
       };
 
       setRegion(newRegion);
-
-      // Generar markers alrededor de la nueva ubicación
-      setMockReports(
-        generateMockReportsNearLocation(
-          location.coords.latitude,
-          location.coords.longitude
-        )
-      );
     } catch (error) {
       console.log('Error getting current location:', error);
+    }
+  };
+
+  const fetchReports = async () => {
+    setIsLoadingReports(true);
+    setError(null);
+    try {
+      const fetchedReports = await getAllReports();
+      setReports(fetchedReports);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      setError('No se pudieron cargar los reportes');
+    } finally {
+      setIsLoadingReports(false);
     }
   };
 
@@ -105,6 +74,13 @@ export function MapViewPlaceholder() {
     requestLocationPermission();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Recargar reportes cada vez que la pantalla recibe focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchReports();
+    }, [])
+  );
 
   return (
     <YStack flex={1}>
@@ -117,17 +93,43 @@ export function MapViewPlaceholder() {
         showsBuildings={true}
         showsTraffic={false}
       >
-        {mockReports.map((report) => (
+        {reports.map((report) => (
           <Marker
             key={report.id}
             coordinate={report.coordinate}
-            title={report.title}
-            description={`Estado: ${report.status} - ${report.location}`}
+            title={report.address}
+            description={`Estado: ${report.status} | Severidad: ${report.severity}`}
           >
-            <ReportMarker status={report.status} />
+            <ReportMarker severity={report.severity} status={report.status} />
           </Marker>
         ))}
       </MapView>
+
+      {/* Mostrar indicador de carga o error (opcional) */}
+      {isLoadingReports && (
+        <YStack
+          position="absolute"
+          top={80}
+          alignSelf="center"
+          backgroundColor="rgba(0,0,0,0.7)"
+          padding="$2"
+          borderRadius={8}
+        >
+          <Text color="#fff" fontSize={12}>Cargando reportes...</Text>
+        </YStack>
+      )}
+      {error && (
+        <YStack
+          position="absolute"
+          top={80}
+          alignSelf="center"
+          backgroundColor="rgba(239, 68, 68, 0.9)"
+          padding="$2"
+          borderRadius={8}
+        >
+          <Text color="#fff" fontSize={12}>{error}</Text>
+        </YStack>
+      )}
     </YStack>
   );
 }
