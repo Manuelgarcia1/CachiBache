@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
-import { ReportData, ReportLocation, MapRegion } from '../types';
-import { useAuth } from "@/src/shared/contexts/AuthContext";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { ReportData, ReportLocation, MapRegion, ReportSeverity } from '../types';
+import { createReport } from '@/src/shared/services/reports.service';
+import { ApiError } from '@/src/shared/services/api.service';
 
 const INITIAL_REGION: MapRegion = {
   latitude: -34.6037,
@@ -72,38 +71,32 @@ export const useReportForm = () => {
     return true;
   };
 
-  const { token } = useAuth();
-
   const submitReport = async () => {
     if (!validateForm()) return;
+
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${API_URL}/reports`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      await createReport({
         address: reportData.address,
-        severity: reportData.severity,
+        severity: reportData.severity as ReportSeverity,
         location: {
           x: reportData.location.longitude,
           y: reportData.location.latitude,
         },
-      }),
       });
 
-      const errorData = await response.json();
-      if (!response.ok) {
-        console.log("Error backend:", errorData);
-        throw new Error(errorData.message || "Error al crear el reporte");
-      }
+      Alert.alert(
+        "¡Reporte enviado!",
+        "Tu reporte ha sido enviado exitosamente. Te notificaremos sobre su estado."
+      );
 
-      Alert.alert("¡Reporte enviado!", "Tu reporte ha sido enviado exitosamente. Te notificaremos sobre su estado.");
       router.replace("/(app)/reports");
-    } catch (err) {
-      Alert.alert("Error", err.message || "No se pudo crear el reporte");
+    } catch (error) {
+      const errorMessage = error instanceof ApiError
+        ? error.message
+        : "No se pudo crear el reporte";
+
+      Alert.alert("Error", errorMessage);
     } finally {
       setIsSubmitting(false);
     }

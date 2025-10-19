@@ -21,9 +21,9 @@ export function StatusLegend() {
       // Le damos un nombre para que no choque con otros elementos absolutos
       zIndex={10} 
     >
-      <LegendItem color="$red10" label="Pendientes" />
-      <LegendItem color="$orange10" label="En reparación" />
-      <LegendItem color="$green10" label="Reparados" />
+      <LegendItem color="$green10" label="Leve" />
+      <LegendItem color="$orange10" label="Intermedio" />
+      <LegendItem color="$red10" label="Grave" />
     </XStack>
   );
 }
