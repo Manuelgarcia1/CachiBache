@@ -28,6 +28,7 @@ export interface User {
   phone?: string;
   profilePicture?: string;
   emailVerified: boolean;
+  role: 'CIUDADANO' | 'ADMIN';
   createdAt: string;
   updatedAt: string;
 }

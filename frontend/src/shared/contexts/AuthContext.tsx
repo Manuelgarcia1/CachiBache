@@ -37,6 +37,7 @@ interface AuthContextType {
   refreshUser: () => Promise<void>; // Refresca los datos del usuario desde el servidor
   isGuest: boolean; // Indica si el usuario es invitado (token guest-*)
   isEmailVerified: boolean; // Indica si el usuario verificó su email
+  isAdmin: boolean; // Indica si el usuario es administrador (role === 'ADMIN')
 }
 
 // Creación del contexto de autenticación
@@ -97,7 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.log("👤 Usuario:", userData.name);
             console.log("📧 Email:", userData.email);
             console.log("✔️ Email verificado:", userData.emailVerified);
-          } catch (error) {
+          } catch {
             console.log("⚠️ No se pudieron cargar los datos del usuario");
             // Si el token expiró o es inválido, limpiar la sesión completa
             await deleteToken();
@@ -226,6 +227,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshUser,
     isGuest,
     isEmailVerified,
+    isAdmin: user?.role === 'ADMIN',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

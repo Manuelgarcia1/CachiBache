@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateReportDto } from '../dto/create-report.dto';
 import { UpdateReportDto } from '../dto/update-report.dto';
 import { Report } from '../entities/report.entity';
+import { ReportStatus } from '../entities/report-status.enum';
 import { User } from '../../users/entities/user.entity';
 
 @Injectable()
@@ -129,38 +130,96 @@ export class ReportsService {
   }
 
   async getUserStatsAndDashboard(userId: string) {
-  // Estadísticas por estado
-  const stats = await this.reportRepository
-    .createQueryBuilder('report')
-    .select('report.status', 'status')
-    .addSelect('COUNT(report.id)', 'count')
-    .where('report.user_id = :userId', { userId })
-    .groupBy('report.status')
-    .getRawMany();
+    // Estadísticas por estado
+    const stats = await this.reportRepository
+      .createQueryBuilder('report')
+      .select('report.status', 'status')
+      .addSelect('COUNT(report.id)', 'count')
+      .where('report.user_id = :userId', { userId })
+      .groupBy('report.status')
+      .getRawMany();
 
-  const reportStats = stats.reduce((acc, curr) => {
-    acc[curr.status] = parseInt(curr.count, 10);
-    return acc;
-  }, {});
+    const reportStats = stats.reduce((acc, curr) => {
+      acc[curr.status] = parseInt(curr.count, 10);
+      return acc;
+    }, {});
 
-  // Ejemplo de dashboard: reportes por mes (últimos 6 meses)
-  const bachesMes = await this.reportRepository
-    .createQueryBuilder('report')
-    .select("TO_CHAR(report.createdAt, 'Mon')", 'mes')
-    .addSelect('COUNT(report.id)', 'count')
-    .where('report.user_id = :userId', { userId })
-    .groupBy('mes')
-    .orderBy('mes', 'ASC')
-    .getRawMany();
+    // Ejemplo de dashboard: reportes por mes (últimos 6 meses)
+    const bachesMes = await this.reportRepository
+      .createQueryBuilder('report')
+      .select("TO_CHAR(report.createdAt, 'Mon')", 'mes')
+      .addSelect('COUNT(report.id)', 'count')
+      .where('report.user_id = :userId', { userId })
+      .groupBy('mes')
+      .orderBy('mes', 'ASC')
+      .getRawMany();
 
-  return {
-    reportStats,
-    dashboard: {
-      tiempoPromedioPendiente: 0, // Calcula según tu modelo si tienes los datos
-      tiempoPromedioReparacion: 0, // Calcula según tu modelo si tienes los datos
-      bachesMes: bachesMes.map((m) => Number(m.count)),
-      meses: bachesMes.map((m) => m.mes),
-    },
-  };
-}
+    return {
+      reportStats,
+      dashboard: {
+        tiempoPromedioPendiente: 0, // Calcula según tu modelo si tienes los datos
+        tiempoPromedioReparacion: 0, // Calcula según tu modelo si tienes los datos
+        bachesMes: bachesMes.map((m) => Number(m.count)),
+        meses: bachesMes.map((m) => m.mes),
+      },
+    };
+  }
+
+  // ============ MÉTODOS PARA ADMINISTRADORES ============
+
+  /**
+   * Obtener todos los reportes con filtros (admin)
+   */
+  async findAllForAdmin(
+    page = 1,
+    limit = 20,
+    status?: string,
+    city?: string,
+    search?: string,
+  ): Promise<{ reports: Report[]; total: number }> {
+    const query = this.reportRepository
+      .createQueryBuilder('report')
+      .leftJoinAndSelect('report.user', 'user');
+
+    // Filtro por estado
+    if (status) {
+      query.andWhere('report.status = :status', { status });
+    }
+
+    // Filtro por ciudad (busca en el campo address)
+    if (city) {
+      query.andWhere('report.address ILIKE :city', { city: `%${city}%` });
+    }
+
+    // Búsqueda general en dirección
+    if (search) {
+      query.andWhere('report.address ILIKE :search', { search: `%${search}%` });
+    }
+
+    // Ordenar por fecha de creación (más recientes primero)
+    query.orderBy('report.createdAt', 'DESC');
+
+    // Paginación
+    const [reports, total] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { reports, total };
+  }
+
+  /**
+   * Actualizar solo el estado de un reporte (admin)
+   */
+  async updateReportStatus(
+    reportId: string,
+    newStatus: ReportStatus,
+  ): Promise<Report> {
+    const report = await this.findOneReport(reportId);
+
+    // Actualizar estado
+    report.status = newStatus;
+
+    return this.reportRepository.save(report);
+  }
 }
