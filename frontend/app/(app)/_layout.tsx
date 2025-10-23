@@ -12,7 +12,7 @@ export default function AppLayout() {
   useEffect(() => {
     if (!isLoading && isAdmin) {
       console.log("🔀 Admin detectado - Redirigiendo a dashboard");
-      router.replace("/(admin)/dashboard");
+      router.replace("/(admin)/dashboard" as any);
     }
   }, [isAdmin, isLoading]);
 

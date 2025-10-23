@@ -1,5 +1,5 @@
 // Sidebar de navegación para admin
-import { YStack, XStack, Text, Button } from 'tamagui';
+import { YStack, Text, Button } from 'tamagui';
 import { Feather } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
 import { useAuth } from '@/src/shared/contexts/AuthContext';
@@ -14,12 +14,12 @@ const MENU_ITEMS: MenuItem[] = [
   {
     icon: 'bar-chart-2',
     label: 'Dashboard',
-    href: '/(admin)/dashboard',
+    href: '/(admin)/dashboard' as any,
   },
   {
     icon: 'file-text',
     label: 'Reportes',
-    href: '/(admin)/reports',
+    href: '/(admin)/reports' as any,
   },
 ];
 

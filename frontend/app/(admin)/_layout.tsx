@@ -6,7 +6,7 @@ import { AdminSidebar } from "@/src/features/admin/components/AdminSidebar";
 
 // Layout de la sección admin: protege rutas y renderiza contenido con sidebar
 export default function AdminLayout() {
-  const { token, isLoading, isAdmin } = useAuth();
+  const { isLoading, isAdmin } = useAuth();
 
   // Protección de rutas: redirige si no es admin
   useEffect(() => {

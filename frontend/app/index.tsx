@@ -13,7 +13,7 @@ export default function Index() {
     if (!isLoading && token) {
       if (isAdmin) {
         console.log("✅ Admin detectado - Navegando a dashboard");
-        router.replace("/(admin)/dashboard");
+        router.replace("/(admin)/dashboard" as any);
       } else {
         console.log("✅ Usuario autenticado detectado - Navegando a app");
         router.replace("/(app)/home");

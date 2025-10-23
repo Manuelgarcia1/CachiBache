@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { YStack, Text, Spinner } from "tamagui";
 import { ReportTable } from "@/src/features/admin/components/ReportTable";
 import { ReportFilters } from "@/src/features/admin/components/ReportFilters";
@@ -35,7 +35,7 @@ export default function ReportsAdmin() {
     useState<ReportFromBackend | null>(null);
 
   // Función para cargar reportes
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -55,12 +55,12 @@ export default function ReportsAdmin() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, statusFilter, searchQuery]);
 
   // Cargar reportes cuando cambien los filtros o la página
   useEffect(() => {
     loadReports();
-  }, [currentPage, statusFilter, searchQuery]);
+  }, [loadReports]);
 
   // Handlers
   const handleStatusChange = (status: ReportStatus | undefined) => {
