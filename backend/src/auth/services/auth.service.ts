@@ -79,7 +79,7 @@ export class AuthService {
   }
 
   async login(user: UserWithoutPassword): Promise<AuthResponse> {
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, role: user.role };
 
     // Generar access token (corta duración)
     const accessToken = this.jwtService.sign(payload);
