@@ -1,8 +1,10 @@
 // Sidebar de navegación para admin
-import { YStack, Text, Button } from 'tamagui';
+import { useState } from 'react';
+import { YStack, Text, Button, XStack } from 'tamagui';
 import { Feather } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
 import { useAuth } from '@/src/shared/contexts/AuthContext';
+import { TouchableOpacity } from 'react-native';
 
 interface MenuItem {
   icon: keyof typeof Feather.glyphMap;
@@ -26,6 +28,7 @@ const MENU_ITEMS: MenuItem[] = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleNavigation = (href: string) => {
     router.push(href as any);
@@ -36,23 +39,45 @@ export function AdminSidebar() {
     router.replace('/');
   };
 
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
     <YStack
-      width={250}
+      width={isCollapsed ? 72 : 240}
       backgroundColor="#094b7e"
-      padding="$4"
-      gap="$4"
+      padding={isCollapsed ? '$2' : '$4'}
+      gap="$3"
       height="100%"
+      style={{ transition: 'width 0.3s ease' }}
     >
-      {/* Header */}
-      <YStack gap="$2" paddingBottom="$4" borderBottomWidth={1} borderBottomColor="rgba(255,255,255,0.1)">
-        <Text fontSize={20} fontWeight="bold" color="#fff">
-          Admin Panel
-        </Text>
-        <Text fontSize={12} color="rgba(255,255,255,0.7)">
-          {user?.name}
-        </Text>
-      </YStack>
+      {/* Header con botón de colapsar */}
+      <XStack
+        justifyContent={isCollapsed ? 'center' : 'space-between'}
+        alignItems="center"
+        paddingBottom="$3"
+        borderBottomWidth={1}
+        borderBottomColor="rgba(255,255,255,0.1)"
+      >
+        {!isCollapsed && (
+          <YStack gap="$1">
+            <Text fontSize={18} fontWeight="bold" color="#fff">
+              Admin Panel
+            </Text>
+            <Text fontSize={11} color="rgba(255,255,255,0.7)" numberOfLines={1}>
+              {user?.name}
+            </Text>
+          </YStack>
+        )}
+        <TouchableOpacity onPress={toggleSidebar}>
+          <Feather
+            name={isCollapsed ? 'chevron-right' : 'chevron-left'}
+            size={20}
+            color="#fff"
+          />
+        </TouchableOpacity>
+      </XStack>
 
       {/* Menu Items */}
       <YStack gap="$2" flex={1}>
@@ -64,7 +89,8 @@ export function AdminSidebar() {
               onPress={() => handleNavigation(item.href)}
               backgroundColor={isActive ? '#facc15' : 'transparent'}
               color={isActive ? '#000' : '#fff'}
-              justifyContent="flex-start"
+              justifyContent={isCollapsed ? 'center' : 'flex-start'}
+              paddingHorizontal={isCollapsed ? '$2' : '$3'}
               icon={
                 <Feather
                   name={item.icon}
@@ -76,7 +102,7 @@ export function AdminSidebar() {
                 backgroundColor: isActive ? '#facc15' : 'rgba(255,255,255,0.1)',
               }}
             >
-              {item.label}
+              {!isCollapsed && item.label}
             </Button>
           );
         })}
@@ -89,10 +115,11 @@ export function AdminSidebar() {
         color="#fff"
         borderWidth={1}
         borderColor="rgba(255,255,255,0.3)"
-        justifyContent="flex-start"
+        justifyContent={isCollapsed ? 'center' : 'flex-start'}
+        paddingHorizontal={isCollapsed ? '$2' : '$3'}
         icon={<Feather name="log-out" size={20} color="#fff" />}
       >
-        Cerrar Sesión
+        {!isCollapsed && 'Cerrar Sesión'}
       </Button>
     </YStack>
   );

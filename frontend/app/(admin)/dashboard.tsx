@@ -42,14 +42,14 @@ export default function DashboardAdmin() {
   const discardedReports = metrics?.reportsByStatus?.DESCARTADO || 0;
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <YStack flex={1} padding="$4" backgroundColor="#f8fafc" gap="$4">
+    <ScrollView style={{ flex: 1, backgroundColor: "#f8fafc" }}>
+      <YStack flex={1} padding="$4" gap="$4">
         {/* Header */}
         <YStack gap="$2">
-          <Text fontSize={32} fontWeight="bold">
-            Dashboard Admin
+          <Text fontSize={24} fontWeight="bold">
+            Resumen General
           </Text>
-          <Text fontSize={16} color="$gray10">
+          <Text fontSize={14} color="$gray10">
             Bienvenido, {user?.name}
           </Text>
         </YStack>

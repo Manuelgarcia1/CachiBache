@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { ScrollView } from "react-native";
 import { YStack, Text, Spinner } from "tamagui";
 import { ReportTable } from "@/src/features/admin/components/ReportTable";
 import { ReportFilters } from "@/src/features/admin/components/ReportFilters";
@@ -107,67 +108,69 @@ export default function ReportsAdmin() {
   };
 
   return (
-    <YStack flex={1} padding="$4" backgroundColor="#f8fafc" gap="$4">
-      {/* Header */}
-      <YStack gap="$2">
-        <Text fontSize={32} fontWeight="bold">
-          Gestión de Reportes
-        </Text>
-        <Text fontSize={16} color="$gray10">
-          Total: {totalReports} reportes
-        </Text>
+    <ScrollView style={{ flex: 1, backgroundColor: "#f8fafc" }}>
+      <YStack padding="$4" gap="$4">
+        {/* Header */}
+        <YStack gap="$2">
+          <Text fontSize={24} fontWeight="bold">
+            Gestión de Reportes
+          </Text>
+          <Text fontSize={14} color="$gray10">
+            Total: {totalReports} reportes
+          </Text>
+        </YStack>
+
+        {/* Filtros */}
+        <ReportFilters
+          onStatusChange={handleStatusChange}
+          onSearchChange={handleSearchChange}
+          onClearFilters={handleClearFilters}
+        />
+
+        {/* Error Message */}
+        {error && (
+          <YStack
+            padding="$4"
+            backgroundColor="#fee2e2"
+            borderRadius="$4"
+            borderWidth={1}
+            borderColor="#ef4444"
+          >
+            <Text color="#991b1b">{error}</Text>
+          </YStack>
+        )}
+
+        {/* Tabla o Loading */}
+        {isLoading && !error ? (
+          <YStack padding="$4" alignItems="center">
+            <Spinner size="large" color="$blue10" />
+          </YStack>
+        ) : (
+          <ReportTable
+            reports={reports}
+            isLoading={false}
+            onEditStatus={handleEditStatus}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
+
+        {/* Modal para cambiar estado */}
+        {selectedReport && (
+          <ChangeStatusModal
+            isVisible={modalVisible}
+            currentStatus={selectedReport.status}
+            reportId={selectedReport.id}
+            reportAddress={selectedReport.address}
+            onClose={() => {
+              setModalVisible(false);
+              setSelectedReport(null);
+            }}
+            onConfirm={handleConfirmStatusChange}
+          />
+        )}
       </YStack>
-
-      {/* Filtros */}
-      <ReportFilters
-        onStatusChange={handleStatusChange}
-        onSearchChange={handleSearchChange}
-        onClearFilters={handleClearFilters}
-      />
-
-      {/* Error Message */}
-      {error && (
-        <YStack
-          padding="$4"
-          backgroundColor="#fee2e2"
-          borderRadius="$4"
-          borderWidth={1}
-          borderColor="#ef4444"
-        >
-          <Text color="#991b1b">{error}</Text>
-        </YStack>
-      )}
-
-      {/* Tabla o Loading */}
-      {isLoading && !error ? (
-        <YStack padding="$4" alignItems="center">
-          <Spinner size="large" color="$blue10" />
-        </YStack>
-      ) : (
-        <ReportTable
-          reports={reports}
-          isLoading={false}
-          onEditStatus={handleEditStatus}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
-
-      {/* Modal para cambiar estado */}
-      {selectedReport && (
-        <ChangeStatusModal
-          isVisible={modalVisible}
-          currentStatus={selectedReport.status}
-          reportId={selectedReport.id}
-          reportAddress={selectedReport.address}
-          onClose={() => {
-            setModalVisible(false);
-            setSelectedReport(null);
-          }}
-          onConfirm={handleConfirmStatusChange}
-        />
-      )}
-    </YStack>
+    </ScrollView>
   );
 }
