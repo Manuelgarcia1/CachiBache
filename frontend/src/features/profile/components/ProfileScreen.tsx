@@ -9,7 +9,7 @@ import { Feather } from "@expo/vector-icons";
 interface User {
   name: string;
   email: string;
-  avatar: string;
+  avatar?: string; // Opcional - el backend puede no devolver avatar
   phone?: string;
 }
 
@@ -59,7 +59,7 @@ export function ProfileScreen({
 
   return (
     <YStack flex={1} backgroundColor="#f8fafc">
-      <ProfileHeader name={user.name} email={user.email} avatar={user.avatar} />
+      <ProfileHeader name={user.name} email={user.email} avatar={user.avatar || ''} />
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={false}

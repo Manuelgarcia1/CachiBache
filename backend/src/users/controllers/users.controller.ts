@@ -18,7 +18,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async getProfile(@GetUser() user: User) {
     // Obtén los datos de reportes y dashboard
-    const { reportStats, dashboard } = await this.reportsService.getUserStatsAndDashboard(user.id);
+    const { reportStats, dashboard } =
+      await this.reportsService.getUserStatsAndDashboard(user.id);
 
     // Devuelve el usuario y los datos extra
     return {
