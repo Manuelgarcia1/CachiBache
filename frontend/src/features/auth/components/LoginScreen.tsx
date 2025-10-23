@@ -48,6 +48,7 @@ export function LoginScreen() {
           email: response.user.email,
           name: response.user.fullName,
           emailVerified: response.user.emailVerified,
+          role: response.user.role,
         },
         response.refreshToken
       );

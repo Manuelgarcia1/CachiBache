@@ -102,8 +102,8 @@ class AuthService {
    */
   async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiService.get<User>('/auth/user');
-      return response;
+      const response = await apiService.get<{ user: User }>('/users/me');
+      return response.user;
     } catch (error) {
       throw error;
     }
