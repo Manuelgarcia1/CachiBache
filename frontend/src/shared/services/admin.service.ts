@@ -56,3 +56,27 @@ export async function updateReportStatus(
     throw error;
   }
 }
+
+/**
+ * Obtener métricas para el dashboard (admin)
+ * Endpoint: GET /reports/metrics/dashboard
+ * Requiere autenticación
+ */
+export async function getDashboardMetrics(): Promise<{
+  totalReports: number;
+  reportsBySeverity: Record<string, number>;
+  reportsByStatus: Record<string, number>;
+}> {
+  try {
+    const response = await apiService.get<{
+      totalReports: number;
+      reportsBySeverity: Record<string, number>;
+      reportsByStatus: Record<string, number>;
+    }>('/reports/metrics/dashboard');
+
+    return response;
+  } catch (error) {
+    console.error('Error fetching dashboard metrics:', error);
+    throw error;
+  }
+}

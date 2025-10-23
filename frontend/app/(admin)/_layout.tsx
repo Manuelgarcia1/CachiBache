@@ -1,8 +1,10 @@
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 import { Stack, router } from "expo-router";
 import { useEffect } from "react";
+import { XStack, YStack } from "tamagui";
+import { AdminSidebar } from "@/src/features/admin/components/AdminSidebar";
 
-// Layout de la sección admin: protege rutas y renderiza contenido
+// Layout de la sección admin: protege rutas y renderiza contenido con sidebar
 export default function AdminLayout() {
   const { token, isLoading, isAdmin } = useAuth();
 
@@ -24,15 +26,23 @@ export default function AdminLayout() {
     return null;
   }
 
-  // Layout con Stack para navegación entre pantallas admin
+  // Layout con Sidebar + Contenido
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="dashboard" />
-      <Stack.Screen name="reports" />
-    </Stack>
+    <XStack flex={1}>
+      {/* Sidebar fijo a la izquierda */}
+      <AdminSidebar />
+
+      {/* Contenido principal */}
+      <YStack flex={1}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="dashboard" />
+          <Stack.Screen name="reports" />
+        </Stack>
+      </YStack>
+    </XStack>
   );
 }
