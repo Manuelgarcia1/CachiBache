@@ -21,6 +21,16 @@ export class ApiError extends Error {
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
 
+// Rutas públicas que no requieren autenticación
+const PUBLIC_ROUTES = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+  '/auth/verify-email',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+];
+
 /**
  * Servicio centralizado para realizar peticiones HTTP con axios
  */
@@ -42,6 +52,12 @@ class ApiService {
         // Si ya hay un token en el header (ej: después de refresh), no lo sobreescribas
         if (config.headers?.Authorization) {
           return config;
+        }
+
+        // Verificar si la ruta es pública (no requiere autenticación)
+        const isPublicRoute = PUBLIC_ROUTES.some(route => config.url?.includes(route));
+        if (isPublicRoute) {
+          return config; // No agregar token a rutas públicas
         }
 
         // Obtener el token actual de SecureStore

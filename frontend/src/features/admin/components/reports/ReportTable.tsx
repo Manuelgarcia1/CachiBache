@@ -46,32 +46,44 @@ export function ReportTable({
     <YStack gap="$3">
       {/* Tabla */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <YStack gap="$2" minWidth={900}>
+        <YStack gap="$2" minWidth={800}>
           {/* Header */}
           <XStack
             backgroundColor="#f1f5f9"
             padding="$3"
             borderRadius="$2"
-            gap="$3"
+            gap="$2"
           >
-            <Text flex={0.3} fontSize={12} fontWeight="bold" color="$gray11">
-              ID
-            </Text>
-            <Text flex={1} fontSize={12} fontWeight="bold" color="$gray11">
-              Dirección
-            </Text>
-            <Text flex={0.4} fontSize={12} fontWeight="bold" color="$gray11">
-              Estado
-            </Text>
-            <Text flex={0.4} fontSize={12} fontWeight="bold" color="$gray11">
-              Severidad
-            </Text>
-            <Text flex={0.5} fontSize={12} fontWeight="bold" color="$gray11">
-              Fecha
-            </Text>
-            <Text flex={0.3} fontSize={12} fontWeight="bold" color="$gray11">
-              Acciones
-            </Text>
+            <XStack width={90} alignItems="center">
+              <Text fontSize={12} fontWeight="bold" color="$gray11">
+                ID
+              </Text>
+            </XStack>
+            <XStack width={200} alignItems="center">
+              <Text fontSize={12} fontWeight="bold" color="$gray11">
+                Dirección
+              </Text>
+            </XStack>
+            <XStack width={130} alignItems="center">
+              <Text fontSize={12} fontWeight="bold" color="$gray11">
+                Estado
+              </Text>
+            </XStack>
+            <XStack width={100} alignItems="center">
+              <Text fontSize={12} fontWeight="bold" color="$gray11">
+                Severidad
+              </Text>
+            </XStack>
+            <XStack width={100} alignItems="center">
+              <Text fontSize={12} fontWeight="bold" color="$gray11">
+                Fecha
+              </Text>
+            </XStack>
+            <XStack width={80} alignItems="center" justifyContent="center">
+              <Text fontSize={12} fontWeight="bold" color="$gray11">
+                Acciones
+              </Text>
+            </XStack>
           </XStack>
 
           {/* Filas */}
@@ -83,25 +95,32 @@ export function ReportTable({
               borderRadius="$2"
               borderWidth={1}
               borderColor="$gray5"
-              gap="$3"
-              alignItems="center"
+              gap="$2"
             >
-              <Text flex={0.3} fontSize={12} color="$gray11">
-                {report.id.substring(0, 8)}...
-              </Text>
-              <Text flex={1} fontSize={14}>
-                {report.address}
-              </Text>
-              <YStack flex={0.4}>
+              <XStack width={90} alignItems="center">
+                <Text fontSize={12} color="$gray11">
+                  {report.id.substring(0, 8)}...
+                </Text>
+              </XStack>
+              <XStack width={200} alignItems="center">
+                <Text fontSize={14}>
+                  {report.address}
+                </Text>
+              </XStack>
+              <XStack width={130} alignItems="center">
                 <ReportStatusBadge status={report.status} />
-              </YStack>
-              <Text flex={0.4} fontSize={14} textTransform="capitalize">
-                {report.severity.toLowerCase()}
-              </Text>
-              <Text flex={0.5} fontSize={12} color="$gray10">
-                {new Date(report.createdAt).toLocaleDateString('es-AR')}
-              </Text>
-              <XStack flex={0.3}>
+              </XStack>
+              <XStack width={100} alignItems="center">
+                <Text fontSize={14} textTransform="capitalize">
+                  {report.severity.toLowerCase()}
+                </Text>
+              </XStack>
+              <XStack width={100} alignItems="center">
+                <Text fontSize={12} color="$gray10">
+                  {new Date(report.createdAt).toLocaleDateString('es-AR')}
+                </Text>
+              </XStack>
+              <XStack width={80} alignItems="center" justifyContent="center">
                 <Button
                   size="$3"
                   icon={<Feather name="edit-2" size={14} />}

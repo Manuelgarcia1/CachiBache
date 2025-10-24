@@ -38,7 +38,6 @@ export function ReportStatusBadge({ status }: ReportStatusBadgeProps) {
       paddingHorizontal="$3"
       paddingVertical="$2"
       borderRadius="$2"
-      alignSelf="flex-start"
     >
       <Text
         fontSize={12}
