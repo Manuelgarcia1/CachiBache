@@ -215,11 +215,10 @@ export class ReportsService {
     reportId: string,
     newStatus: ReportStatus,
   ): Promise<Report> {
-    const report = await this.findOneReport(reportId);
+    // Usar update en lugar de save para actualizar solo el campo status
+    await this.reportRepository.update(reportId, { status: newStatus });
 
-    // Actualizar estado
-    report.status = newStatus;
-
-    return this.reportRepository.save(report);
+    // Devolver el reporte actualizado
+    return this.findOneReport(reportId);
   }
 }

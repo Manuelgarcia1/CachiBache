@@ -82,23 +82,27 @@ export function ChangeStatusModal({
               value={selectedStatus}
               onValueChange={(value) => setSelectedStatus(value as ReportStatus)}
             >
-              <Select.Trigger width="100%">
-                <Select.Value />
+              <Select.Trigger width="100%" backgroundColor="$gray2" borderColor="$gray6">
+                <Select.Value placeholder="Selecciona un estado" />
               </Select.Trigger>
 
-              <Select.Content>
-                <Select.Item index={0} value="PENDIENTE">
-                  <Select.ItemText>Pendiente</Select.ItemText>
-                </Select.Item>
-                <Select.Item index={1} value="EN_REPARACION">
-                  <Select.ItemText>En Reparación</Select.ItemText>
-                </Select.Item>
-                <Select.Item index={2} value="RESUELTO">
-                  <Select.ItemText>Resuelto</Select.ItemText>
-                </Select.Item>
-                <Select.Item index={3} value="DESCARTADO">
-                  <Select.ItemText>Descartado</Select.ItemText>
-                </Select.Item>
+              <Select.Content zIndex={200000}>
+                <Select.ScrollUpButton />
+                <Select.Viewport>
+                  <Select.Item index={0} value="PENDIENTE">
+                    <Select.ItemText>Pendiente</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item index={1} value="EN_REPARACION">
+                    <Select.ItemText>En Reparación</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item index={2} value="RESUELTO">
+                    <Select.ItemText>Resuelto</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item index={3} value="DESCARTADO">
+                    <Select.ItemText>Descartado</Select.ItemText>
+                  </Select.Item>
+                </Select.Viewport>
+                <Select.ScrollDownButton />
               </Select.Content>
             </Select>
           </YStack>

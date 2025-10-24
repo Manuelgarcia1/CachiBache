@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { ScrollView } from "react-native";
 import { YStack, XStack, Text, Spinner } from "tamagui";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
@@ -6,6 +6,7 @@ import { getDashboardMetrics } from "@/src/shared/services/admin.service";
 import { MetricCard } from "./MetricCard";
 import { StatusChart } from "./StatusChart";
 import { SeverityChart } from "./SeverityChart";
+import { useFocusEffect } from "expo-router";
 
 export function DashboardScreen() {
   const { user } = useAuth();
@@ -17,11 +18,7 @@ export function DashboardScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadMetrics();
-  }, []);
-
-  const loadMetrics = async () => {
+  const loadMetrics = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -33,7 +30,14 @@ export function DashboardScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Recargar métricas cada vez que la pantalla recibe foco
+  useFocusEffect(
+    useCallback(() => {
+      loadMetrics();
+    }, [loadMetrics])
+  );
 
   // Calcular métricas derivadas
   const pendingReports = metrics?.reportsByStatus?.PENDIENTE || 0;
