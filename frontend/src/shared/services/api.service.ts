@@ -27,6 +27,7 @@ const PUBLIC_ROUTES = [
   '/auth/register',
   '/auth/refresh',
   '/auth/verify-email',
+  '/auth/resend-verification',
   '/auth/forgot-password',
   '/auth/reset-password',
 ];
