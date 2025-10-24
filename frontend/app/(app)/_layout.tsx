@@ -6,7 +6,15 @@ import { Button, Text, XStack, YStack } from "tamagui";
 
 // Layout de la sección autenticada: maneja navegación por tabs y protege rutas privadas
 export default function AppLayout() {
-  const { token, isLoading, isGuest, logout } = useAuth();
+  const { token, isLoading, isGuest, isAdmin, logout } = useAuth();
+
+  // Protección de rutas: redirige a dashboard si es admin
+  useEffect(() => {
+    if (!isLoading && isAdmin) {
+      console.log("🔀 Admin detectado - Redirigiendo a dashboard");
+      router.replace("/(admin)/dashboard" as any);
+    }
+  }, [isAdmin, isLoading]);
 
   // Protección de rutas: redirige a inicio si no hay token válido
   useEffect(() => {

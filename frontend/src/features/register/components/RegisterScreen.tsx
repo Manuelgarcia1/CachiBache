@@ -46,6 +46,7 @@ export function RegisterScreen() {
           email: response.user.email,
           name: response.user.fullName,
           emailVerified: response.user.emailVerified,
+          role: response.user.role,
         },
         response.refreshToken
       );

@@ -3,11 +3,15 @@
  * Funciones puras y reutilizables para lógica de auth
  */
 
+// Tipos para roles de usuario
+export type UserRole = 'CIUDADANO' | 'ADMIN';
+
 // Tipos para el usuario desde la API
 interface ApiUserData {
   email: string;
   fullName: string;
   emailVerified: boolean;
+  role: UserRole;
 }
 
 // Tipo interno de usuario
@@ -15,6 +19,7 @@ export interface User {
   email?: string;
   name?: string;
   emailVerified?: boolean;
+  role?: UserRole;
 }
 
 /**
@@ -33,6 +38,7 @@ export const mapApiUserToUser = (apiUser: ApiUserData): User => {
     email: apiUser.email,
     name: apiUser.fullName,
     emailVerified: apiUser.emailVerified,
+    role: apiUser.role,
   };
 };
 
