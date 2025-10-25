@@ -1,5 +1,3 @@
-// Ubicación: src/features/reports/components/ReportDetail.tsx
-
 import { Feather } from '@expo/vector-icons';
 import { Image, Separator, Text, XStack, YStack } from 'tamagui';
 import MapView, { Marker, Region } from 'react-native-maps';
@@ -9,7 +7,7 @@ import { Linking, TouchableOpacity } from 'react-native';
 interface ReportDetailProps {
     severity: string;
     photoUrl?: string;
-    location: any; // Usa el tipo correcto para tu ubicación
+    location: any;
     date: string;
 }
 
@@ -23,7 +21,7 @@ const DetailRow = ({ icon, label, value }: { icon: any; label: string; value: st
 );
 
 export function ReportDetail({ severity, photoUrl, location, date }: ReportDetailProps) {
-    // 3. Parseamos la ubicación para obtener latitud y longitud
+    // Parseamos la ubicación para obtener latitud y longitud
     const coordinate = parseLocationFromBackend(location);
 
     // Creamos una región para el mapa centrada en la coordenada del reporte
@@ -59,7 +57,7 @@ export function ReportDetail({ severity, photoUrl, location, date }: ReportDetai
                 <Text fontSize="$3" color="$gray9">No se adjuntó foto para este reporte.</Text>
             )}
 
-            {/* --- 👇 NUEVO COMPONENTE DE MINI-MAPA 👇 --- */}
+            {/* MINI-MAPA */}
             <YStack space="$2">
                 <Text fontSize="$3" fontWeight="bold" color="$gray11">UBICACIÓN</Text>
                 <TouchableOpacity onPress={handleOpenMaps}>

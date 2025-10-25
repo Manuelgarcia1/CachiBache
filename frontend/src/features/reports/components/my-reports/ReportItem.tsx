@@ -1,5 +1,4 @@
 import { useState } from 'react';
-// CAMBIO: Importamos AnimatePresence para animaciones
 import { Text, View, XStack, YStack, AnimatePresence, Separator } from 'tamagui';
 import { ReportDetail } from './ReportDetail';
 import { Feather } from '@expo/vector-icons';
@@ -12,7 +11,7 @@ interface ReportItemProps {
   status: string;
   severity: string;
   photoUrl?: string; // La URL de la foto es opcional
-  location: string; // O el tipo de dato que uses para las coordenadas
+  location: string;
 }
 
 // Función para obtener color y ancho según estado
@@ -37,9 +36,6 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
     console.log(`[ReportItem] TOCADO! ID: ${id}. Nuevo estado: ${!isExpanded}`);
     setIsExpanded(!isExpanded);
   };
-
-  // 2. ELIMINAMOS el <TouchableOpacity> que envolvía todo.
-  //    Ahora el YStack es el componente principal y él manejará el toque.
   return (
     <YStack
       padding="$4"
@@ -49,11 +45,8 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
       elevation={2}
       animation="bouncy"
       pressStyle={{ scale: 0.98, backgroundColor: '$gray2' }} // Añadimos un feedback visual sutil
-      // --- 👇 ¡AQUÍ ESTÁ LA MAGIA! 👇 ---
       onPress={handleToggleExpand} // 3. Pasamos la función directamente al YStack
-    // ------------------------------------
     >
-      {/* El resto del contenido del YStack no necesita ningún cambio */}
       {/* ... VISTA RESUMIDA ... */}
       <Text fontSize="$7" fontWeight="bold" color="$gray12">{address}</Text>
 

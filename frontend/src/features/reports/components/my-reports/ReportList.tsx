@@ -16,7 +16,6 @@ export function ReportList({ reports }: ReportListProps) {
           date={report.updatedAt} // Usamos updatedAt para la fecha del último cambio
           status={report.status}
           severity={report.severity}
-          // Asumimos que la primera foto es la que se muestra
           photoUrl={report.photos?.[0]?.url} 
           location={report.location}
         />
