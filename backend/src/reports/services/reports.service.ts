@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindManyOptions, ILike } from 'typeorm';
 import { CreateReportDto } from '../dto/create-report.dto';
 import { UpdateReportDto } from '../dto/update-report.dto';
 import { Report } from '../entities/report.entity';
@@ -104,19 +104,26 @@ export class ReportsService {
     limit = 10,
     search?: string,
   ): Promise<{ reports: Report[]; total: number }> {
-    const query = this.reportRepository
-      .createQueryBuilder('report')
-      .leftJoinAndSelect('report.user', 'user')
-      .where('user.id = :userId', { userId });
+
+    // --- 👇 REESCRIBIMOS LA LÓGICA CON EL MÉTODO 'findAndCount' 👇 ---
+
+    const where: FindManyOptions<Report>['where'] = {
+      user: { id: userId },
+    };
 
     if (search) {
-      query.andWhere('report.address ILIKE :search', { search: `%${search}%` });
+      where.address = ILike(`%${search}%`); // ILIKE para búsqueda case-insensitive
     }
 
-    const [reports, total] = await query
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
+    const [reports, total] = await this.reportRepository.findAndCount({
+      where,
+      relations: ['user', 'photos'], // <-- Explícitamente pedimos las relaciones aquí
+      order: {
+        updatedAt: 'DESC',
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
 
     return { reports, total };
   }

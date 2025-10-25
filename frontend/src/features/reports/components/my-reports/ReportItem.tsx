@@ -1,10 +1,18 @@
-import { Text, View, XStack, YStack } from 'tamagui';
+import { useState } from 'react';
+// CAMBIO: Importamos AnimatePresence para animaciones
+import { Text, View, XStack, YStack, AnimatePresence, Separator } from 'tamagui';
+import { ReportDetail } from './ReportDetail';
+import { Feather } from '@expo/vector-icons';
+
 
 interface ReportItemProps {
+  id: string;
   address: string;
   date: string;
   status: string;
-  location: string;
+  severity: string;
+  photoUrl?: string; // La URL de la foto es opcional
+  location: string; // O el tipo de dato que uses para las coordenadas
 }
 
 // Función para obtener color y ancho según estado
@@ -21,41 +29,79 @@ function getBarProps(status: string) {
   }
 }
 
-export function ReportItem({ address, date, status, location }: ReportItemProps) {
+export function ReportItem({ id, address, date, status, severity, photoUrl, location }: ReportItemProps) {
   const { color, width } = getBarProps(status);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleToggleExpand = () => {
+    console.log(`[ReportItem] TOCADO! ID: ${id}. Nuevo estado: ${!isExpanded}`);
+    setIsExpanded(!isExpanded);
+  };
+
+  // 2. ELIMINAMOS el <TouchableOpacity> que envolvía todo.
+  //    Ahora el YStack es el componente principal y él manejará el toque.
   return (
-    <YStack padding="$3" backgroundColor="#fff" borderRadius={12} shadowColor="#000" shadowOpacity={0.05} gap="$2">
-      <Text fontSize={24} fontWeight="600">{address}</Text>
-      {/* Barra de estado visual */}
-      <YStack gap="$1">
-        <XStack alignItems="center" gap="$2">
-          <View
-            flex={1}
-            height={12}
-            backgroundColor="#e5e7eb"
-            borderRadius={6}
-            overflow="hidden"
-          >
-            <View
-              height={12}
-              width={width}
-              backgroundColor={color}
-              borderRadius={6}
-              position="absolute"
-              left={0}
-              top={0}
-            />
-          </View>
-        </XStack>
+    <YStack
+      padding="$4"
+      backgroundColor="white"
+      borderRadius="$6"
+      gap="$3"
+      elevation={2}
+      animation="bouncy"
+      pressStyle={{ scale: 0.98, backgroundColor: '$gray2' }} // Añadimos un feedback visual sutil
+      // --- 👇 ¡AQUÍ ESTÁ LA MAGIA! 👇 ---
+      onPress={handleToggleExpand} // 3. Pasamos la función directamente al YStack
+    // ------------------------------------
+    >
+      {/* El resto del contenido del YStack no necesita ningún cambio */}
+      {/* ... VISTA RESUMIDA ... */}
+      <Text fontSize="$7" fontWeight="bold" color="$gray12">{address}</Text>
+
+      <YStack>
+        <View flex={1} height={12} backgroundColor="$gray3" borderRadius={6} overflow="hidden">
+          <View height={12} width={width} backgroundColor={color} borderRadius={6} />
+        </View>
       </YStack>
+
       <XStack justifyContent="space-between" alignItems="center">
-        <Text fontSize={18} fontWeight="600" color="#334155">
+        <Text fontSize="$5" fontWeight="600" color={color}>
           {status}
         </Text>
-        <Text fontSize={12} color="#64748b">
-          Último cambio: {date}
+        <Text fontSize="$3" color="$gray10">
+          {new Date(date).toLocaleDateString()}
         </Text>
       </XStack>
+
+      {/* ... SEPARADOR Y BOTÓN "VER DETALLES" ... */}
+      <Separator marginVertical="$2" borderColor="$gray4" />
+      <XStack alignItems="center" space="$2" alignSelf="flex-end">
+        <Text fontSize="$3" fontWeight="600" color="$blue10">
+          {isExpanded ? 'Ocultar detalles' : 'Ver detalles'}
+        </Text>
+        <Feather
+          name={isExpanded ? 'chevron-up' : 'chevron-down'}
+          size={18}
+          color="#3b82f6"
+        />
+      </XStack>
+
+      {/* ... VISTA DETALLADA ... */}
+      <AnimatePresence>
+        {isExpanded && (
+          <YStack
+            animation="lazy"
+            enterStyle={{ opacity: 0, y: -10 }}
+            exitStyle={{ opacity: 0, y: -10 }}
+          >
+            <ReportDetail
+              severity={severity}
+              photoUrl={photoUrl}
+              location={location}
+              date={date}
+            />
+          </YStack>
+        )}
+      </AnimatePresence>
     </YStack>
   );
 }

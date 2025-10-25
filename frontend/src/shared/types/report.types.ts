@@ -8,6 +8,13 @@ export type ReportSeverity = 'LEVE' | 'INTERMEDIO' | 'GRAVE';
  * Estructura del reporte tal como viene del backend
  * La location puede venir en varios formatos según cómo TypeORM la serialice
  */
+export interface PhotoFromBackend {
+  id: string;
+  url: string;
+  publicId: string;
+  createdAt: string;
+}
+
 export interface ReportFromBackend {
   id: string;
   address: string;
@@ -22,6 +29,7 @@ export interface ReportFromBackend {
     firstName?: string;
     lastName?: string;
   };
+  photos?: PhotoFromBackend[];
 }
 
 /**

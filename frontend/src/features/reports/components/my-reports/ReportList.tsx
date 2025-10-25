@@ -1,26 +1,23 @@
 import { YStack } from 'tamagui';
 import { ReportItem } from './ReportItem';
-
-interface Report {
-  address: string;
-  date: string;
-  status: string;
-  location: string;
-}
+import { ReportFromBackend } from '@/src/shared/types/report.types'; 
 
 interface ReportListProps {
-  reports: Report[];
+  reports: ReportFromBackend[]; // Usamos el tipo completo
 }
-
 export function ReportList({ reports }: ReportListProps) {
   return (
-    <YStack>
-      {reports.map((report, idx) => (
+    <YStack gap="$4">
+      {reports.map((report) => (
         <ReportItem
-          key={idx}
+          key={report.id}
+          id={report.id}
           address={report.address}
-          date={report.date}
+          date={report.updatedAt} // Usamos updatedAt para la fecha del último cambio
           status={report.status}
+          severity={report.severity}
+          // Asumimos que la primera foto es la que se muestra
+          photoUrl={report.photos?.[0]?.url} 
           location={report.location}
         />
       ))}
