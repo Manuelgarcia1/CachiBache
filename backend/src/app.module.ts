@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -49,6 +50,8 @@ import { ReportsModule } from './reports/reports.module';
     UsersModule,
 
     ReportsModule,
+
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

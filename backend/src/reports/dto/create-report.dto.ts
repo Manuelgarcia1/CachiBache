@@ -5,27 +5,31 @@ import {
   IsObject,
   ValidateNested,
   IsNumber,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ReportSeverity } from '../entities/report-severity.enum';
 
-// Un DTO anidado para validar las coordenadas
+// DTO anidado para la ubicación
 class LocationDto {
-  // ✨ --- AÑADIR DECORADORES DE TIPO --- ✨
-  @IsNumber()
-  @IsNotEmpty()
-  x: number;
+  @IsNumber() @IsNotEmpty() x: number;
+  @IsNumber() @IsNotEmpty() y: number;
+}
 
-  // ✨ --- AÑADIR DECORADORES DE TIPO --- ✨
-  @IsNumber()
+class PhotoDto {
+  @IsString()
   @IsNotEmpty()
-  y: number;
+  url: string;
+
+  @IsString()
+  @IsNotEmpty()
+  publicId: string;
 }
 
 export class CreateReportDto {
   @IsObject()
-  @ValidateNested() // Le dice al validador que también valide el objeto anidado
-  @Type(() => LocationDto) // Le dice a class-transformer qué clase usar para la transformación
+  @ValidateNested()
+  @Type(() => LocationDto)
   location: LocationDto;
 
   @IsString()
@@ -35,4 +39,10 @@ export class CreateReportDto {
   @IsEnum(ReportSeverity)
   @IsNotEmpty()
   severity: ReportSeverity;
+
+  @IsOptional() // La foto no es obligatoria
+  @IsObject()
+  @ValidateNested() // Validamos el objeto anidado
+  @Type(() => PhotoDto)
+  photo?: PhotoDto;
 }

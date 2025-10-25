@@ -6,30 +6,48 @@ import { UpdateReportDto } from '../dto/update-report.dto';
 import { Report } from '../entities/report.entity';
 import { ReportStatus } from '../entities/report-status.enum';
 import { User } from '../../users/entities/user.entity';
+import { Photo } from '../entities/photo.entity';
 
 @Injectable()
 export class ReportsService {
   constructor(
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
-  ) {}
+
+    // 2. Inyecta el repositorio de la entidad Photo
+    @InjectRepository(Photo)
+    private readonly photoRepository: Repository<Photo>,
+  ) { }
 
   async create(createReportDto: CreateReportDto, user: User): Promise<Report> {
-    // ✨ --- AÑADIR ESTA LÍNEA PARA DEPURAR --- ✨
-    console.log(
-      'DTO RECIBIDO EN EL SERVICIO:',
-      JSON.stringify(createReportDto, null, 2),
-    );
+    // 3. Extraemos 'photo' del DTO junto con los demás datos
+    const { location, photo, ...reportData } = createReportDto;
 
-    const { location, ...reportData } = createReportDto;
-
+    // 4. Creamos la instancia del Reporte, pero aún no la guardamos
     const newReport = this.reportRepository.create({
       ...reportData,
       location: `${location.x},${location.y}`,
       user: user,
     });
 
-    return this.reportRepository.save(newReport);
+    // 5. Guardamos el reporte principal en la base de datos
+    const savedReport = await this.reportRepository.save(newReport);
+
+    // 6. Si el DTO incluía datos de una foto...
+    if (photo) {
+      // 7. Creamos la instancia de la Photo, asociándola con el reporte recién guardado
+      const newPhoto = this.photoRepository.create({
+        url: photo.url,
+        publicId: photo.publicId,
+        report: savedReport, // <-- Aquí está la magia de la relación
+      });
+
+      // 8. Guardamos la foto en su propia tabla
+      await this.photoRepository.save(newPhoto);
+    }
+
+    // 9. Devolvemos el reporte principal.
+    return this.findOneReport(savedReport.id);
   }
   async findAll(): Promise<Report[]> {
     return this.reportRepository.find({
