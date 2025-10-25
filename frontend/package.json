@@ -51,6 +51,7 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.4",
     "react-native-gesture-handler": "~2.28.0",
+    "react-native-get-random-values": "^2.0.0",
     "react-native-maps": "1.20.1",
     "react-native-reanimated": "~4.1.0",
     "react-native-safe-area-context": "~5.6.0",
@@ -62,6 +63,7 @@
     "string-width": "^4.2.3",
     "strip-ansi": "^6.0.1",
     "tamagui": "1.132.23",
+    "uuid": "^13.0.0",
     "wrap-ansi": "^7.0.0",
     "yup": "^1.7.0"
   },
@@ -70,6 +72,7 @@
     "@react-native-community/cli": "^20.0.2",
     "@react-native/metro-config": "^0.81.1",
     "@types/react": "~19.1.10",
+    "@types/uuid": "^11.0.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "metro": "^0.83.1",

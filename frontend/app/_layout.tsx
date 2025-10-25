@@ -7,6 +7,9 @@ import Constants from 'expo-constants';
 import tamaguiConfig from "@/tamagui.config";
 import { AuthProvider } from "@/src/shared/contexts/AuthContext";
 
+// Necesario para que uuid funcione en React Native
+import 'react-native-get-random-values';
+
 // Previene que el splash screen se oculte automáticamente (control manual desde AuthContext)
 SplashScreen.preventAutoHideAsync();
 

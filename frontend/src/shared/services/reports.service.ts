@@ -4,7 +4,6 @@ import { ReportFromBackend, MapReport, mapReportToMapReport, ReportSeverity } fr
 
 /**
  * DTO para crear un reporte
- * NOTA: El backend aún no soporta el campo 'image'
  */
 export interface CreateReportDto {
   address: string;
@@ -12,6 +11,11 @@ export interface CreateReportDto {
   location: {
     x: number; // longitude
     y: number; // latitude
+  };
+  // 1. Añadimos la nueva propiedad 'photo' como opcional
+  photo?: {
+    url: string;
+    publicId: string;
   };
 }
 
@@ -22,14 +26,8 @@ export interface CreateReportDto {
  */
 export async function createReport(data: CreateReportDto): Promise<ReportFromBackend> {
   try {
-    // Asegurarse de no enviar campos extra que el backend no acepta
-    const payload = {
-      address: data.address,
-      severity: data.severity,
-      location: data.location,
-    };
-
-    const report = await apiService.post<ReportFromBackend>('/reports', payload);
+    // 2. Ahora el payload es simplemente 'data', ya que la interfaz coincide
+    const report = await apiService.post<ReportFromBackend>('/reports', data);
     return report;
   } catch (error) {
     console.error('Error creating report:', error);

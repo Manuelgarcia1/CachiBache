@@ -2,16 +2,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, Text, YStack } from 'tamagui';
 import { EmptyState } from './EmptyState';
 import { ReportList } from './ReportList';
-
-interface Report {
-  address: string;
-  status: string;
-  date: string;
-  location: string;
-}
+import { ReportFromBackend } from '@/src/shared/types/report.types';
 
 interface MyReportsScreenProps {
-  reports: Report[];
+  reports: ReportFromBackend[]; // Usamos el tipo completo
 }
 
 export function MyReportsScreen({ reports }: MyReportsScreenProps) {
@@ -31,6 +25,7 @@ export function MyReportsScreen({ reports }: MyReportsScreenProps) {
         padding="$4"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ gap: 16, paddingBottom: insets.bottom + 16 }}
+        keyboardShouldPersistTaps="handled"
       >
         {reports.length > 0 ? (
           <ReportList reports={reports} />
