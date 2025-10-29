@@ -27,7 +27,7 @@ export class CloudinaryService {
       process.env.CLOUDINARY_SECRET,
     );
 
-    const apiKey = process.env.CLOUDINARY_KEY!;
+    const apiKey = process.env.CLOUDINARY_KEY;
 
     return {
       signature,
