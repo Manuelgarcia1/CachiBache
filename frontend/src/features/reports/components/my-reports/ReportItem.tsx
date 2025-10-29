@@ -43,7 +43,6 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
       borderRadius="$6"
       gap="$3"
       elevation={2}
-      animation="bouncy"
       pressStyle={{ scale: 0.98, backgroundColor: '$gray2' }} // Añadimos un feedback visual sutil
       onPress={handleToggleExpand} // 3. Pasamos la función directamente al YStack
     >
@@ -79,22 +78,19 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
       </XStack>
 
       {/* ... VISTA DETALLADA ... */}
-      <AnimatePresence>
-        {isExpanded && (
-          <YStack
-            animation="lazy"
-            enterStyle={{ opacity: 0, y: -10 }}
-            exitStyle={{ opacity: 0, y: -10 }}
-          >
-            <ReportDetail
-              severity={severity}
-              photoUrl={photoUrl}
-              location={location}
-              date={date}
-            />
-          </YStack>
-        )}
-      </AnimatePresence>
+      <YStack
+        animation="quick"
+        height={isExpanded ? 'auto' : 0}
+        opacity={isExpanded ? 1 : 0}
+        overflow="hidden"
+      >
+        <ReportDetail
+          severity={severity}
+          photoUrl={photoUrl}
+          location={location}
+          date={date}
+        />
+      </YStack>
     </YStack>
   );
 }
