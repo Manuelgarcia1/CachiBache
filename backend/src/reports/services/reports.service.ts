@@ -17,7 +17,7 @@ export class ReportsService {
     // 2. Inyecta el repositorio de la entidad Photo
     @InjectRepository(Photo)
     private readonly photoRepository: Repository<Photo>,
-  ) { }
+  ) {}
 
   async create(createReportDto: CreateReportDto, user: User): Promise<Report> {
     // 3. Extraemos 'photo' del DTO junto con los demás datos
@@ -49,9 +49,14 @@ export class ReportsService {
     // 9. Devolvemos el reporte principal.
     return this.findOneReport(savedReport.id);
   }
+  /**
+   * Obtener todos los reportes (endpoint público)
+   * NO incluye datos de usuario para proteger información personal
+   */
   async findAll(): Promise<Report[]> {
     return this.reportRepository.find({
-      relations: ['user'],
+      // No incluir relations: ['user'] para proteger datos personales (email, teléfono, etc.)
+      // Este endpoint es público y solo debe mostrar datos del reporte
     });
   }
 
@@ -104,7 +109,6 @@ export class ReportsService {
     limit = 10,
     search?: string,
   ): Promise<{ reports: Report[]; total: number }> {
-
     // --- 👇 REESCRIBIMOS LA LÓGICA CON EL MÉTODO 'findAndCount' 👇 ---
 
     const where: FindManyOptions<Report>['where'] = {
