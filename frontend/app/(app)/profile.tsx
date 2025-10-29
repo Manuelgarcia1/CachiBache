@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState, useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
 import { Text } from 'react-native';
 import { apiService } from "@/src/shared/services/api.service";
@@ -32,28 +33,31 @@ export default function ProfileTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setIsLoading(true);
-      setError(null);
+  const fetchProfile = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        // Usar apiService en lugar de fetch nativo
-        // El token se agrega automáticamente vía interceptor (api.service.ts:40-63)
-        const data = await apiService.get<ProfileData>('/users/me');
+    try {
+      // Usar apiService en lugar de fetch nativo
+      // El token se agrega automáticamente vía interceptor (api.service.ts:40-63)
+      const data = await apiService.get<ProfileData>('/users/me');
 
-        setProfileData(data);
-      } catch (err: any) {
-        console.error("Error al cargar perfil:", err);
-        setError(err.message || 'No se pudo cargar el perfil');
-        setProfileData(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProfile();
+      setProfileData(data);
+    } catch (err: any) {
+      console.error("Error al cargar perfil:", err);
+      setError(err.message || 'No se pudo cargar el perfil');
+      setProfileData(null);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  // Recargar perfil cada vez que la pantalla recibe focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [fetchProfile])
+  );
 
   // Estado de carga
   if (isLoading) {
