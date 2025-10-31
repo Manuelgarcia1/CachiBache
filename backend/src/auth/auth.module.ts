@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 import { EmailVerificationService } from './services/email-verification.service';
 import { RefreshTokenService } from './services/refresh-token.service';
+import { PasswordResetService } from './services/password-reset.service';
 import { AuthController } from './controllers/auth.controller';
 import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
@@ -12,10 +13,15 @@ import { CommonModule } from '../common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailVerificationToken } from './entities/email-verification-token.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { PasswordResetToken } from './entities/password-reset-token.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EmailVerificationToken, RefreshToken]),
+    TypeOrmModule.forFeature([
+      EmailVerificationToken,
+      RefreshToken,
+      PasswordResetToken,
+    ]),
     UsersModule,
     CommonModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -35,6 +41,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
     AuthService,
     EmailVerificationService,
     RefreshTokenService,
+    PasswordResetService,
     JwtStrategy,
   ],
   exports: [JwtStrategy, PassportModule],

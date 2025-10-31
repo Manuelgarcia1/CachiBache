@@ -74,4 +74,31 @@ export class EmailService {
       `,
     });
   }
+
+  async sendPasswordResetDeepLinkEmail(
+    email: string,
+    deepLink: string,
+  ): Promise<void> {
+    await this.transporter.sendMail({
+      from: `"CachiBache" <${this.configService.get<string>('SMTP_USER')}>`,
+      to: email,
+      subject: 'Recuperación de contraseña - CachiBache',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Recuperación de contraseña</h2>
+          <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente botón para crear una nueva contraseña en la aplicación:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${deepLink}"
+               style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Restablecer Contraseña
+            </a>
+          </div>
+          <p style="color: #666; font-size: 14px;">Si el botón no funciona, usa este enlace:</p>
+          <p style="color: #007bff; word-break: break-all;">${deepLink}</p>
+          <p style="color: #999; font-size: 12px; margin-top: 30px;">Este enlace expirará en 1 hora.</p>
+          <p style="color: #999; font-size: 12px;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.</p>
+        </div>
+      `,
+    });
+  }
 }

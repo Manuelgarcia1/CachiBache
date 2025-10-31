@@ -20,6 +20,18 @@ export interface LoginDto {
   password: string;
 }
 
+// DTO para solicitar reseteo de contraseña
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+// DTO para resetear la contraseña
+export interface ResetPasswordDto {
+  token: string;
+  password: string;
+  passwordConfirmation: string;
+}
+
 // Usuario sin contraseña (respuesta del backend)
 export interface User {
   id: string;
@@ -152,6 +164,40 @@ class AuthService {
       const response = await apiService.post<{ accessToken: string }>(
         '/auth/refresh',
         { refreshToken }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Solicita un enlace para restablecer la contraseña
+   * @param data - DTO con el email del usuario
+   * @returns Promise con mensaje de confirmación
+   */
+  async forgotPassword(data: ForgotPasswordDto): Promise<{ message: string }> {
+    try {
+      const response = await apiService.post<{ message: string }>(
+        '/auth/forgot-password',
+        data
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Restablece la contraseña del usuario usando un token
+   * @param data - DTO con el token y la nueva contraseña
+   * @returns Promise con mensaje de confirmación
+   */
+  async resetPassword(data: ResetPasswordDto): Promise<{ message: string }> {
+    try {
+      const response = await apiService.post<{ message: string }>(
+        '/auth/reset-password',
+        data
       );
       return response;
     } catch (error) {

@@ -53,4 +53,13 @@ export class UsersService {
     const updatedUser = await this.userRepository.save(user);
     return classToPlain(updatedUser);
   }
+
+  async updatePassword(userId: string, newHashedPassword: string): Promise<void> {
+    const user = await this.findOneById(userId);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    user.password = newHashedPassword;
+    await this.userRepository.save(user);
+  }
 }

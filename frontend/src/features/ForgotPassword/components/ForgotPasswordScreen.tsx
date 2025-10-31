@@ -1,4 +1,5 @@
 import { AppLogo } from "@features/welcome/components/AppLogo";
+import { authService } from "@/src/shared/services/auth.service";
 import { Header } from "@sharedcomponents/index"; // Usamos alias
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -26,20 +27,16 @@ export const ForgotPasswordScreen: React.FC = () => {
   const handleSubmit = async (email: string) => {
     setLoading(true);
     try {
-      console.log("Enviando email de recuperación a:", email);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Email de recuperación enviado exitosamente");
-
-      Alert.alert(
-        "Email Enviado",
-        "Hemos enviado un enlace de recuperación a tu email. Revisa tu bandeja de entrada.",
-        [{ text: "OK", onPress: handleBack }]
-      );
-    } catch (error) {
+      const response = await authService.forgotPassword({ email });
+      Alert.alert("Revisa tu email", response.message, [
+        { text: "OK", onPress: handleBack },
+      ]);
+    } catch (error: any) {
       console.error("Error al enviar email de recuperación:", error);
       Alert.alert(
         "Error",
-        "No pudimos enviar el email de recuperación. Por favor, intenta nuevamente."
+        error.message ||
+          "No pudimos enviar el email de recuperación. Por favor, intenta nuevamente."
       );
     } finally {
       setLoading(false);

@@ -14,6 +14,7 @@ import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
 import { EmailVerificationService } from '../services/email-verification.service';
+import { PasswordResetService } from '../services/password-reset.service';
 import { HtmlResponseService } from '../../common/services/html-response.service';
 import {
   type UserWithoutPassword,
@@ -22,6 +23,8 @@ import {
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 
@@ -30,6 +33,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly passwordResetService: PasswordResetService,
     private readonly htmlResponseService: HtmlResponseService,
   ) {}
 
@@ -202,5 +206,19 @@ export class AuthController {
       message:
         'Si el correo existe y no está verificado, se enviará un email de verificación',
     };
+  }
+
+  // ✨ --- NUEVOS ENDPOINTS DE RECUPERACIÓN DE CONTRASEÑA --- ✨
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.passwordResetService.sendForgotPasswordEmail(
+      forgotPasswordDto.email,
+    );
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.passwordResetService.resetPassword(resetPasswordDto);
   }
 }
