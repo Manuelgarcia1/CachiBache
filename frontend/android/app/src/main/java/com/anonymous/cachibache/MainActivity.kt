@@ -1,4 +1,4 @@
-package com.anonymous.miproyecto
+package com.anonymous.cachibache
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

@@ -52,7 +52,7 @@ export class PasswordResetService {
     await this.passwordResetTokenRepository.save(resetToken);
 
     // Construir el deep link para la app móvil
-    const deepLink = `cachibache://reset-password?token=${token}`;
+    const deepLink = `https://cachibacheserverpublic.netlify.app/reset-password?token=${token}`;
 
     // Enviar el email
     try {
