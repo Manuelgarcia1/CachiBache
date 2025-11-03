@@ -18,8 +18,8 @@ export interface AuthResponse {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
-    private readonly logger = new Logger(AuthService.name),
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly encryptionService: EncryptionService,
