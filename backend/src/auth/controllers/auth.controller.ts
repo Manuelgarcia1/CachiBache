@@ -14,6 +14,7 @@ import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
 import { EmailVerificationService } from '../services/email-verification.service';
+import { PasswordResetService } from '../services/password-reset.service';
 import { HtmlResponseService } from '../../common/services/html-response.service';
 import {
   type UserWithoutPassword,
@@ -22,6 +23,8 @@ import {
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 
@@ -30,6 +33,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly passwordResetService: PasswordResetService,
     private readonly htmlResponseService: HtmlResponseService,
   ) {}
 
@@ -201,6 +205,70 @@ export class AuthController {
     return {
       message:
         'Si el correo existe y no está verificado, se enviará un email de verificación',
+    };
+  }
+
+  // ✨ --- ENDPOINTS DE RECUPERACIÓN DE CONTRASEÑA --- ✨
+
+  /**
+   * Solicitar recuperación de contraseña
+   * POST /api/auth/forgot-password
+   */
+  @Post('forgot-password')
+  @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 intentos por hora
+  async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<{ message: string }> {
+    console.log('🔔 [CONTROLLER] Endpoint /auth/forgot-password llamado');
+    console.log('📧 [CONTROLLER] Email recibido:', forgotPasswordDto.email);
+
+    try {
+      await this.passwordResetService.requestPasswordReset(
+        forgotPasswordDto.email,
+      );
+      console.log('✅ [CONTROLLER] Servicio ejecutado exitosamente');
+      return {
+        message:
+          'Si el correo existe, recibirás un enlace para restablecer tu contraseña',
+      };
+    } catch (error) {
+      console.error('❌ [CONTROLLER] Error en forgot-password:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Validar token de recuperación
+   * GET /api/auth/validate-reset-token/:token
+   */
+  @Get('validate-reset-token/:token')
+  async validateResetToken(
+    @Param('token') token: string,
+  ): Promise<{ valid: boolean }> {
+    const valid = await this.passwordResetService.validateResetToken(token);
+    return { valid };
+  }
+
+  /**
+   * Restablecer contraseña con token
+   * POST /api/auth/reset-password
+   */
+  @Post('reset-password')
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<{ message: string }> {
+    // Validar que las contraseñas coincidan
+    if (resetPasswordDto.newPassword !== resetPasswordDto.confirmPassword) {
+      throw new UnauthorizedException('Las contraseñas no coinciden');
+    }
+
+    await this.passwordResetService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
+
+    return {
+      message: 'Contraseña restablecida exitosamente',
     };
   }
 }

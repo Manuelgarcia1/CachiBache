@@ -179,6 +179,18 @@ export function LoginScreen() {
                   >
                     {loading ? "Ingresando..." : "Ingresar"}
                   </Button>
+
+                  <Button
+                    size="$3"
+                    backgroundColor="transparent"
+                    color="white"
+                    fontWeight="400"
+                    borderRadius="$4"
+                    pressStyle={{ opacity: 0.7 }}
+                    onPress={() => router.push("/forgot-password")}
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Button>
                 </Stack>
               )}
             </Formik>

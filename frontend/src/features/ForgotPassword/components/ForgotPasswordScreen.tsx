@@ -1,5 +1,5 @@
 import { AppLogo } from "@features/welcome/components/AppLogo";
-import { Header } from "@sharedcomponents/index"; // Usamos alias
+import { Header } from "@sharedcomponents/index";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -9,8 +9,9 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, YStack } from "tamagui"; // CAMBIO: Usamos YStack
-import { ForgotPasswordForm } from "./ForgotPasswordForm"; // Usamos ruta relativa limpia
+import { ScrollView, YStack } from "tamagui";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { authService } from "@/src/shared/services/auth.service";
 
 export const ForgotPasswordScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -27,19 +28,25 @@ export const ForgotPasswordScreen: React.FC = () => {
     setLoading(true);
     try {
       console.log("Enviando email de recuperación a:", email);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await authService.requestPasswordReset(email);
       console.log("Email de recuperación enviado exitosamente");
 
       Alert.alert(
         "Email Enviado",
-        "Hemos enviado un enlace de recuperación a tu email. Revisa tu bandeja de entrada.",
-        [{ text: "OK", onPress: handleBack }]
+        "Hemos enviado un código de recuperación a tu email. Copia el código y toca 'Ya tengo un código' para continuar.",
+        [
+          { text: "OK" },
+          {
+            text: "Ya tengo un código",
+            onPress: () => router.push("/reset-password")
+          }
+        ]
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al enviar email de recuperación:", error);
       Alert.alert(
         "Error",
-        "No pudimos enviar el email de recuperación. Por favor, intenta nuevamente."
+        error.message || "No pudimos enviar el email de recuperación. Por favor, intenta nuevamente."
       );
     } finally {
       setLoading(false);

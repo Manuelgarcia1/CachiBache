@@ -158,6 +158,70 @@ class AuthService {
       throw error;
     }
   }
+
+  /**
+   * Solicita recuperación de contraseña
+   * @param email - Email del usuario
+   * @returns Promise con mensaje de confirmación
+   */
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    try {
+      console.log('[AuthService] Iniciando requestPasswordReset para:', email);
+      console.log('[AuthService] Llamando a apiService.post...');
+
+      const response = await apiService.post<{ message: string }>(
+        '/auth/forgot-password',
+        { email }
+      );
+
+      console.log('[AuthService] Respuesta recibida:', response);
+      return response;
+    } catch (error: any) {
+      console.error('[AuthService] Error capturado:', error);
+      console.error('[AuthService] Error.message:', error.message);
+      console.error('[AuthService] Error completo:', JSON.stringify(error, null, 2));
+      throw error;
+    }
+  }
+
+  /**
+   * Valida un token de recuperación de contraseña
+   * @param token - Token de recuperación
+   * @returns Promise con validez del token
+   */
+  async validateResetToken(token: string): Promise<{ valid: boolean }> {
+    try {
+      const response = await apiService.get<{ valid: boolean }>(
+        `/auth/validate-reset-token/${token}`
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Restablece la contraseña usando un token válido
+   * @param token - Token de recuperación
+   * @param newPassword - Nueva contraseña
+   * @param confirmPassword - Confirmación de contraseña
+   * @returns Promise con mensaje de confirmación
+   */
+  async resetPassword(
+    token: string,
+    newPassword: string,
+    confirmPassword: string
+  ): Promise<{ message: string }> {
+    try {
+      const response = await apiService.post<{ message: string }>(
+        '/auth/reset-password',
+        { token, newPassword, confirmPassword }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 // Exportar instancia singleton del servicio
