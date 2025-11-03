@@ -19,7 +19,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
         type: 'postgres',
         url: databaseUrl, // TypeORM maneja la URL completa
         autoLoadEntities: true,
-        synchronize: false, // ¡MUY IMPORTANTE! Nunca usar synchronize en producción.
+        synchronize: true, // ¡MUY IMPORTANTE! Nunca usar synchronize en producción.
         ssl: {
           rejectUnauthorized: false, // Requerido por Railway para conexiones seguras
         },
