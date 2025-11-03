@@ -31,21 +31,27 @@ export class EmailService {
   async sendVerificationEmail(email: string, token: string): Promise<void> {
     const backendUrl = this.configService.get<string>('FRONTEND_URL');
     const verificationUrl = `${backendUrl}/api/auth/verify-email?token=${token}`;
-    
+
     const subject = 'Verifica tu correo electrónico - CachiBache';
     const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px;">
-        <h2 style="color: #094b7eff; text-align: center;">¡Bienvenido a CachiBache!</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px 40px; border-radius: 8px; text-align: center;">
+        <h2 style="color: #094b7eff;">¡Bienvenido a CachiBache!</h2>
         <p style="color: #333; font-size: 16px;">Gracias por registrarte. Para activar tu cuenta, por favor verifica tu correo electrónico haciendo clic en el siguiente botón:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}"
-             style="background-color: #FACC15; color: #111827; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-            Verificar Email
-          </a>
-        </div>
+        
+        <!-- Botón HTML basado en tablas para máxima compatibilidad -->
+        <table border="0" cellpadding="0" cellspacing="0" style="margin: 30px auto;">
+          <tr>
+            <td align="center" style="border-radius: 8px; background-color: #FACC15;">
+              <a href="${verificationUrl}" target="_blank" style="font-size: 16px; font-weight: bold; color: #111827; text-decoration: none; border-radius: 8px; padding: 14px 28px; border: 1px solid #FACC15; display: inline-block;">
+                Verificar Email
+              </a>
+            </td>
+          </tr>
+        </table>
+        
         <p style="color: #666; font-size: 14px;">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
-        <p style="color: #007bff; word-break: break-all;">${verificationUrl}</p>
-        <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">Este enlace expirará en 24 horas.</p>
+        <p style="color: #007bff; word-break: break-all; font-size: 12px;">${verificationUrl}</p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">Este enlace expirará en 24 horas.</p>
       </div>
     `;
 
@@ -59,7 +65,7 @@ export class EmailService {
    */
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
     const resetUrl = `${this.configService.get<string>('FRONTEND_URL')}/reset-password?token=${token}`;
-    
+
     const subject = 'Recuperación de contraseña - CachiBache';
     const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -91,7 +97,7 @@ export class EmailService {
       this.logger.error(`Intento de envío de email a ${to} fallido: El servicio de email no está configurado (falta RESEND_API_KEY).`);
       // Es importante no lanzar un error aquí para que el flujo de registro/login no se interrumpa,
       // solo se registrará el fallo en los logs.
-      return; 
+      return;
     }
 
     try {
