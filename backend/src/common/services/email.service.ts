@@ -10,7 +10,7 @@ export class EmailService {
   private resend: Resend;
   private isConfigured: boolean = false; // <-- 1. Usaremos una bandera para saber si está configurado
 
-  private emailFrom = 'CachiBache <onboarding@resend.dev>';
+  private emailFrom = 'CachiBache <noreply@concordiaconecta.com>';
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('RESEND_API_KEY');
