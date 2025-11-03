@@ -11,11 +11,39 @@ async function bootstrap() {
 
   // ✨ --- CONFIGURACIÓN DE CORS --- ✨
   // Permite que el frontend (Expo) se comunique con el backend
-  const frontendUrl = configService.get<string>('FRONTEND_URL');
+  const frontendUrlProd = configService.get<string>('FRONTEND_URL');
   app.enableCors({
-    // 3. En producción, solo permite el origen del frontend
-    origin: [frontendUrl, 'http://localhost:8081'], // localhost:8081 para Expo Go
-    credentials: true, // Permite enviar/recibir cookies (necesario para httpOnly cookies)
+    origin: (origin, callback) => {
+      // Lista de patrones que identifican un origen de desarrollo local
+      const devPatterns = [
+        /^http:\/\/localhost(:\d+)?$/, // localhost con o sin puerto
+        /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/, // IPs locales comunes
+        /^exp:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/, // Expo Go
+      ];
+
+      // Permite la URL de producción
+      if (origin === frontendUrlProd) {
+        return callback(null, true);
+      }
+
+      // Permite peticiones sin origen (como Postman)
+      if (!origin) {
+        return callback(null, true);
+      }
+      
+      // Comprueba si el origen coincide con alguno de los patrones de desarrollo
+      const isDevOrigin = devPatterns.some((pattern) => pattern.test(origin));
+      
+      if (isDevOrigin) {
+        console.log(`[CORS] Petición de desarrollo permitida desde: ${origin}`);
+        return callback(null, true);
+      }
+
+      // Si no coincide con nada, la rechaza
+      console.warn(`[CORS] Petición rechazada desde origen no permitido: ${origin}`);
+      callback(new Error('Origen no permitido por políticas de CORS'));
+    },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
