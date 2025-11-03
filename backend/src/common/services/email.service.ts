@@ -7,14 +7,21 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor(private configService: ConfigService) {
+    // --- 👇 ¡LA CORRECCIÓN ESTÁ AQUÍ! 👇 ---
+    const smtpPort = this.configService.get<number>('SMTP_PORT');
+
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('SMTP_HOST', 'smtp.gmail.com'),
-      port: this.configService.get<number>('SMTP_PORT', 587),
-      secure: false, // true para puerto 465, false para otros puertos
+      host: this.configService.get<string>('SMTP_HOST'),
+      port: smtpPort,
+      // La opción 'secure' debe ser dinámica:
+      // true si el puerto es 465, false en caso contrario.
+      secure: smtpPort === 465,
       auth: {
         user: this.configService.get<string>('SMTP_USER'),
         pass: this.configService.get<string>('SMTP_PASS'),
       },
+      // Añadimos un timeout para que no se quede colgado indefinidamente
+      connectionTimeout: 10000, // 10 segundos
     });
   }
 
