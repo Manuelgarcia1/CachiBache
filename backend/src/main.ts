@@ -35,7 +35,6 @@ async function bootstrap() {
   app.use(cookieParser());
   const host = '0.0.0.0'; // Escucha en todas las interfaces de red disponibles
   const port = configService.get<number>('PORT') || 3000; // Usa el puerto de la variable de entorno
-  await app.listen(port);
 
   await app.listen(port, host);
 
