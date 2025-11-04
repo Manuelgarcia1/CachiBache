@@ -1,13 +1,13 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../../users/services/users.service';
-import { EncryptionService } from '../../common/services/encryption.service';
+import { UsersService } from '@users/services/users.service';
+import { EncryptionService } from '@common/services/encryption.service';
 import { EmailVerificationService } from './email-verification.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
-import { type UserWithoutPassword } from '../../users/entities/user.entity';
+import { type UserWithoutPassword } from '@users/entities/user.entity';
 
 // Tipo para la respuesta de autenticación
 export interface AuthResponse {

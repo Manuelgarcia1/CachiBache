@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { PdfService } from './pdf.service';
 import { PdfController } from './pdf.controller';
-import { ReportsModule } from '../reports/reports.module';
+import { AdminReportsModule } from '@admin/reports/admin-reports.module';
 
 @Module({
-  imports: [ReportsModule],
+  imports: [AdminReportsModule],
   controllers: [PdfController],
   providers: [PdfService],
   exports: [PdfService],

@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import { UsersService } from '../../users/services/users.service';
-import { type UserWithoutPassword } from '../../users/entities/user.entity';
+import { UsersService } from '@users/services/users.service';
+import { type UserWithoutPassword } from '@users/entities/user.entity';
 
 // Extendemos el tipo Request para incluir cookies tipadas
 interface RequestWithCookies extends Request {

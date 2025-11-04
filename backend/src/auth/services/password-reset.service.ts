@@ -2,8 +2,8 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, LessThanOrEqual } from 'typeorm';
 import { PasswordResetToken } from '../entities/password-reset-token.entity';
-import { User } from '../../users/entities/user.entity';
-import { EmailService } from '../../common/services/email.service';
+import { User } from '@users/entities/user.entity';
+import { EmailService } from '@common/services/email.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as bcrypt from 'bcrypt';
 

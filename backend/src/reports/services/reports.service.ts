@@ -5,7 +5,7 @@ import { CreateReportDto } from '../dto/create-report.dto';
 import { UpdateReportDto } from '../dto/update-report.dto';
 import { Report } from '../entities/report.entity';
 import { ReportStatus } from '../entities/report-status.enum';
-import { User } from '../../users/entities/user.entity';
+import { User } from '@users/entities/user.entity';
 import { Photo } from '../entities/photo.entity';
 
 @Injectable()
@@ -60,118 +60,6 @@ export class ReportsService {
     });
   }
 
-  async getReportStats() {
-    const stats = await this.reportRepository
-      .createQueryBuilder('report')
-      .select('report.status', 'status')
-      .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.status')
-      .getRawMany();
-
-    return stats.reduce((acc, curr) => {
-      acc[curr.status] = parseInt(curr.count, 10);
-      return acc;
-    }, {});
-  }
-
-  async getDashboardMetrics(filters?: {
-    startDate?: string;
-    endDate?: string;
-    status?: string[];
-  }) {
-    // Query builder base para total de reportes
-    const totalQuery = this.reportRepository.createQueryBuilder('report');
-
-    // Query builder para reportes por severidad
-    const severityQuery = this.reportRepository
-      .createQueryBuilder('report')
-      .select('report.severity', 'severity')
-      .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.severity');
-
-    // Query builder para reportes por estado
-    const statusQuery = this.reportRepository
-      .createQueryBuilder('report')
-      .select('report.status', 'status')
-      .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.status');
-
-    // Aplicar filtros si existen
-    if (filters) {
-      // Filtro por fecha de inicio
-      if (filters.startDate) {
-        totalQuery.andWhere('report.createdAt >= :startDate', {
-          startDate: filters.startDate,
-        });
-        severityQuery.andWhere('report.createdAt >= :startDate', {
-          startDate: filters.startDate,
-        });
-        statusQuery.andWhere('report.createdAt >= :startDate', {
-          startDate: filters.startDate,
-        });
-      }
-
-      // Filtro por fecha de fin
-      if (filters.endDate) {
-        totalQuery.andWhere('report.createdAt <= :endDate', {
-          endDate: filters.endDate,
-        });
-        severityQuery.andWhere('report.createdAt <= :endDate', {
-          endDate: filters.endDate,
-        });
-        statusQuery.andWhere('report.createdAt <= :endDate', {
-          endDate: filters.endDate,
-        });
-      }
-
-      // Filtro por estado
-      if (filters.status && filters.status.length > 0) {
-        totalQuery.andWhere('report.status IN (:...statuses)', {
-          statuses: filters.status,
-        });
-        severityQuery.andWhere('report.status IN (:...statuses)', {
-          statuses: filters.status,
-        });
-        statusQuery.andWhere('report.status IN (:...statuses)', {
-          statuses: filters.status,
-        });
-      }
-    }
-
-    // Ejecutar queries
-    const totalReports = await totalQuery.getCount();
-    const reportsBySeverity = await severityQuery.getRawMany();
-    const reportsByStatus = await statusQuery.getRawMany();
-
-    // Calcular métricas adicionales
-    const reportsByStatusMap = reportsByStatus.reduce((acc, curr) => {
-      acc[curr.status] = parseInt(curr.count, 10);
-      return acc;
-    }, {});
-
-    const activeReports =
-      (reportsByStatusMap['PENDIENTE'] || 0) +
-      (reportsByStatusMap['EN_REPARACION'] || 0);
-
-    const closedReports =
-      (reportsByStatusMap['RESUELTO'] || 0) +
-      (reportsByStatusMap['DESCARTADO'] || 0);
-
-    const resolutionRate =
-      totalReports > 0 ? (closedReports / totalReports) * 100 : 0;
-
-    return {
-      totalReports,
-      reportsBySeverity: reportsBySeverity.reduce((acc, curr) => {
-        acc[curr.severity] = parseInt(curr.count, 10);
-        return acc;
-      }, {}),
-      reportsByStatus: reportsByStatusMap,
-      activeReports,
-      closedReports,
-      resolutionRate,
-    };
-  }
 
   async findReportsByUserId(
     userId: string,
@@ -264,60 +152,4 @@ export class ReportsService {
     };
   }
 
-  // ============ MÉTODOS PARA ADMINISTRADORES ============
-
-  /**
-   * Obtener todos los reportes con filtros (admin)
-   */
-  async findAllForAdmin(
-    page = 1,
-    limit = 20,
-    status?: string,
-    city?: string,
-    search?: string,
-  ): Promise<{ reports: Report[]; total: number }> {
-    const query = this.reportRepository
-      .createQueryBuilder('report')
-      .leftJoinAndSelect('report.user', 'user');
-
-    // Filtro por estado
-    if (status) {
-      query.andWhere('report.status = :status', { status });
-    }
-
-    // Filtro por ciudad (busca en el campo address)
-    if (city) {
-      query.andWhere('report.address ILIKE :city', { city: `%${city}%` });
-    }
-
-    // Búsqueda general en dirección
-    if (search) {
-      query.andWhere('report.address ILIKE :search', { search: `%${search}%` });
-    }
-
-    // Ordenar por fecha de creación (más recientes primero)
-    query.orderBy('report.createdAt', 'DESC');
-
-    // Paginación
-    const [reports, total] = await query
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
-    return { reports, total };
-  }
-
-  /**
-   * Actualizar solo el estado de un reporte (admin)
-   */
-  async updateReportStatus(
-    reportId: string,
-    newStatus: ReportStatus,
-  ): Promise<Report> {
-    // Usar update en lugar de save para actualizar solo el campo status
-    await this.reportRepository.update(reportId, { status: newStatus });
-
-    // Devolver el reporte actualizado
-    return this.findOneReport(reportId);
-  }
 }

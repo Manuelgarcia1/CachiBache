@@ -5,12 +5,12 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CommonModule } from './common/common.module';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ReportsModule } from './reports/reports.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { PdfModule } from './pdf/pdf.module';
+import { CommonModule } from '@common/common.module';
+import { AuthModule } from '@auth/auth.module';
+import { UsersModule } from '@users/users.module';
+import { ReportsModule } from '@reports/reports.module';
+import { CloudinaryModule } from '@cloudinary/cloudinary.module';
+import { AdminModule } from '@admin/admin.module';
 
 @Module({
   imports: [
@@ -58,7 +58,8 @@ import { PdfModule } from './pdf/pdf.module';
 
     CloudinaryModule,
 
-    PdfModule,
+    // Módulo de administración (incluye gestión de reportes admin, PDFs, etc.)
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

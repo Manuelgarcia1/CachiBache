@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { type UserWithoutPassword } from '../../users/entities/user.entity';
+import { type UserWithoutPassword } from '@users/entities/user.entity';
 
 // Extendemos el tipo Request para incluir la propiedad user que agrega Passport
 interface RequestWithUser {

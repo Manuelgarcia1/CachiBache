@@ -8,16 +8,16 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { PdfService, PdfExportFilters } from './pdf.service';
-import { ReportsService } from '../reports/services/reports.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { AdminGuard } from '../auth/guards/admin.guard';
+import { AdminReportsService } from '@admin/reports/services/admin-reports.service';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { AdminGuard } from '@auth/guards/admin.guard';
 
 @Controller('reports/admin/export')
 @UseGuards(JwtAuthGuard, AdminGuard)
 export class PdfController {
   constructor(
     private readonly pdfService: PdfService,
-    private readonly reportsService: ReportsService,
+    private readonly adminReportsService: AdminReportsService,
   ) {}
 
   @Get('pdf')
@@ -40,7 +40,8 @@ export class PdfController {
       };
 
       // Obtener estadísticas con filtros aplicados
-      const statistics = await this.reportsService.getDashboardMetrics(filters);
+      const statistics =
+        await this.adminReportsService.getDashboardMetrics(filters);
 
       // Generar PDF
       const pdfBuffer = await this.pdfService.generateReportPdf(
