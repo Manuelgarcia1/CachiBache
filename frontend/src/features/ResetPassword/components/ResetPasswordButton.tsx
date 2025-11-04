@@ -14,21 +14,18 @@ export const ResetPasswordButton: React.FC<ResetPasswordButtonProps> = ({
 }) => {
   return (
     <Button
+      size="$4"
       onPress={onPress}
       disabled={disabled || loading}
-      backgroundColor="#ff6b35"
-      color="$white"
-      fontSize="$5"
+      backgroundColor="$yellow8"
+      color="$black"
       fontWeight="bold"
-      height={50}
-      borderRadius="$4"
+      borderRadius="$10"
       marginTop="$4"
-      pressStyle={{
-        backgroundColor: "#e55a2b",
-        opacity: 0.9,
-      }}
-      opacity={disabled ? 0.5 : 1}
-      icon={loading ? <Spinner color="$white" /> : undefined}
+      pressStyle={{ backgroundColor: "$yellow9" }}
+      opacity={disabled ? 0.6 : 1}
+      icon={loading ? <Spinner color="$black" size="small" /> : undefined}
+      width="100%"
     >
       {loading ? "Actualizando..." : "Cambiar Contraseña"}
     </Button>

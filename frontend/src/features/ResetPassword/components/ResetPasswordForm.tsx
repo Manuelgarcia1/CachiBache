@@ -34,37 +34,39 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         touched,
         isValid,
       }) => (
-        <YStack width="100%" space="$4" paddingHorizontal="$4">
+        <YStack width="100%" space="$5" paddingHorizontal="$4">
           <Text
-            color="$white"
-            fontSize="$7"
+            color="#ffffff"
+            fontSize="$8"
             fontWeight="bold"
             textAlign="center"
+            marginBottom="$2"
           >
             Restablecer Contraseña
           </Text>
 
-          <Text color="$white" fontSize="$4" textAlign="center">
+          <Text color="#ffffff" fontSize="$5" textAlign="center" marginBottom="$3">
             Ingresa tu nueva contraseña
           </Text>
 
           {/* Nueva Contraseña */}
-          <YStack space="$2">
+          <YStack space="$3">
             <YStack position="relative">
               <Input
                 placeholder="Nueva contraseña"
-                placeholderTextColor="#aaa"
+                placeholderTextColor="#999"
                 value={values.newPassword}
                 onChangeText={handleChange("newPassword")}
                 onBlur={handleBlur("newPassword")}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 width="100%"
-                height={50}
+                height={55}
                 backgroundColor="$white"
-                borderRadius="$4"
-                paddingHorizontal="$4"
+                borderRadius="$6"
+                paddingHorizontal="$5"
                 paddingRight={50}
+                fontSize="$4"
               />
               <YStack
                 position="absolute"
@@ -83,29 +85,30 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
               </YStack>
             </YStack>
             {touched.newPassword && errors.newPassword && (
-              <Text color="#ff6b6b" fontSize="$2">
+              <Text color="#ff6b6b" fontSize="$3" marginTop="$1">
                 {errors.newPassword}
               </Text>
             )}
           </YStack>
 
           {/* Confirmar Contraseña */}
-          <YStack space="$2">
+          <YStack space="$3">
             <YStack position="relative">
               <Input
                 placeholder="Confirmar contraseña"
-                placeholderTextColor="#aaa"
+                placeholderTextColor="#999"
                 value={values.confirmPassword}
                 onChangeText={handleChange("confirmPassword")}
                 onBlur={handleBlur("confirmPassword")}
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
                 width="100%"
-                height={50}
+                height={55}
                 backgroundColor="$white"
-                borderRadius="$4"
-                paddingHorizontal="$4"
+                borderRadius="$6"
+                paddingHorizontal="$5"
                 paddingRight={50}
+                fontSize="$4"
               />
               <YStack
                 position="absolute"
@@ -124,7 +127,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
               </YStack>
             </YStack>
             {touched.confirmPassword && errors.confirmPassword && (
-              <Text color="#ff6b6b" fontSize="$2">
+              <Text color="#ff6b6b" fontSize="$3" marginTop="$1">
                 {errors.confirmPassword}
               </Text>
             )}

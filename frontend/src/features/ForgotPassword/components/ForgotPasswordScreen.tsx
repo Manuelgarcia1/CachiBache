@@ -61,17 +61,14 @@ export const ForgotPasswordScreen: React.FC = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* --- CAMBIOS DE ESTRUCTURA AQUÍ --- */}
           <YStack
             flex={1}
             justifyContent="center"
             alignItems="center"
             width="100%"
-            space="$4"
+            space="$3"
           >
             <AppLogo size={250} />
-
-            {/* ELIMINADOS los Text duplicados que estaban aquí */}
 
             <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
           </YStack>
@@ -81,7 +78,6 @@ export const ForgotPasswordScreen: React.FC = () => {
   );
 };
 
-// Los estilos se mantienen simples ya que Tamagui maneja el layout
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -89,6 +85,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,
+    padding: 20,
   },
 });

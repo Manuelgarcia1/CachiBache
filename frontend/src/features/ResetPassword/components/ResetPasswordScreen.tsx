@@ -110,14 +110,14 @@ export const ResetPasswordScreen: React.FC = () => {
               paddingTop="$2"
               minHeight="100%"
             >
-              <YStack alignItems="center" marginTop="$2">
-                <AppLogo size={150} />
+              <YStack alignItems="center" marginTop="$4" marginBottom="$3">
+                <AppLogo size={250} />
               </YStack>
 
             {validatingToken ? (
-              <YStack space="$4" alignItems="center">
+              <YStack space="$4" alignItems="center" paddingVertical="$8">
                 <ActivityIndicator size="large" color="#ffffff" />
-                <Text color="$white" fontSize="$5">
+                <Text color="#ffffff" fontSize="$5" fontWeight="500">
                   Validando código de recuperación...
                 </Text>
               </YStack>
@@ -125,20 +125,20 @@ export const ResetPasswordScreen: React.FC = () => {
               <YStack width="100%" space="$4" paddingHorizontal="$4">
                 {manualMode && (
                   <YStack space="$2">
-                    <Text color="$white" fontSize="$5" textAlign="center" marginBottom="$2">
+                    <Text color="#ffffff" fontSize="$6" fontWeight="600" textAlign="center" marginBottom="$3">
                       Ingresa tu código de recuperación
                     </Text>
                     <Input
                       placeholder="Pega el código del email"
-                      placeholderTextColor="#aaa"
+                      placeholderTextColor="#999"
                       value={token}
                       onChangeText={setToken}
                       autoCapitalize="none"
                       width="100%"
-                      height={50}
+                      height={55}
                       backgroundColor="$white"
-                      borderRadius="$4"
-                      paddingHorizontal="$4"
+                      borderRadius="$6"
+                      paddingHorizontal="$5"
                       fontSize="$4"
                     />
                   </YStack>
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#094b7eff",
   },
   scrollContent: {
-    padding: 16,
+    padding: 20,
     paddingBottom: 100,
   },
 });
