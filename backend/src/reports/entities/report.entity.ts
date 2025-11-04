@@ -8,7 +8,7 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity'; // Importar User
+import { User } from '@users/entities/user.entity'; // Importar User
 import { ReportStatus } from './report-status.enum';
 import { ReportSeverity } from './report-severity.enum';
 import { Photo } from './photo.entity';
