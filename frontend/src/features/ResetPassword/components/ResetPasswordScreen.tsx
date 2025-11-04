@@ -38,7 +38,7 @@ export const ResetPasswordScreen: React.FC = () => {
 
         if (!response.valid) {
           Alert.alert(
-            "Token Inválido",
+            "Código Inválido",
             "El código de recuperación ha expirado o es inválido. Por favor, solicita uno nuevo.",
             [{ text: "OK", onPress: () => router.replace("/forgot-password") }]
           );
@@ -60,7 +60,7 @@ export const ResetPasswordScreen: React.FC = () => {
 
   const handleSubmit = async (newPassword: string, confirmPassword: string) => {
     if (!token) {
-      Alert.alert("Error", "Token de recuperación no encontrado");
+      Alert.alert("Error", "Código de recuperación no encontrado");
       return;
     }
 
@@ -129,11 +129,13 @@ export const ResetPasswordScreen: React.FC = () => {
                       Ingresa tu código de recuperación
                     </Text>
                     <Input
-                      placeholder="Pega el código del email"
+                      placeholder="Código de 6 dígitos"
                       placeholderTextColor="#999"
                       value={token}
                       onChangeText={setToken}
                       autoCapitalize="none"
+                      keyboardType="numeric"
+                      maxLength={6}
                       width="100%"
                       height={55}
                       backgroundColor="$white"

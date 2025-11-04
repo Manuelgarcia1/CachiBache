@@ -1,10 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
+import { Repository, MoreThan, LessThanOrEqual } from 'typeorm';
 import { PasswordResetToken } from '../entities/password-reset-token.entity';
 import { User } from '../../users/entities/user.entity';
 import { EmailService } from '../../common/services/email.service';
-import * as crypto from 'crypto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -68,27 +68,32 @@ export class PasswordResetService {
       { isUsed: true },
     );
 
-    // Generar token aleatorio
-    const token = crypto.randomBytes(32).toString('hex');
+    // Generar código corto de 6 dígitos (más fácil de usar)
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('🔑 Código de 6 dígitos generado');
+
+    // Hashear el código antes de guardarlo (seguridad: nunca guardar en texto plano)
+    const hashedToken = await bcrypt.hash(code, 10);
+    console.log('🔒 Código hasheado para almacenamiento seguro');
 
     // Calcular fecha de expiración (15 minutos)
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-    // Guardar token en base de datos
+    // Guardar token hasheado en base de datos
     const resetToken = this.passwordResetTokenRepository.create({
-      token,
+      token: hashedToken, // Se guarda el hash, no el código original
       userId: user.id,
       expiresAt,
       isUsed: false,
     });
 
     await this.passwordResetTokenRepository.save(resetToken);
-    console.log('💾 Token guardado en base de datos');
+    console.log('💾 Token hasheado guardado en base de datos');
 
-    // Enviar email
+    // Enviar email con el código sin hashear
     console.log('📧 Enviando email de recuperación...');
     try {
-      await this.emailService.sendPasswordResetEmail(user.email, token);
+      await this.emailService.sendPasswordResetEmail(user.email, code);
       console.log('✅ Email enviado exitosamente');
     } catch (error) {
       console.error('❌ Error al enviar email:', error);
@@ -97,31 +102,48 @@ export class PasswordResetService {
   }
 
   async validateResetToken(token: string): Promise<boolean> {
-    const resetToken = await this.passwordResetTokenRepository.findOne({
+    // Obtener todos los tokens válidos no usados y no expirados
+    const validTokens = await this.passwordResetTokenRepository.find({
       where: {
-        token,
         isUsed: false,
         expiresAt: MoreThan(new Date()),
       },
     });
 
-    return !!resetToken;
+    // Comparar el código ingresado con cada token hasheado
+    for (const resetToken of validTokens) {
+      const isMatch = await bcrypt.compare(token, resetToken.token);
+      if (isMatch) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    // Buscar token válido
-    const resetToken = await this.passwordResetTokenRepository.findOne({
+    // Obtener todos los tokens válidos no usados y no expirados
+    const validTokens = await this.passwordResetTokenRepository.find({
       where: {
-        token,
         isUsed: false,
         expiresAt: MoreThan(new Date()),
       },
       relations: ['user'],
     });
 
-    if (!resetToken) {
+    // Buscar el token que coincida con el código ingresado
+    let matchedToken: PasswordResetToken | null = null;
+    for (const resetToken of validTokens) {
+      const isMatch = await bcrypt.compare(token, resetToken.token);
+      if (isMatch) {
+        matchedToken = resetToken;
+        break;
+      }
+    }
+
+    if (!matchedToken) {
       throw new BadRequestException(
-        'El token de recuperación es inválido o ha expirado',
+        'El código de recuperación es inválido o ha expirado',
       );
     }
 
@@ -129,12 +151,47 @@ export class PasswordResetService {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Actualizar contraseña del usuario
-    await this.userRepository.update(resetToken.userId, {
+    await this.userRepository.update(matchedToken.userId, {
       password: hashedPassword,
     });
 
     // Marcar token como usado
-    resetToken.isUsed = true;
-    await this.passwordResetTokenRepository.save(resetToken);
+    matchedToken.isUsed = true;
+    await this.passwordResetTokenRepository.save(matchedToken);
+
+    console.log('✅ Contraseña actualizada exitosamente');
+  }
+
+  /**
+   * Limpieza automática de tokens usados o expirados
+   * Se ejecuta cada hora para mantener la DB limpia
+   */
+  @Cron(CronExpression.EVERY_HOUR)
+  async cleanupExpiredTokens(): Promise<void> {
+    console.log('🧹 Iniciando limpieza de tokens de recuperación...');
+
+    try {
+      // Eliminar tokens que estén usados O expirados
+      const result = await this.passwordResetTokenRepository.delete({
+        isUsed: true,
+      });
+
+      const expiredResult = await this.passwordResetTokenRepository.delete({
+        expiresAt: LessThanOrEqual(new Date()),
+      });
+
+      const totalDeleted =
+        (result.affected || 0) + (expiredResult.affected || 0);
+
+      if (totalDeleted > 0) {
+        console.log(
+          `✅ Limpieza completada: ${totalDeleted} token(s) eliminado(s)`,
+        );
+      } else {
+        console.log('✅ Limpieza completada: no hay tokens para eliminar');
+      }
+    } catch (error) {
+      console.error('❌ Error durante la limpieza de tokens:', error);
+    }
   }
 }

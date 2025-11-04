@@ -32,13 +32,13 @@ export const ForgotPasswordScreen: React.FC = () => {
       console.log("Email de recuperación enviado exitosamente");
 
       Alert.alert(
-        "Email Enviado",
-        "Hemos enviado un código de recuperación a tu email. Copia el código y toca 'Ya tengo un código' para continuar.",
+        "Código Enviado",
+        "Hemos enviado un código de 6 dígitos a tu email. Ingresa el código para restablecer tu contraseña.",
         [
           { text: "OK" },
           {
-            text: "Ya tengo un código",
-            onPress: () => router.push("/reset-password")
+            text: "Ingresar código",
+            onPress: () => router.navigate("/reset-password")
           }
         ]
       );
