@@ -74,21 +74,91 @@ export class ReportsService {
     }, {});
   }
 
-  async getDashboardMetrics() {
-    const totalReports = await this.reportRepository.count();
-    const reportsBySeverity = await this.reportRepository
+  async getDashboardMetrics(filters?: {
+    startDate?: string;
+    endDate?: string;
+    status?: string[];
+  }) {
+    // Query builder base para total de reportes
+    const totalQuery = this.reportRepository.createQueryBuilder('report');
+
+    // Query builder para reportes por severidad
+    const severityQuery = this.reportRepository
       .createQueryBuilder('report')
       .select('report.severity', 'severity')
       .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.severity')
-      .getRawMany();
+      .groupBy('report.severity');
 
-    const reportsByStatus = await this.reportRepository
+    // Query builder para reportes por estado
+    const statusQuery = this.reportRepository
       .createQueryBuilder('report')
       .select('report.status', 'status')
       .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.status')
-      .getRawMany();
+      .groupBy('report.status');
+
+    // Aplicar filtros si existen
+    if (filters) {
+      // Filtro por fecha de inicio
+      if (filters.startDate) {
+        totalQuery.andWhere('report.createdAt >= :startDate', {
+          startDate: filters.startDate,
+        });
+        severityQuery.andWhere('report.createdAt >= :startDate', {
+          startDate: filters.startDate,
+        });
+        statusQuery.andWhere('report.createdAt >= :startDate', {
+          startDate: filters.startDate,
+        });
+      }
+
+      // Filtro por fecha de fin
+      if (filters.endDate) {
+        totalQuery.andWhere('report.createdAt <= :endDate', {
+          endDate: filters.endDate,
+        });
+        severityQuery.andWhere('report.createdAt <= :endDate', {
+          endDate: filters.endDate,
+        });
+        statusQuery.andWhere('report.createdAt <= :endDate', {
+          endDate: filters.endDate,
+        });
+      }
+
+      // Filtro por estado
+      if (filters.status && filters.status.length > 0) {
+        totalQuery.andWhere('report.status IN (:...statuses)', {
+          statuses: filters.status,
+        });
+        severityQuery.andWhere('report.status IN (:...statuses)', {
+          statuses: filters.status,
+        });
+        statusQuery.andWhere('report.status IN (:...statuses)', {
+          statuses: filters.status,
+        });
+      }
+    }
+
+    // Ejecutar queries
+    const totalReports = await totalQuery.getCount();
+    const reportsBySeverity = await severityQuery.getRawMany();
+    const reportsByStatus = await statusQuery.getRawMany();
+
+    // Calcular métricas adicionales
+    const reportsByStatusMap = reportsByStatus.reduce((acc, curr) => {
+      acc[curr.status] = parseInt(curr.count, 10);
+      return acc;
+    }, {});
+
+    const activeReports =
+      (reportsByStatusMap['PENDIENTE'] || 0) +
+      (reportsByStatusMap['EN_REPARACION'] || 0);
+
+    const closedReports =
+      (reportsByStatusMap['RESUELTO'] || 0) +
+      (reportsByStatusMap['DESCARTADO'] || 0);
+
+    const resolutionRate =
+      totalReports > 0 ? (closedReports / totalReports) * 100 : 0;
 
     return {
       totalReports,
@@ -96,10 +166,10 @@ export class ReportsService {
         acc[curr.severity] = parseInt(curr.count, 10);
         return acc;
       }, {}),
-      reportsByStatus: reportsByStatus.reduce((acc, curr) => {
-        acc[curr.status] = parseInt(curr.count, 10);
-        return acc;
-      }, {}),
+      reportsByStatus: reportsByStatusMap,
+      activeReports,
+      closedReports,
+      resolutionRate,
     };
   }
 

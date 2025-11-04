@@ -1,5 +1,5 @@
 import { AppLogo } from "@features/welcome/components/AppLogo";
-import { Header } from "@sharedcomponents/index"; // Usamos alias
+import { Header } from "@sharedcomponents/index";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -9,8 +9,9 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, YStack } from "tamagui"; // CAMBIO: Usamos YStack
-import { ForgotPasswordForm } from "./ForgotPasswordForm"; // Usamos ruta relativa limpia
+import { ScrollView, YStack } from "tamagui";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { authService } from "@/src/shared/services/auth.service";
 
 export const ForgotPasswordScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -27,19 +28,25 @@ export const ForgotPasswordScreen: React.FC = () => {
     setLoading(true);
     try {
       console.log("Enviando email de recuperación a:", email);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await authService.requestPasswordReset(email);
       console.log("Email de recuperación enviado exitosamente");
 
       Alert.alert(
-        "Email Enviado",
-        "Hemos enviado un enlace de recuperación a tu email. Revisa tu bandeja de entrada.",
-        [{ text: "OK", onPress: handleBack }]
+        "Código Enviado",
+        "Hemos enviado un código de 6 dígitos a tu email. Ingresa el código para restablecer tu contraseña.",
+        [
+          { text: "OK" },
+          {
+            text: "Ingresar código",
+            onPress: () => router.navigate("/reset-password")
+          }
+        ]
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al enviar email de recuperación:", error);
       Alert.alert(
         "Error",
-        "No pudimos enviar el email de recuperación. Por favor, intenta nuevamente."
+        error.message || "No pudimos enviar el email de recuperación. Por favor, intenta nuevamente."
       );
     } finally {
       setLoading(false);
@@ -54,17 +61,14 @@ export const ForgotPasswordScreen: React.FC = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* --- CAMBIOS DE ESTRUCTURA AQUÍ --- */}
           <YStack
             flex={1}
             justifyContent="center"
             alignItems="center"
             width="100%"
-            space="$4"
+            space="$3"
           >
             <AppLogo size={250} />
-
-            {/* ELIMINADOS los Text duplicados que estaban aquí */}
 
             <ForgotPasswordForm onSubmit={handleSubmit} loading={loading} />
           </YStack>
@@ -74,7 +78,6 @@ export const ForgotPasswordScreen: React.FC = () => {
   );
 };
 
-// Los estilos se mantienen simples ya que Tamagui maneja el layout
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -82,6 +85,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,
+    padding: 20,
   },
 });

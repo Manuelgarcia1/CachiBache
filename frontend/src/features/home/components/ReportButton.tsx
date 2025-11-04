@@ -1,25 +1,27 @@
 // Ubicación: src/features/home/components/ReportButton.tsx
 
-import { useAuth } from '@/src/shared/contexts/AuthContext';
-import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { Alert } from 'react-native';
-import { Button } from 'tamagui';
+import { useAuth } from "@/src/shared/contexts/AuthContext";
+import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { Alert } from "react-native";
+import { Button } from "tamagui";
 
 export function ReportButton() {
-  const { token, isGuest, isEmailVerified, logout } = useAuth();
+  const { isGuest, isEmailVerified, logout } = useAuth();
 
   const handlePress = () => {
-
     // Si es invitado
     if (isGuest) {
       Alert.alert(
-        'Cuenta limitada',
-        'Como invitado puedes ver los baches reportados, pero no podrás reportar baches nuevos. ¿Continuar o crear cuenta?',
+        "Cuenta limitada",
+        "Como invitado puedes ver los baches reportados, pero no podrás reportar baches nuevos. ¿Continuar o crear cuenta?",
         [
-          { text: 'Cancelar', style: 'cancel' },
-          { text: 'Ya tengo una cuenta', onPress: () => logout() },
-          { text: 'Crear cuenta', onPress: () => router.push('/(auth)/register') }
+          { text: "Cancelar", style: "cancel" },
+          { text: "Ya tengo una cuenta", onPress: () => logout() },
+          {
+            text: "Crear cuenta",
+            onPress: () => router.push("/(auth)/register"),
+          },
         ]
       );
       return;
@@ -28,11 +30,9 @@ export function ReportButton() {
     // Si no ha verificado el email
     if (!isEmailVerified) {
       Alert.alert(
-        'Verifica tu email',
-        'Para reportar baches necesitas verificar tu correo electrónico. Por favor, revisa tu bandeja de entrada y haz clic en el enlace de verificación.',
-        [
-          { text: 'Entendido', style: 'default' }
-        ]
+        "Verifica tu email",
+        "Para reportar baches necesitas verificar tu correo electrónico. Por favor, revisa tu bandeja de entrada y haz clic en el enlace de verificación.",
+        [{ text: "Entendido", style: "default" }]
       );
       return;
     }
@@ -41,7 +41,7 @@ export function ReportButton() {
   };
 
   const proceedWithReport = () => {
-    router.push('/(app)/create-report');
+    router.push("/(app)/create-report");
   };
 
   return (
@@ -61,7 +61,7 @@ export function ReportButton() {
       marginHorizontal="$4"
       marginBottom="$5" // Margen respecto al fondo de su contenedor
       pressStyle={{
-        backgroundColor: '$yellow9'
+        backgroundColor: "$yellow9",
       }}
     >
       Reportar Bache

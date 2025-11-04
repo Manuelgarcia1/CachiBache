@@ -6,6 +6,8 @@ import {
   UpdateStatusDto,
 } from '../types/admin.types';
 import { ReportFromBackend } from '../types/report.types';
+import { getToken } from '../utils/secure-store';
+import { API_BASE_URL } from '../config/api';
 
 /**
  * Obtener todos los reportes con filtros (solo admin)
@@ -77,6 +79,53 @@ export async function getDashboardMetrics(): Promise<{
     return response;
   } catch (error) {
     console.error('Error fetching dashboard metrics:', error);
+    throw error;
+  }
+}
+
+/**
+ * Exportar reportes como PDF (solo admin)
+ * Endpoint: GET /reports/admin/export/pdf
+ * Requiere autenticación + AdminGuard
+ */
+export async function exportReportsPDF(filters: {
+  startDate?: string;
+  endDate?: string;
+  status?: string[];
+}): Promise<Blob> {
+  try {
+    const params = new URLSearchParams();
+
+    if (filters.startDate) params.append('startDate', filters.startDate);
+    if (filters.endDate) params.append('endDate', filters.endDate);
+    if (filters.status && filters.status.length > 0) {
+      filters.status.forEach((status) => params.append('status', status));
+    }
+
+    // Obtener token de autenticación
+    const token = await getToken();
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+
+    // Usar fetch directamente para obtener el blob
+    const response = await fetch(
+      `${API_BASE_URL}/reports/admin/export/pdf?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Error al exportar PDF');
+    }
+
+    return await response.blob();
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
     throw error;
   }
 }

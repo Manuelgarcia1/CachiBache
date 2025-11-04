@@ -1,7 +1,7 @@
 // Servicio HTTP reutilizable para todas las peticiones a la API usando axios
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL, DEFAULT_HEADERS, API_TIMEOUT } from '../config/api';
-import { getRefreshToken, setToken } from '../utils/secure-store';
+import { getRefreshToken, setToken, getToken } from '../utils/secure-store';
 
 /**
  * Clase de error personalizada para errores de API
@@ -62,7 +62,6 @@ class ApiService {
 
         // Obtener el token actual de SecureStore
         try {
-          const { getToken } = await import('../utils/secure-store');
           const token = await getToken();
 
           // Si hay token, agregarlo al header Authorization

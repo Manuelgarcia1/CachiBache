@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
@@ -9,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
@@ -18,7 +20,10 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       envFilePath: '.env', // Especifica la ruta del archivo de configuración
     }),
 
-    // 2. Configurar Rate Limiting
+    // 2. Configurar el módulo de tareas programadas (cron jobs)
+    ScheduleModule.forRoot(),
+
+    // 3. Configurar Rate Limiting
     ThrottlerModule.forRoot([
       {
         ttl: 3600000, // 1 hora en milisegundos
@@ -26,7 +31,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       },
     ]),
 
-    // 3. Configurar la conexión con la base de datos usando TypeORM
+    // 4. Configurar la conexión con la base de datos usando TypeORM
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule], // Importamos ConfigModule para poder inyectar ConfigService
       inject: [ConfigService], // Inyectamos el servicio para leer las variables de entorno
@@ -42,7 +47,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       }),
     }),
 
-    // 4. Módulo común con servicios compartidos
+    // 5. Módulo común con servicios compartidos
     CommonModule,
 
     AuthModule,
@@ -52,6 +57,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     ReportsModule,
 
     CloudinaryModule,
+
+    PdfModule,
   ],
   controllers: [AppController],
   providers: [AppService],

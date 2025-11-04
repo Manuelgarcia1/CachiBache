@@ -29,6 +29,7 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+
   const port = 3000;
   await app.listen(port);
 

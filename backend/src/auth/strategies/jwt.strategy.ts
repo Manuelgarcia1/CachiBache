@@ -34,6 +34,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         (request: RequestWithCookies): string | null => {
           return request?.cookies?.accessToken ?? null;
         },
+        // 3. Si no hay, intentar desde query parameter 'token' (para PDFs en navegador móvil)
+        (request: Request): string | null => {
+          return (request.query?.token as string) ?? null;
+        },
       ]),
       ignoreExpiration: false,
       secretOrKey: secret,

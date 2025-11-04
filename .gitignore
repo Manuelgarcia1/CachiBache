@@ -4,3 +4,7 @@
 # Personal documentation
 docs-personales/
 docs/
+
+# Lock files - solo usar pnpm-lock.yaml
+package-lock.json
+yarn.lock

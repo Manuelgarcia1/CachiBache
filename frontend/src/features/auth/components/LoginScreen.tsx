@@ -6,9 +6,15 @@ import { loginSchema } from "@sharedvalidation/schemas";
 import { router } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
-import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Input, Stack, Text } from "tamagui";
+import { Button, Input, Stack, Text, YStack } from "tamagui";
+import { Feather } from "@expo/vector-icons";
 
 interface LoginFormData {
   email: string;
@@ -20,6 +26,7 @@ export function LoginScreen() {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Maneja el login con email: valida campos y llama al backend para autenticar
   const handleEmailLogin = async (
@@ -61,9 +68,14 @@ export function LoginScreen() {
       if (error.statusCode === 401) {
         setError("Email o contraseña incorrectos");
       } else if (error.statusCode === 0) {
-        setError("No se pudo conectar con el servidor. Verifica tu conexión a internet.");
+        setError(
+          "No se pudo conectar con el servidor. Verifica tu conexión a internet."
+        );
       } else {
-        setError(error.message || "Ocurrió un error al iniciar sesión. Por favor, intenta nuevamente.");
+        setError(
+          error.message ||
+            "Ocurrió un error al iniciar sesión. Por favor, intenta nuevamente."
+        );
       }
     } finally {
       setLoading(false);
@@ -94,11 +106,17 @@ export function LoginScreen() {
             justifyContent="center"
             alignItems="center"
             padding="$4"
-            space="$4"
+            space="$5"
           >
-            <AppLogo />
+            <AppLogo size={250} />
 
-            <Text fontSize="$6" fontWeight="600" color="white" textAlign="center">
+            <Text
+              fontSize="$6"
+              fontWeight="600"
+              color="#ffffff"
+              textAlign="center"
+              marginBottom="$3"
+            >
               Ingresar con Email
             </Text>
 
@@ -129,56 +147,124 @@ export function LoginScreen() {
                 errors,
                 touched,
               }) => (
-                <Stack space="$4" width="100%" maxWidth={300}>
-                  <Stack space="$1">
+                <Stack
+                  space="$4"
+                  width="100%"
+                  maxWidth={400}
+                  paddingHorizontal="$4"
+                >
+                  <Stack space="$2">
                     <Input
                       placeholder="Email"
+                      placeholderTextColor="#999"
                       value={values.email}
-                      onChangeText={handleChange('email')}
-                      onBlur={handleBlur('email')}
+                      onChangeText={handleChange("email")}
+                      onBlur={handleBlur("email")}
                       keyboardType="email-address"
                       autoCapitalize="none"
-                      size="$4"
+                      height={55}
                       backgroundColor="white"
-                      borderColor={touched.email && errors.email ? "$red8" : "white"}
+                      borderRadius="$6"
+                      paddingHorizontal="$5"
+                      fontSize="$4"
+                      borderColor={
+                        touched.email && errors.email ? "$red8" : "transparent"
+                      }
+                      borderWidth={2}
                     />
                     {touched.email && errors.email && (
-                      <Text color="$red8" fontSize="$2">
+                      <Text color="#ff6b6b" fontSize="$3" marginTop="$1">
                         {errors.email}
                       </Text>
                     )}
                   </Stack>
 
-                  <Stack space="$1">
-                    <Input
-                      placeholder="Contraseña"
-                      value={values.password}
-                      onChangeText={handleChange('password')}
-                      onBlur={handleBlur('password')}
-                      secureTextEntry
-                      size="$4"
-                      backgroundColor="white"
-                      borderColor={touched.password && errors.password ? "$red8" : "white"}
-                    />
+                  <Stack space="$2">
+                    <YStack position="relative">
+                      <Input
+                        placeholder="Contraseña"
+                        placeholderTextColor="#999"
+                        value={values.password}
+                        onChangeText={handleChange("password")}
+                        onBlur={handleBlur("password")}
+                        secureTextEntry={!showPassword}
+                        height={55}
+                        backgroundColor="white"
+                        borderRadius="$6"
+                        paddingHorizontal="$5"
+                        fontSize="$4"
+                        borderColor={
+                          touched.password && errors.password
+                            ? "$red8"
+                            : "transparent"
+                        }
+                        borderWidth={2}
+                        paddingRight={50}
+                      />
+                      <YStack
+                        position="absolute"
+                        right={15}
+                        top={0}
+                        height="100%"
+                        justifyContent="center"
+                        onPress={() => setShowPassword(!showPassword)}
+                        pressStyle={{ opacity: 0.7 }}
+                      >
+                        <Feather
+                          name={showPassword ? "eye-off" : "eye"}
+                          size={20}
+                          color="#666"
+                        />
+                      </YStack>
+                    </YStack>
                     {touched.password && errors.password && (
-                      <Text color="$red8" fontSize="$2">
+                      <Text color="#ff6b6b" fontSize="$3" marginTop="$1">
                         {errors.password}
                       </Text>
                     )}
                   </Stack>
 
-                  <Button
-                    size="$4"
-                    backgroundColor="$yellow8"
-                    color="$gray12"
-                    fontWeight="600"
-                    borderRadius="$6"
-                    pressStyle={{ backgroundColor: "$yellow9" }}
-                    onPress={() => handleSubmit()}
-                    disabled={loading || !values.email || !values.password || !!errors.email || !!errors.password}
-                  >
-                    {loading ? "Ingresando..." : "Ingresar"}
-                  </Button>
+                  <YStack space="$2" marginTop="$2">
+                    <Button
+                      size="$4"
+                      backgroundColor="$yellow8"
+                      color="$black"
+                      fontWeight="bold"
+                      borderRadius="$10"
+                      pressStyle={{ backgroundColor: "$yellow9" }}
+                      onPress={() => handleSubmit()}
+                      disabled={
+                        loading ||
+                        !values.email ||
+                        !values.password ||
+                        !!errors.email ||
+                        !!errors.password
+                      }
+                      opacity={
+                        loading ||
+                        !values.email ||
+                        !values.password ||
+                        !!errors.email ||
+                        !!errors.password
+                          ? 0.6
+                          : 1
+                      }
+                    >
+                      {loading ? "Ingresando..." : "Ingresar"}
+                    </Button>
+
+                    <Button
+                      size="$3"
+                      backgroundColor="transparent"
+                      color="#ffffff"
+                      fontWeight="500"
+                      borderRadius="$4"
+                      pressStyle={{ opacity: 0.7 }}
+                      onPress={() => router.navigate("/forgot-password")}
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </Button>
+                  </YStack>
                 </Stack>
               )}
             </Formik>
