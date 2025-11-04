@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
@@ -56,6 +57,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     ReportsModule,
 
     CloudinaryModule,
+
+    PdfModule,
   ],
   controllers: [AppController],
   providers: [AppService],

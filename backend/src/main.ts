@@ -30,12 +30,6 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  // Middleware para loggear todas las peticiones
-  app.use((req, res, next) => {
-    console.log(`📨 [${req.method}] ${req.url} - IP: ${req.ip}`);
-    next();
-  });
-
   const port = 3000;
   await app.listen(port);
 
