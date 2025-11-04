@@ -1,7 +1,11 @@
 // Servicio HTTP reutilizable para todas las peticiones a la API usando axios
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { API_BASE_URL, DEFAULT_HEADERS, API_TIMEOUT } from '../config/api';
-import { getRefreshToken, setToken } from '../utils/secure-store';
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
+import { API_BASE_URL, DEFAULT_HEADERS, API_TIMEOUT } from "../config/api";
+import { getRefreshToken, setToken, getToken } from "../utils/secure-store";
 
 /**
  * Clase de error personalizada para errores de API
@@ -13,7 +17,7 @@ export class ApiError extends Error {
     public errors?: any
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
@@ -23,12 +27,12 @@ let refreshSubscribers: ((token: string) => void)[] = [];
 
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/refresh',
-  '/auth/verify-email',
-  '/auth/forgot-password',
-  '/auth/reset-password',
+  "/auth/login",
+  "/auth/register",
+  "/auth/refresh",
+  "/auth/verify-email",
+  "/auth/forgot-password",
+  "/auth/reset-password",
 ];
 
 /**
@@ -55,14 +59,15 @@ class ApiService {
         }
 
         // Verificar si la ruta es pública (no requiere autenticación)
-        const isPublicRoute = PUBLIC_ROUTES.some(route => config.url?.includes(route));
+        const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+          config.url?.includes(route)
+        );
         if (isPublicRoute) {
           return config; // No agregar token a rutas públicas
         }
 
         // Obtener el token actual de SecureStore
         try {
-          const { getToken } = await import('../utils/secure-store');
           const token = await getToken();
 
           // Si hay token, agregarlo al header Authorization
@@ -70,7 +75,7 @@ class ApiService {
             config.headers.Authorization = `Bearer ${token}`;
           }
         } catch (error) {
-          console.error('❌ Error obteniendo token:', error);
+          console.error("❌ Error obteniendo token:", error);
         }
 
         return config;
@@ -82,13 +87,15 @@ class ApiService {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError<any>) => {
-        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        const originalRequest = error.config as InternalAxiosRequestConfig & {
+          _retry?: boolean;
+        };
 
         // Manejar timeout
-        if (error.code === 'ECONNABORTED') {
+        if (error.code === "ECONNABORTED") {
           throw new ApiError(
             408,
-            'La petición tardó demasiado tiempo. Por favor, intenta nuevamente.'
+            "La petición tardó demasiado tiempo. Por favor, intenta nuevamente."
           );
         }
 
@@ -96,14 +103,18 @@ class ApiService {
         if (!error.response) {
           throw new ApiError(
             0,
-            'No se pudo conectar con el servidor. Verifica tu conexión a internet.'
+            "No se pudo conectar con el servidor. Verifica tu conexión a internet."
           );
         }
 
         const statusCode = error.response.status;
 
         // Si es 401 (Unauthorized) y no es el endpoint de refresh, intentar refrescar el token
-        if (statusCode === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+        if (
+          statusCode === 401 &&
+          !originalRequest._retry &&
+          !originalRequest.url?.includes("/auth/refresh")
+        ) {
           originalRequest._retry = true;
 
           try {
@@ -125,24 +136,25 @@ class ApiService {
             }
 
             isRefreshing = true;
-            console.log('🔄 REFRESH TOKEN: Token expirado, renovando sesión automáticamente...');
+            console.log(
+              "🔄 REFRESH TOKEN: Token expirado, renovando sesión automáticamente..."
+            );
 
             // Obtener refresh token de SecureStore
             const refreshToken = await getRefreshToken();
             if (!refreshToken) {
-              throw new Error('No hay refresh token disponible');
+              throw new Error("No hay refresh token disponible");
             }
 
             // Llamar al endpoint de refresh
-            const response = await this.axiosInstance.post<{ accessToken: string }>(
-              '/auth/refresh',
-              { refreshToken }
-            );
+            const response = await this.axiosInstance.post<{
+              accessToken: string;
+            }>("/auth/refresh", { refreshToken });
 
             const newAccessToken = response.data.accessToken;
             await setToken(newAccessToken);
 
-            console.log('✅ REFRESH TOKEN: Sesión renovada exitosamente');
+            console.log("✅ REFRESH TOKEN: Sesión renovada exitosamente");
 
             // Notificar a todas las peticiones en espera
             refreshSubscribers.forEach((callback) => callback(newAccessToken));
@@ -160,13 +172,18 @@ class ApiService {
           } catch (refreshError) {
             isRefreshing = false;
             refreshSubscribers = [];
-            console.error('❌ REFRESH TOKEN: Error renovando sesión, debes iniciar sesión nuevamente');
-            throw new ApiError(401, 'Sesión expirada. Por favor, inicia sesión nuevamente.');
+            console.error(
+              "❌ REFRESH TOKEN: Error renovando sesión, debes iniciar sesión nuevamente"
+            );
+            throw new ApiError(
+              401,
+              "Sesión expirada. Por favor, inicia sesión nuevamente."
+            );
           }
         }
 
         // Manejar otros errores HTTP (4xx, 5xx)
-        const message = error.response.data?.message || 'Error en la petición';
+        const message = error.response.data?.message || "Error en la petición";
         const errors = error.response.data?.errors;
 
         throw new ApiError(statusCode, message, errors);
@@ -190,7 +207,9 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    const response = await this.axiosInstance.post<T>(endpoint, body, { headers });
+    const response = await this.axiosInstance.post<T>(endpoint, body, {
+      headers,
+    });
     return response.data;
   }
 
@@ -202,7 +221,9 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    const response = await this.axiosInstance.put<T>(endpoint, body, { headers });
+    const response = await this.axiosInstance.put<T>(endpoint, body, {
+      headers,
+    });
     return response.data;
   }
 
@@ -214,7 +235,9 @@ class ApiService {
     body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    const response = await this.axiosInstance.patch<T>(endpoint, body, { headers });
+    const response = await this.axiosInstance.patch<T>(endpoint, body, {
+      headers,
+    });
     return response.data;
   }
 
@@ -226,6 +249,20 @@ class ApiService {
     headers?: Record<string, string>
   ): Promise<T> {
     const response = await this.axiosInstance.delete<T>(endpoint, { headers });
+    return response.data;
+  }
+
+  /**
+   * Método GET para obtener Blobs (archivos binarios como PDFs, imágenes, etc.)
+   */
+  async getBlob(
+    endpoint: string,
+    headers?: Record<string, string>
+  ): Promise<Blob> {
+    const response = await this.axiosInstance.get(endpoint, {
+      headers,
+      responseType: "blob", // Importante: indicar que esperamos un blob
+    });
     return response.data;
   }
 }

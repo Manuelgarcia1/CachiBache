@@ -2,7 +2,6 @@ import { FormField } from '@sharedcomponents/index';
 import { forgotPasswordSchema } from '@sharedvalidation/schemas';
 import { Formik, FormikHelpers } from 'formik';
 import React from 'react';
-// CAMBIO: Usamos YStack para un mejor control del layout
 import { YStack, Text } from 'tamagui'; 
 import { ForgotPasswordButton } from './ForgotPasswordButton';
 
@@ -38,51 +37,49 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       onSubmit={handleSubmit}
     >
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-        // --- CAMBIOS DE ESTILO AQUÍ ---
-        <YStack width="100%" maxWidth={400} paddingHorizontal="$2" space="$5">
-          {/* Títulos y textos mejorados */}
-          <YStack space="$2" alignItems="center">
+        <YStack width="100%" maxWidth={400} paddingHorizontal="$4" space="$4">
+          <YStack space="$3" alignItems="center">
             <Text
-              fontSize="$8" // Más grande y consistente
+              fontSize="$8"
               fontWeight="bold"
               textAlign="center"
-              color="white"
+              color="#ffffff"
             >
               Recuperar Contraseña
             </Text>
-            
+
             <Text
-              fontSize="$4"
-              color="white" // Mejor contraste
-              opacity={0.8}
+              fontSize="$5"
+              color="#ffffff"
+              opacity={0.9}
               textAlign="center"
-              paddingHorizontal="$4"
+              paddingHorizontal="$2"
+              lineHeight={22}
             >
-              Ingresa tu email y te enviaremos un enlace para restablecerla
+              Ingresa tu email y te enviaremos un código para restablecerla
             </Text>
           </YStack>
 
-          {/* El FormField usará automáticamente los nuevos estilos de StyleSheet */}
-          <FormField
-            label="Email"
-            placeholder="tu@email.com"
-            value={values.email}
-            onChangeText={handleChange('email')}
-            onBlur={handleBlur('email')}
-            error={touched.email ? errors.email : undefined}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            returnKeyType="done"
-            onSubmitEditing={() => handleSubmit()}
-          />
+          <YStack space="$4">
+            <FormField
+              label="Email"
+              placeholder="tu@email.com"
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              error={touched.email ? errors.email : undefined}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              returnKeyType="done"
+              onSubmitEditing={() => handleSubmit()}
+            />
 
-          <ForgotPasswordButton
-            onPress={() => handleSubmit()}
-            loading={loading}
-            disabled={!values.email || !!errors.email}
-          />
-          
-          {/* ELIMINADO: El enlace de texto de "Inicia sesión" se quita de aquí */}
+            <ForgotPasswordButton
+              onPress={() => handleSubmit()}
+              loading={loading}
+              disabled={!values.email || !!errors.email}
+            />
+          </YStack>
         </YStack>
       )}
     </Formik>

@@ -4,7 +4,7 @@ import {
   ExecutionContext,
   ForbiddenException,
 } from '@nestjs/common';
-import { UserRole } from '../../users/entities/user-role.enum';
+import { UserRole } from '@users/entities/user-role.enum';
 
 /**
  * Guard para proteger rutas exclusivas de administradores

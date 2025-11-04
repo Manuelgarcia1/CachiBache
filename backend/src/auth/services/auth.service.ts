@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/users.service';
 import { EncryptionService } from '../../common/services/encryption.service';
@@ -18,13 +18,14 @@ export interface AuthResponse {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly encryptionService: EncryptionService,
     private readonly emailVerificationService: EmailVerificationService,
     private readonly refreshTokenService: RefreshTokenService,
-  ) {}
+  ) { }
 
   // ✨ --- NUEVO MÉTODO DE REGISTRO --- ✨
   async register(registerUserDto: RegisterUserDto): Promise<AuthResponse> {
@@ -47,10 +48,14 @@ export class AuthService {
     });
 
     // 4. Enviar email de verificación
-    await this.emailVerificationService.sendVerificationEmailToNewUser(
-      newUser.id,
-      newUser.email,
-    );
+    this.emailVerificationService.sendVerificationEmailToNewUser(newUser.id, newUser.email)
+      .then(() => {
+        this.logger.log(`Email de verificación enviado exitosamente a ${newUser.email}`);
+      })
+      .catch((error) => {
+        this.logger.error(`FALLO AL ENVIAR EMAIL de verificación a ${newUser.email}`, error.stack);
+        // Nota: No relanzamos el error. El registro y login deben continuar.
+      });
 
     // 5. Iniciar sesión automáticamente al nuevo usuario
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

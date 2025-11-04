@@ -1,17 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, TouchableOpacity, Alert, Platform, Linking } from "react-native";
 import { YStack, Text, Spinner } from "tamagui";
+import { Ionicons } from "@expo/vector-icons";
 import { ReportTable } from "./ReportTable";
 import { ReportFilters } from "./ReportFilters";
 import { ChangeStatusModal } from "./ChangeStatusModal";
+import { ExportPDFModal, ExportFilters } from "./ExportPDFModal";
 import {
   getAllReportsAdmin,
   updateReportStatus,
+  exportReportsPDF,
 } from "@/src/shared/services/admin.service";
 import {
   ReportFromBackend,
   ReportStatus,
 } from "@/src/shared/types/report.types";
+import { API_BASE_URL } from "@/src/shared/config/api";
+import { getToken } from "@/src/shared/utils/secure-store";
 
 export function ReportsScreen() {
   // Estado de datos
@@ -34,6 +39,9 @@ export function ReportsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReport, setSelectedReport] =
     useState<ReportFromBackend | null>(null);
+
+  // Estado del modal de exportar PDF
+  const [exportModalVisible, setExportModalVisible] = useState(false);
 
   // Función para cargar reportes
   const loadReports = useCallback(async () => {
@@ -107,17 +115,106 @@ export function ReportsScreen() {
     setCurrentPage(page);
   };
 
+  const handleExportPDF = async (filters: ExportFilters) => {
+    try {
+      console.log("🔄 Iniciando exportación de PDF con filtros:", filters);
+
+      if (Platform.OS === "web") {
+        // En web, descargar el archivo
+        console.log("🌐 Descargando PDF en web...");
+        const pdfBlob = await exportReportsPDF(filters);
+        console.log("✅ PDF recibido, tamaño:", pdfBlob.size, "bytes");
+
+        const fileName = `reporte-cachibache-${new Date().toISOString().split("T")[0]}.pdf`;
+        const url = window.URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        Alert.alert("Éxito", "PDF descargado correctamente");
+      } else {
+        // En móvil, abrir el PDF en el navegador del dispositivo
+        console.log("📱 Abriendo PDF en navegador móvil...");
+
+        // Obtener el token de autenticación
+        const token = await getToken();
+        if (!token) {
+          Alert.alert("Error", "No se encontró el token de autenticación. Por favor inicia sesión nuevamente.");
+          return;
+        }
+
+        // Construir la URL del PDF con los filtros
+        const params = new URLSearchParams();
+        if (filters.startDate) params.append("startDate", filters.startDate);
+        if (filters.endDate) params.append("endDate", filters.endDate);
+        if (filters.status && filters.status.length > 0) {
+          filters.status.forEach((status) => params.append("status", status));
+        }
+
+        // Agregar el token como query parameter
+        params.append("token", token);
+
+        // Construir URL completa del PDF
+        // API_BASE_URL ya incluye "/api", así que la quitamos para agregar la ruta completa
+        const baseURL = API_BASE_URL.replace("/api", "");
+        const pdfURL = `${baseURL}/api/reports/admin/export/pdf?${params.toString()}`;
+
+        console.log("🔗 Abriendo URL con autenticación");
+
+        // Abrir en el navegador del dispositivo
+        const supported = await Linking.canOpenURL(pdfURL);
+        if (supported) {
+          await Linking.openURL(pdfURL);
+          console.log("✅ PDF abierto en navegador");
+        } else {
+          console.error("❌ No se puede abrir la URL");
+          Alert.alert("Error", "No se puede abrir el PDF en este dispositivo");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error exportando PDF:", error);
+      Alert.alert(
+        "Error",
+        `No se pudo exportar el PDF: ${(error as Error).message}`
+      );
+    }
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#f8fafc" }}>
       <YStack padding="$4" gap="$4">
         {/* Header */}
-        <YStack gap="$2">
+        <YStack gap="$3">
           <Text fontSize={24} fontWeight="bold">
             Gestión de Reportes
           </Text>
           <Text fontSize={14} color="$gray10">
             Total: {totalReports} reportes
           </Text>
+
+          {/* Botón de exportar PDF */}
+          <TouchableOpacity
+            onPress={() => setExportModalVisible(true)}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              backgroundColor: "#094b7e",
+              paddingVertical: 12,
+              paddingHorizontal: 20,
+              borderRadius: 8,
+              alignSelf: "flex-start",
+            }}
+          >
+            <Ionicons name="document-text" size={20} color="white" />
+            <Text color="white" fontWeight="600" fontSize={15}>
+              Exportar PDF
+            </Text>
+          </TouchableOpacity>
         </YStack>
 
         {/* Filtros */}
@@ -170,6 +267,13 @@ export function ReportsScreen() {
             onConfirm={handleConfirmStatusChange}
           />
         )}
+
+        {/* Modal para exportar PDF */}
+        <ExportPDFModal
+          visible={exportModalVisible}
+          onClose={() => setExportModalVisible(false)}
+          onExport={handleExportPDF}
+        />
       </YStack>
     </ScrollView>
   );

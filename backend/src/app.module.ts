@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { TypeOrmConfigService } from './config/typeorm.config';
 
 @Module({
   imports: [
@@ -28,18 +29,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
     // 3. Configurar la conexión con la base de datos usando TypeORM
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule], // Importamos ConfigModule para poder inyectar ConfigService
-      inject: [ConfigService], // Inyectamos el servicio para leer las variables de entorno
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        autoLoadEntities: true, // Carga automáticamente las entidades que definamos
-        synchronize: true, // ¡Solo para desarrollo! Sincroniza el esquema de la BD con las entidades
-      }),
+      imports: [ConfigModule],
+      useClass: TypeOrmConfigService, // Le decimos que use nuestra clase para construir la config
     }),
 
     // 4. Módulo común con servicios compartidos

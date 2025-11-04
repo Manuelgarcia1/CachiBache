@@ -9,7 +9,7 @@ import { ReportFromBackend } from '../types/report.types';
 
 /**
  * Obtener todos los reportes con filtros (solo admin)
- * Endpoint: GET /reports/admin/all
+ * Endpoint: GET /admin/reports
  * Requiere autenticación + AdminGuard
  */
 export async function getAllReportsAdmin(
@@ -25,7 +25,7 @@ export async function getAllReportsAdmin(
     if (filters.search) params.append('search', filters.search);
 
     const response = await apiService.get<AdminReportsResponse>(
-      `/reports/admin/all?${params.toString()}`
+      `/admin/reports?${params.toString()}`
     );
 
     return response;
@@ -37,7 +37,7 @@ export async function getAllReportsAdmin(
 
 /**
  * Cambiar el estado de un reporte (solo admin)
- * Endpoint: PATCH /reports/admin/:reportId/status
+ * Endpoint: PATCH /admin/reports/:reportId/status
  * Requiere autenticación + AdminGuard
  */
 export async function updateReportStatus(
@@ -46,7 +46,7 @@ export async function updateReportStatus(
 ): Promise<ReportFromBackend> {
   try {
     const response = await apiService.patch<ReportFromBackend>(
-      `/reports/admin/${reportId}/status`,
+      `/admin/reports/${reportId}/status`,
       { status }
     );
 
@@ -59,8 +59,8 @@ export async function updateReportStatus(
 
 /**
  * Obtener métricas para el dashboard (admin)
- * Endpoint: GET /reports/metrics/dashboard
- * Requiere autenticación
+ * Endpoint: GET /admin/reports/dashboard/metrics
+ * Requiere autenticación + AdminGuard
  */
 export async function getDashboardMetrics(): Promise<{
   totalReports: number;
@@ -72,11 +72,42 @@ export async function getDashboardMetrics(): Promise<{
       totalReports: number;
       reportsBySeverity: Record<string, number>;
       reportsByStatus: Record<string, number>;
-    }>('/reports/metrics/dashboard');
+    }>('/admin/reports/dashboard/metrics');
 
     return response;
   } catch (error) {
     console.error('Error fetching dashboard metrics:', error);
+    throw error;
+  }
+}
+
+/**
+ * Exportar reportes como PDF (solo admin)
+ * Endpoint: GET /reports/admin/export/pdf
+ * Requiere autenticación + AdminGuard
+ */
+export async function exportReportsPDF(filters: {
+  startDate?: string;
+  endDate?: string;
+  status?: string[];
+}): Promise<Blob> {
+  try {
+    const params = new URLSearchParams();
+
+    if (filters.startDate) params.append('startDate', filters.startDate);
+    if (filters.endDate) params.append('endDate', filters.endDate);
+    if (filters.status && filters.status.length > 0) {
+      filters.status.forEach((status) => params.append('status', status));
+    }
+
+    // Usar apiService.getBlob que maneja automáticamente la autenticación
+    const blob = await apiService.getBlob(
+      `/reports/admin/export/pdf?${params.toString()}`
+    );
+
+    return blob;
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
     throw error;
   }
 }

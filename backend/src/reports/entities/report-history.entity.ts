@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Report } from './report.entity';
-import { User } from '../../users/entities/user.entity';
+import { User } from '@users/entities/user.entity';
 import { ReportStatus } from './report-status.enum';
 
 @Entity('report_history')
