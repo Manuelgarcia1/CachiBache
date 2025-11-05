@@ -8,6 +8,11 @@
     "scheme": "cachibache",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "eas": {
+        "projectId": "cf69f336-fe4b-46f2-b9c9-3122a452b604"
+      }
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -48,7 +53,8 @@
           "photosPermission": "Esta aplicación necesita acceso a tus fotos para permitir adjuntar imágenes a los reportes de baches.",
           "cameraPermission": "Esta aplicación necesita acceso a tu cámara para permitir tomar fotos de los baches directamente."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

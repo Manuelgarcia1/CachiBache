@@ -11,6 +11,7 @@ import { UsersModule } from '@users/users.module';
 import { ReportsModule } from '@reports/reports.module';
 import { CloudinaryModule } from '@cloudinary/cloudinary.module';
 import { AdminModule } from '@admin/admin.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -60,6 +61,8 @@ import { AdminModule } from '@admin/admin.module';
 
     // Módulo de administración (incluye gestión de reportes admin, PDFs, etc.)
     AdminModule,
+
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -150,6 +150,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData || null);
       setIsEmailVerified(userData?.emailVerified || false);
       setIsGuest(isGuestToken(accessToken));
+
+      // Registrar para notificaciones push si no es guest
+      if (!isGuestToken(accessToken)) {
+        try {
+          const { registerForPushNotifications } = await import('../services/notifications.service');
+          await registerForPushNotifications();
+        } catch (error) {
+          console.log('Could not register for push notifications');
+        }
+      }
     } catch (err) {
       console.error("❌ Error durante login:", err);
     }

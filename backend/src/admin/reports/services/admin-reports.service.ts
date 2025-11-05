@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Report } from '@reports/entities/report.entity';
 import { ReportStatus } from '@reports/entities/report-status.enum';
+import { NotificationsService } from '../../../notifications/services/notifications.service';
 
 @Injectable()
 export class AdminReportsService {
   constructor(
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -191,8 +193,24 @@ export class AdminReportsService {
       throw new NotFoundException(`Reporte con ID "${reportId}" no encontrado`);
     }
 
+    console.log(`Actualizando estado del reporte ${reportId} de ${report.status} a ${newStatus}`);
+    
     // Actualizar solo el campo status
     await this.reportRepository.update(reportId, { status: newStatus });
+
+    console.log(`Estado actualizado en BD. Enviando notificacion al usuario ${report.user.id}`);
+    
+    // Enviar notificacion push al usuario
+    try {
+      await this.notificationsService.sendReportStatusNotification(
+        report.user.id,
+        parseInt(reportId),
+        newStatus
+      );
+      console.log(`Notificacion enviada exitosamente`);
+    } catch (error) {
+      console.error(`Error enviando notificacion:`, error);
+    }
 
     // Devolver el reporte actualizado
     const updatedReport = await this.reportRepository.findOne({
