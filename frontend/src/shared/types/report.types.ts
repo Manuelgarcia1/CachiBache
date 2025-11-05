@@ -18,6 +18,7 @@ export interface PhotoFromBackend {
 export interface ReportFromBackend {
   id: string;
   address: string;
+  description?: string; // Descripción opcional del bache
   status: ReportStatus;
   severity: ReportSeverity;
   location: string | { x: number; y: number } | { coordinates: [number, number] } | any; // Varios formatos posibles

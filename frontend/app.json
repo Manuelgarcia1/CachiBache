@@ -9,15 +9,30 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Esta aplicación necesita acceso al reconocimiento de voz para transcribir automáticamente lo que dices.",
+        "NSMicrophoneUsageDescription": "Esta aplicación necesita acceso al micrófono para permitir dictar la descripción del bache mediante voz.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.anonymous.cachibache"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#f8f9fa"
       },
-      "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.cachibache"
+      "package": "com.anonymous.cachibache",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBIms_i6cYC2cXhS5aD0_fWkanRVgkSjZY"
+        }
+      }
     },
     "web": {
       "bundler": "metro",
@@ -48,10 +63,25 @@
           "photosPermission": "Esta aplicación necesita acceso a tus fotos para permitir adjuntar imágenes a los reportes de baches.",
           "cameraPermission": "Esta aplicación necesita acceso a tu cámara para permitir tomar fotos de los baches directamente."
         }
-      ]
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Esta aplicación necesita acceso al micrófono para permitir dictar la descripción del bache mediante voz.",
+          "speechRecognitionPermission": "Esta aplicación necesita acceso al reconocimiento de voz para transcribir automáticamente lo que dices."
+        }
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b8d2ef51-cee3-41a9-a63d-c5cedec29dbf"
+      }
     }
   }
 }

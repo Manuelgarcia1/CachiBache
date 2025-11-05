@@ -28,6 +28,9 @@ export class Report {
   @Column()
   address: string;
 
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
   @Column({ type: 'enum', enum: ReportStatus, default: ReportStatus.PENDIENTE })
   status: ReportStatus;
 
