@@ -8,7 +8,8 @@ export default function ReportsTab() {
 
   const fetchReports = useCallback(async () => {
     try {
-      const data = await getUserReports();
+      // Aumentar el límite a 100 para mostrar todos los reportes
+      const data = await getUserReports(1, 100);
       setReports(data.reports || []);
     } catch (err) {
       console.error("Error al cargar reportes:", err);
