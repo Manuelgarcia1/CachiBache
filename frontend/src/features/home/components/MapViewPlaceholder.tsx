@@ -1,6 +1,6 @@
 // Ubicación: src/features/home/components/MapViewPlaceholder.tsx
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import * as Location from 'expo-location';
 import { YStack, Text } from 'tamagui';
 import MapView, { Marker, Region } from 'react-native-maps';
@@ -92,6 +92,9 @@ export function MapViewPlaceholder() {
         showsPointsOfInterest={false}
         showsBuildings={true}
         showsTraffic={false}
+        moveOnMarkerPress={false} // Optimización: reduce lag al tocar markers
+        loadingEnabled={true}
+        loadingIndicatorColor="#facc15"
       >
         {reports.map((report) => (
           <Marker

@@ -1,5 +1,4 @@
 import { useAuth } from "@/src/shared/contexts/AuthContext";
-import { getToken } from "@/src/shared/utils/secure-store";
 import { Button, ScrollView, Text, YStack, XStack } from "tamagui";
 import { ProfileDashboard } from "./ProfileDashboard";
 import { ProfileHeader } from "./ProfileHeader";
@@ -47,16 +46,6 @@ export function ProfileScreen({
     }
   };
 
-  const handleReadToken = async () => {
-    try {
-      console.log("🔍 Leyendo token actual desde perfil...");
-      const token = await getToken();
-      console.log("🔑 Token actual en perfil:", token);
-    } catch (error) {
-      console.error("❌ Error leyendo token desde perfil:", error);
-    }
-  };
-
   return (
     <YStack flex={1} backgroundColor="#f8fafc">
       <ProfileHeader name={user.name} email={user.email} avatar={user.avatar || ''} />
@@ -82,26 +71,13 @@ export function ProfileScreen({
             <ProfileDashboard {...dashboard} />
           </YStack>
 
-          {/* --- SECCIÓN DE OPCIONES (CON BOTONES REDISEÑADOS) --- */}
+          {/* --- SECCIÓN DE OPCIONES --- */}
           <YStack space="$3" marginTop="$4">
             <Text fontSize="$6" fontWeight="bold" color="#000" marginBottom="$2">
               Opciones de Cuenta
             </Text>
 
-            {/* Botón "Ver Token" con estilo blanco */}
-            <Button
-              size="$4"
-              color="white"
-              fontWeight="bold"
-              backgroundColor={"#094b7eff"}
-              borderRadius="$10"
-              onPress={handleReadToken}
-              icon={<Feather name="key" size={18} color="#094b7eff" />}
-            >
-              Ver Token Actual (Dev)
-            </Button>
-
-            {/* Botón "Cerrar Sesión" con estilo amarillo */}
+            {/* Botón "Cerrar Sesión" */}
             <Button
               size="$4"
               backgroundColor="$yellow8"
