@@ -68,20 +68,30 @@ export function ProfileDashboard({ tiempoPromedioPendiente, tiempoPromedioRepara
           <Text fontSize="$5" color="white" fontWeight="bold" opacity={0.8}>
             REPORTES POR MES
           </Text>
-          <XStack flex={1} gap="$3" alignItems="flex-end" justifyContent="center">
-            {lastBaches.map((val, idx) => (
-              <YStack key={idx} alignItems="center" space="$2">
-                <View
-                  width={24}
-                  height={Math.max(val * 10, 10)} // Aseguramos una altura mínima
-                  backgroundColor="white"
-                  borderRadius="$2"
-                />
-                <Text fontSize="$2" color="white">
-                  {lastMonths[idx]}
-                </Text>
-              </YStack>
-            ))}
+          <XStack flex={1} gap="$3" alignItems="flex-end" justifyContent="center" height={80}>
+            {lastBaches.map((val, idx) => {
+              // Calcular altura proporcional al máximo valor y al contenedor
+              const maxVal = Math.max(...lastBaches, 1); // Evitar división por 0
+              const maxHeight = 60; // Altura máxima de las barras
+              const barHeight = Math.max((val / maxVal) * maxHeight, 8); // Altura mínima de 8px
+              
+              return (
+                <YStack key={idx} alignItems="center" space="$2">
+                  <View
+                    width={20}
+                    height={barHeight}
+                    backgroundColor="white"
+                    borderRadius="$2"
+                  />
+                  <Text fontSize="$1" color="white">
+                    {lastMonths[idx]}
+                  </Text>
+                  <Text fontSize="$1" color="white" fontWeight="bold">
+                    {val}
+                  </Text>
+                </YStack>
+              );
+            })}
           </XStack>
         </YStack>
       </Card>

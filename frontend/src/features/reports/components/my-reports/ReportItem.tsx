@@ -18,13 +18,15 @@ interface ReportItemProps {
 function getBarProps(status: string) {
   switch (status) {
     case 'PENDIENTE':
-      return { color: '#dc3826', width: '20%' };
-    case 'EN REPARACION':
-      return { color: '#fabd15', width: '66%' };
-    case 'FINALIZADO':
-      return { color: '#22c566', width: '100%' };
+      return { color: '#dc2626', width: '20%' }; // Rojo para pendiente
+    case 'EN_REPARACION':
+      return { color: '#f59e0b', width: '66%' }; // Amarillo/naranja para en reparación
+    case 'RESUELTO':
+      return { color: '#22c55e', width: '100%' }; // Verde para resuelto
+    case 'DESCARTADO':
+      return { color: '#6b7280', width: '10%' }; // Gris para descartado
     default:
-      return { color: '#e5e7eb', width: '0%' };
+      return { color: '#e5e7eb', width: '0%' }; // Gris claro por defecto
   }
 }
 
