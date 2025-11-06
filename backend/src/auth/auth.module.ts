@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
+import { GoogleAuthService } from './services/google-auth.service';
 import { EmailVerificationService } from './services/email-verification.service';
 import { RefreshTokenService } from './services/refresh-token.service';
 import { PasswordResetService } from './services/password-reset.service';
@@ -47,6 +48,7 @@ import { User } from '@users/entities/user.entity';
   ],
   providers: [
     AuthService,
+    GoogleAuthService,
     EmailVerificationService,
     RefreshTokenService,
     PasswordResetService,

@@ -1,3 +1,16 @@
+// Función helper para convertir el Client ID al formato iosUrlScheme
+function getIosUrlScheme(clientId) {
+  if (!clientId) return "com.googleusercontent.apps.placeholder";
+
+  // Convertir de: "123456-abc.apps.googleusercontent.com"
+  // A: "com.googleusercontent.apps.123456-abc"
+  const match = clientId.match(/^(.+)\.apps\.googleusercontent\.com$/);
+  if (match) {
+    return `com.googleusercontent.apps.${match[1]}`;
+  }
+  return clientId;
+}
+
 export default {
   expo: {
     name: "CachiBache",
@@ -71,6 +84,12 @@ export default {
           speechRecognitionPermission: "Esta aplicación necesita acceso al reconocimiento de voz para transcribir automáticamente lo que dices."
         }
       ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          iosUrlScheme: getIosUrlScheme(process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID)
+        }
+      ],
       "expo-font",
       "expo-web-browser"
     ],
@@ -81,7 +100,12 @@ export default {
       router: {},
       eas: {
         projectId: "b8d2ef51-cee3-41a9-a63d-c5cedec29dbf"
-      }
+      },
+      // Variables de entorno accesibles en la app
+      API_URL: process.env.EXPO_PUBLIC_API_URL,
+      CLOUDINARY_CLOUD_NAME: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      GOOGLE_MAPS_API_KEY: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+      GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
     }
   }
 };

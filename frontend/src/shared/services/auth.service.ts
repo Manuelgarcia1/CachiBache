@@ -222,6 +222,23 @@ class AuthService {
       throw error;
     }
   }
+
+  /**
+   * Inicia sesión con Google OAuth
+   * @param idToken - ID Token de Google obtenido del cliente
+   * @returns Promise con la respuesta de autenticación
+   */
+  async loginWithGoogle(idToken: string): Promise<AuthResponse> {
+    try {
+      const response = await apiService.post<AuthResponse>(
+        '/auth/google',
+        { idToken }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 // Exportar instancia singleton del servicio

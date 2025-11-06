@@ -27,7 +27,7 @@ export function ReportButton() {
       return;
     }
 
-    // Si no ha verificado el email
+    // Si no ha verificado el email (usuarios registrados con email/password)
     if (!isEmailVerified) {
       Alert.alert(
         "Verifica tu email",
@@ -37,6 +37,7 @@ export function ReportButton() {
       return;
     }
 
+    // Usuario autenticado y verificado, proceder con el reporte
     proceedWithReport();
   };
 
