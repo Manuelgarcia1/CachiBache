@@ -93,10 +93,9 @@ export default function AppLayout() {
         tabBarStyle: {
           backgroundColor: "#094b7eff",
           borderTopWidth: 0,
-          height: 80 + insets.bottom, // Altura base + espacio para botones del sistema
           paddingTop: 10,
+          height: 80 + insets.bottom, // Altura base + espacio para botones del sistema
           paddingBottom: insets.bottom, // Respeta los botones de navegación de Android
-          justifyContent: "center",
         },
         tabBarLabelStyle: {
           fontWeight: "600",

@@ -12,7 +12,6 @@ import { User } from '@users/entities/user.entity'; // Importar User
 import { ReportStatus } from './report-status.enum';
 import { ReportSeverity } from './report-severity.enum';
 import { Photo } from './photo.entity';
-import { ReportHistory } from './report-history.entity';
 
 @Entity('reports')
 export class Report {
@@ -45,9 +44,6 @@ export class Report {
 
   @OneToMany(() => Photo, (photo) => photo.report)
   photos: Photo[];
-
-  @OneToMany(() => ReportHistory, (history) => history.report)
-  history: ReportHistory[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
