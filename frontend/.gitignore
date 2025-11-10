@@ -52,6 +52,10 @@ logs
 # Environment variables
 .env
 
+# Firebase
+google-services.json
+cachibache-bb278-8a9e539e1c82.json
+
 app-example
 
 # Personal documentation

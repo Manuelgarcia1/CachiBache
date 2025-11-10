@@ -26,7 +26,8 @@ export default {
       infoPlist: {
         NSSpeechRecognitionUsageDescription: "Esta aplicación necesita acceso al reconocimiento de voz para transcribir automáticamente lo que dices.",
         NSMicrophoneUsageDescription: "Esta aplicación necesita acceso al micrófono para permitir dictar la descripción del bache mediante voz.",
-        ITSAppUsesNonExemptEncryption: false
+        ITSAppUsesNonExemptEncryption: false,
+        UIBackgroundModes: ["remote-notification"]
       },
       bundleIdentifier: "com.anonymous.cachibache"
     },
@@ -45,7 +46,9 @@ export default {
         googleMaps: {
           apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
         }
-      }
+      },
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
+      useNextNotificationsApi: true
     },
     web: {
       bundler: "metro",
@@ -82,6 +85,14 @@ export default {
         {
           microphonePermission: "Esta aplicación necesita acceso al micrófono para permitir dictar la descripción del bache mediante voz.",
           speechRecognitionPermission: "Esta aplicación necesita acceso al reconocimiento de voz para transcribir automáticamente lo que dices."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/images/notificacion.png",
+          color: "#1976d2",
+          defaultChannel: "default"
         }
       ],
       [

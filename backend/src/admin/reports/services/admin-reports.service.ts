@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Report } from '@reports/entities/report.entity';
 import { ReportStatus } from '@reports/entities/report-status.enum';
+import { NotificationsService } from '../../../notifications/notifications.service';
 
 @Injectable()
 export class AdminReportsService {
   constructor(
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -184,7 +186,7 @@ export class AdminReportsService {
     // Verificar que el reporte existe
     const report = await this.reportRepository.findOne({
       where: { id: reportId },
-      relations: ['user', 'photos', 'history'],
+      relations: ['user', 'photos'],
     });
 
     if (!report) {
@@ -194,10 +196,17 @@ export class AdminReportsService {
     // Actualizar solo el campo status
     await this.reportRepository.update(reportId, { status: newStatus });
 
+    // Enviar notificación push al usuario que creó el reporte
+    await this.notificationsService.sendReportStatusUpdate(
+      report.user.id,
+      reportId,
+      newStatus,
+    );
+
     // Devolver el reporte actualizado
     const updatedReport = await this.reportRepository.findOne({
       where: { id: reportId },
-      relations: ['user', 'photos', 'history'],
+      relations: ['user', 'photos'],
     });
 
     // Esto no debería suceder, pero TypeScript requiere la verificación
