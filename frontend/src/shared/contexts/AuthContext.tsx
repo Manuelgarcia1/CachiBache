@@ -216,6 +216,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
+    // No refrescar si es usuario invitado
+    if (isGuestToken(token)) {
+      console.log("👤 Usuario invitado, no se refresca");
+      return;
+    }
+
     try {
       console.log("🔄 Refrescando datos del usuario...");
       const apiUserData = await authService.getCurrentUser();
