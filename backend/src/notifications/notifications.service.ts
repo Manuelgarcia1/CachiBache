@@ -199,10 +199,15 @@ export class NotificationsService {
    */
   private translateStatus(status: string): string {
     const translations: Record<string, string> = {
+      PENDIENTE: 'Pendiente',
+      EN_REPARACION: 'En Reparación',
+      RESUELTO: 'Resuelto',
+      DESCARTADO: 'Descartado',
+      // Legacy support (por si acaso)
       pending: 'Pendiente',
-      'in-progress': 'En Progreso',
+      'in-progress': 'En Reparación',
       resolved: 'Resuelto',
-      rejected: 'Rechazado',
+      rejected: 'Descartado',
     };
     return translations[status] || status;
   }

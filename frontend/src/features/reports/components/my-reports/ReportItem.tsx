@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Text, View, XStack, YStack, AnimatePresence, Separator } from 'tamagui';
 import { ReportDetail } from './ReportDetail';
 import { Feather } from '@expo/vector-icons';
+import { formatReportStatus, ReportStatus } from '@/src/shared/types/report.types';
 
 
 interface ReportItemProps {
@@ -59,7 +60,7 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
 
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontSize="$5" fontWeight="600" color={color}>
-          {status}
+          {formatReportStatus(status as ReportStatus)}
         </Text>
         <Text fontSize="$3" color="$gray10">
           {new Date(date).toLocaleDateString()}

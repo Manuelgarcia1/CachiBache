@@ -47,46 +47,54 @@ export function ProfileScreen({
   };
 
   return (
-    <YStack flex={1} backgroundColor="#f8fafc">
+    <YStack flex={1} backgroundColor="#f1f5f9">
       <ProfileHeader name={user.name} email={user.email} avatar={user.avatar || ''} />
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        <YStack padding="$4" space="$5">
+        <YStack padding="$4" space="$4">
           {/* Sección de Historial */}
-          <YStack space="$2">
-            <Text fontSize="$7" fontWeight="bold" color="#000">
+          <YStack space="$3">
+            <Text fontSize={20} fontWeight="700" color="#1e293b" letterSpacing={0.3}>
               Historial de Reportes
             </Text>
             <ProfileStats {...reportStats} />
           </YStack>
 
           {/* Sección de Dashboard */}
-          <YStack space="$2">
-            <Text fontSize="$7" fontWeight="bold" color="#000">
+          <YStack space="$3">
+            <Text fontSize={20} fontWeight="700" color="#1e293b" letterSpacing={0.3}>
               Dashboard
             </Text>
             <ProfileDashboard {...dashboard} />
           </YStack>
 
           {/* --- SECCIÓN DE OPCIONES --- */}
-          <YStack space="$3" marginTop="$4">
-            <Text fontSize="$6" fontWeight="bold" color="#000" marginBottom="$2">
+          <YStack space="$3" marginTop="$3">
+            <Text fontSize={18} fontWeight="700" color="#1e293b" marginBottom="$1" letterSpacing={0.3}>
               Opciones de Cuenta
             </Text>
 
-            {/* Botón "Cerrar Sesión" */}
+            {/* Botón "Cerrar Sesión" mejorado */}
             <Button
               size="$4"
-              backgroundColor="$yellow8"
-              color="$black"
-              fontWeight="bold"
-              borderRadius="$10"
-              pressStyle={{ backgroundColor: "$yellow9" }}
+              backgroundColor="#dc2626"
+              color="white"
+              fontWeight="600"
+              borderRadius="$4"
+              pressStyle={{
+                backgroundColor: "#b91c1c",
+                scale: 0.98,
+              }}
               onPress={handleLogout}
-              icon={<Feather name="log-out" size={18} color="#111827" />}
+              icon={<Feather name="log-out" size={20} color="white" />}
+              shadowColor="#000"
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={0.15}
+              shadowRadius={4}
+              elevation={3}
             >
               Cerrar Sesión
             </Button>
