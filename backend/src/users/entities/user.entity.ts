@@ -11,7 +11,6 @@ import {
 } from 'typeorm';
 import { UserRole } from './user-role.enum';
 import { Report } from '@reports/entities/report.entity';
-import { ReportHistory } from '@reports/entities/report-history.entity';
 import { Exclude } from 'class-transformer'; //Importar Exclude para seguridad
 
 @Entity('users') // Le dice a TypeORM que esta clase es una entidad que mapea a la tabla 'users'
@@ -58,9 +57,6 @@ export class User {
 
   @OneToMany(() => Report, (report) => report.user)
   reports: Report[];
-
-  @OneToMany(() => ReportHistory, (history) => history.updatedBy)
-  reportHistoryUpdates: ReportHistory[];
 
   // ✨ --- HOOKS AUTOMÁTICOS PARA NORMALIZAR EMAIL --- ✨
   @BeforeInsert()

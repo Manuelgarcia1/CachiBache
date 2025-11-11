@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { ScrollView, TouchableOpacity, Alert, Platform, Linking } from "react-native";
+import { ScrollView, TouchableOpacity, Alert, Platform } from "react-native";
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import { YStack, Text, Spinner } from "tamagui";
 import { Ionicons } from "@expo/vector-icons";
 import { ReportTable } from "./ReportTable";
@@ -136,8 +138,8 @@ export function ReportsScreen() {
         window.URL.revokeObjectURL(url);
         Alert.alert("Éxito", "PDF descargado correctamente");
       } else {
-        // En móvil, abrir el PDF en el navegador del dispositivo
-        console.log("📱 Abriendo PDF en navegador móvil...");
+        // En móvil, descargar y guardar el PDF
+        console.log("📱 Descargando PDF en móvil...");
 
         // Obtener el token de autenticación
         const token = await getToken();
@@ -154,24 +156,39 @@ export function ReportsScreen() {
           filters.status.forEach((status) => params.append("status", status));
         }
 
-        // Agregar el token como query parameter
-        params.append("token", token);
-
         // Construir URL completa del PDF
-        // API_BASE_URL ya incluye "/api", así que la quitamos para agregar la ruta completa
         const baseURL = API_BASE_URL.replace("/api", "");
         const pdfURL = `${baseURL}/api/reports/admin/export/pdf?${params.toString()}`;
 
-        console.log("🔗 Abriendo URL con autenticación");
+        // Nombre del archivo
+        const fileName = `reporte-cachibache-${new Date().toISOString().split("T")[0]}.pdf`;
+        const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-        // Abrir en el navegador del dispositivo
-        const supported = await Linking.canOpenURL(pdfURL);
-        if (supported) {
-          await Linking.openURL(pdfURL);
-          console.log("✅ PDF abierto en navegador");
+        console.log("📥 Descargando desde:", pdfURL);
+
+        // Descargar el archivo
+        const downloadResult = await FileSystem.downloadAsync(
+          pdfURL,
+          fileUri,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log("✅ PDF descargado en:", downloadResult.uri);
+
+        // Compartir/Abrir el archivo descargado
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(downloadResult.uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Guardar o compartir PDF',
+            UTI: 'com.adobe.pdf',
+          });
+          console.log("✅ PDF compartido");
         } else {
-          console.error("❌ No se puede abrir la URL");
-          Alert.alert("Error", "No se puede abrir el PDF en este dispositivo");
+          Alert.alert("Éxito", `PDF guardado en: ${fileName}`);
         }
       }
     } catch (error) {

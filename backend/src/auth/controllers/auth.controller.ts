@@ -9,9 +9,12 @@ import {
 import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
+import { GoogleAuthService } from '../services/google-auth.service';
+import { UsersService } from '@users/services/users.service';
 import { type UserWithoutPassword, User } from '@users/entities/user.entity';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
+import { GoogleLoginDto } from '../dto/google-login.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 
@@ -25,7 +28,11 @@ import { GetUser } from '../decorators/get-user.decorator';
  */
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly googleAuthService: GoogleAuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   /**
    * POST /auth/register
@@ -88,6 +95,67 @@ export class AuthController {
 
     // También devolver ambos tokens en el body (para React Native)
     return { message: 'Login exitoso', user, accessToken, refreshToken };
+  }
+
+  /**
+   * POST /auth/google
+   * Iniciar sesión con Google OAuth
+   * Si el usuario no existe, se registra automáticamente
+   */
+  @Post('google')
+  async googleLogin(
+    @Body() googleLoginDto: GoogleLoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{
+    message: string;
+    user: UserWithoutPassword;
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    // 1. Verificar el token de Google y extraer datos del usuario
+    const googleUserData = await this.googleAuthService.verifyGoogleToken(
+      googleLoginDto.idToken,
+    );
+
+    // 2. Buscar si el usuario ya existe
+    let user = await this.usersService.findOneByEmail(googleUserData.email);
+
+    // 3. Si no existe, crear nuevo usuario
+    if (!user) {
+      user = await this.usersService.create({
+        email: googleUserData.email,
+        fullName: googleUserData.fullName,
+        password: undefined, // Usuarios de Google no tienen contraseña local
+        avatar: googleUserData.profilePicture,
+        emailVerified: googleUserData.emailVerified, // Google ya verificó el email
+        termsAccepted: true, // Se asume que aceptó al usar Google
+      });
+      console.log('✅ Nuevo usuario registrado con Google:', user.email);
+    }
+
+    // 4. Generar tokens JWT de nuestra aplicación
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+    const { accessToken, refreshToken } =
+      await this.authService.login(userWithoutPassword);
+
+    // 5. Enviar access token en cookie httpOnly (para seguridad web)
+    response.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 3600 * 1000), // 1 hora
+    });
+
+    // 6. Devolver tokens y datos del usuario
+    return {
+      message: user
+        ? 'Login con Google exitoso'
+        : 'Registro con Google exitoso',
+      user: userWithoutPassword,
+      accessToken,
+      refreshToken,
+    };
   }
 
   /**

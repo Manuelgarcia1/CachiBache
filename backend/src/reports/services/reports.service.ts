@@ -93,7 +93,7 @@ export class ReportsService {
   async findOneReport(id: string): Promise<Report> {
     const report = await this.reportRepository.findOne({
       where: { id },
-      relations: ['user', 'photos', 'history'],
+      relations: ['user', 'photos'],
     });
     if (!report) {
       throw new NotFoundException(`Reporte con ID "${id}" no encontrado`);
@@ -126,10 +126,26 @@ export class ReportsService {
       .groupBy('report.status')
       .getRawMany();
 
+    // Mapear los estados del backend a los nombres que espera el frontend
+    const statusMapping = {
+      'PENDIENTE': 'pendiente',
+      'EN_REPARACION': 'reparacion',
+      'RESUELTO': 'finalizado',
+      'DESCARTADO': 'descartado' // No se muestra en el perfil, pero por completitud
+    };
+
     const reportStats = stats.reduce((acc, curr) => {
-      acc[curr.status] = parseInt(curr.count, 10);
+      const frontendStatus = statusMapping[curr.status];
+      if (frontendStatus) {
+        acc[frontendStatus] = parseInt(curr.count, 10);
+      }
       return acc;
-    }, {});
+    }, {
+      // Inicializar con valores por defecto para que siempre existan
+      pendiente: 0,
+      reparacion: 0,
+      finalizado: 0
+    });
 
     // Ejemplo de dashboard: reportes por mes (últimos 6 meses)
     const bachesMes = await this.reportRepository
@@ -141,11 +157,27 @@ export class ReportsService {
       .orderBy('mes', 'ASC')
       .getRawMany();
 
+    // Calcular tiempo promedio de reportes pendientes (en días)
+    const avgPendingTime = await this.reportRepository
+      .createQueryBuilder('report')
+      .select('AVG(EXTRACT(DAY FROM (CURRENT_DATE - report.createdAt)))', 'avgDays')
+      .where('report.user_id = :userId', { userId })
+      .andWhere('report.status = :status', { status: 'PENDIENTE' })
+      .getRawOne();
+
+    // Calcular tiempo promedio de reportes en reparación (en días)
+    const avgRepairTime = await this.reportRepository
+      .createQueryBuilder('report')
+      .select('AVG(EXTRACT(DAY FROM (CURRENT_DATE - report.createdAt)))', 'avgDays')
+      .where('report.user_id = :userId', { userId })
+      .andWhere('report.status = :status', { status: 'EN_REPARACION' })
+      .getRawOne();
+
     return {
       reportStats,
       dashboard: {
-        tiempoPromedioPendiente: 0, // Calcula según tu modelo si tienes los datos
-        tiempoPromedioReparacion: 0, // Calcula según tu modelo si tienes los datos
+        tiempoPromedioPendiente: Math.round(parseFloat(avgPendingTime?.avgDays || '0')),
+        tiempoPromedioReparacion: Math.round(parseFloat(avgRepairTime?.avgDays || '0')),
         bachesMes: bachesMes.map((m) => Number(m.count)),
         meses: bachesMes.map((m) => m.mes),
       },
