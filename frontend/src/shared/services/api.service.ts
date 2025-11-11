@@ -246,9 +246,13 @@ class ApiService {
    */
   async delete<T>(
     endpoint: string,
+    body?: any,
     headers?: Record<string, string>
   ): Promise<T> {
-    const response = await this.axiosInstance.delete<T>(endpoint, { headers });
+    const response = await this.axiosInstance.delete<T>(endpoint, {
+      headers,
+      data: body, // Axios permite body en DELETE usando la propiedad 'data'
+    });
     return response.data;
   }
 

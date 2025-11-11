@@ -27,7 +27,7 @@ export function ReportButton() {
       return;
     }
 
-    // Si no ha verificado el email
+    // Si no ha verificado el email (usuarios registrados con email/password)
     if (!isEmailVerified) {
       Alert.alert(
         "Verifica tu email",
@@ -37,6 +37,7 @@ export function ReportButton() {
       return;
     }
 
+    // Usuario autenticado y verificado, proceder con el reporte
     proceedWithReport();
   };
 
@@ -49,19 +50,24 @@ export function ReportButton() {
       onPress={handlePress}
       backgroundColor="$yellow10"
       color="black"
-      icon={<Feather name="camera" size={24} color="black" />}
+      icon={<Feather name="camera" size={26} color="black" />}
       size="$6"
-      borderRadius="$12"
-      // Sombras correctas
+      borderRadius="$10"
+      fontWeight="bold"
+      fontSize="$6"
+      // Sombras más pronunciadas para mejor visibilidad
       shadowColor="#000"
-      shadowOffset={{ width: 0, height: 4 }}
-      shadowOpacity={0.2}
-      shadowRadius={5}
-      // Lo posicionamos con margen
-      marginHorizontal="$4"
-      marginBottom="$5" // Margen respecto al fondo de su contenedor
+      shadowOffset={{ width: 0, height: 6 }}
+      shadowOpacity={0.3}
+      shadowRadius={8}
+      elevation={8} // Para Android
+      // Posicionamiento mejorado
+      marginHorizontal="$5"
+      marginBottom="$3" // Cerca del borde inferior
+      paddingVertical="$4"
       pressStyle={{
         backgroundColor: "$yellow9",
+        scale: 0.98,
       }}
     >
       Reportar Bache

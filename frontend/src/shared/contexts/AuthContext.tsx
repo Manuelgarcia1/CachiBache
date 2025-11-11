@@ -21,6 +21,11 @@ import {
   mapApiUserToUser,
   isAuthError,
 } from "../utils/auth.utils";
+import {
+  registerForPushNotifications,
+  registerTokenWithBackend,
+  unregisterToken,
+} from "../services/notifications.service";
 
 // Interfaz del contexto: define todos los valores y métodos disponibles para autenticación
 interface AuthContextType {
@@ -64,6 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [pushToken, setPushToken] = useState<string | null>(null);
 
   // Verifica al iniciar la app si existe una sesión guardada en SecureStore
   const checkAuthStatus = async () => {
@@ -150,15 +156,69 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData || null);
       setIsEmailVerified(userData?.emailVerified || false);
       setIsGuest(isGuestToken(accessToken));
+
+      // Registrar notificaciones push solo para usuarios registrados (no invitados)
+      if (userData && !isGuestToken(accessToken)) {
+        try {
+          console.log("📲 Registrando notificaciones push...");
+          const token = await registerForPushNotifications();
+          if (token) {
+            await registerTokenWithBackend(token);
+            setPushToken(token);
+            console.log("✅ Notificaciones push registradas exitosamente");
+          }
+        } catch (notifError) {
+          console.error(
+            "⚠️ Error al registrar notificaciones push:",
+            notifError
+          );
+          // No bloqueamos el login si falla el registro de notificaciones
+        }
+      }
     } catch (err) {
       console.error("❌ Error durante login:", err);
     }
   };
 
+  // Cierra sesión: elimina ambos tokens de SecureStore y resetea todos los estados
+  const logout = useCallback(async () => {
+    try {
+      // Desregistrar notificaciones push antes de cerrar sesión
+      if (pushToken) {
+        try {
+          console.log("📲 Desregistrando notificaciones push...");
+          await unregisterToken(pushToken);
+          setPushToken(null);
+          console.log("✅ Notificaciones push desregistradas");
+        } catch (notifError) {
+          console.error("⚠️ Error al desregistrar notificaciones:", notifError);
+          // Continuamos con el logout aunque falle
+        }
+      }
+
+      await deleteToken();
+
+      await deleteRefreshToken();
+      setTokenState(null);
+      setUser(null);
+      setIsGuest(false);
+      setIsEmailVerified(false);
+      console.log("✅ Logout exitoso - Sesión cerrada completamente");
+    } catch (err) {
+      console.error("❌ Error durante logout:", err);
+    }
+  }, [pushToken]);
+
   // Refresca los datos del usuario desde el servidor
   const refreshUser = useCallback(async () => {
     if (!token) {
       console.log("⚠️ No hay token, no se puede refrescar usuario");
+      return;
+    }
+
+    // No refrescar si es usuario invitado
+    if (isGuestToken(token)) {
+      console.log("👤 Usuario invitado, no se refresca");
       return;
     }
 
@@ -180,22 +240,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await logout();
       }
     }
-  }, [token]);
-
-  // Cierra sesión: elimina ambos tokens de SecureStore y resetea todos los estados
-  const logout = async () => {
-    try {
-      await deleteToken();
-      await deleteRefreshToken();
-      setTokenState(null);
-      setUser(null);
-      setIsGuest(false);
-      setIsEmailVerified(false);
-      console.log("✅ Logout exitoso - Sesión cerrada completamente");
-    } catch (err) {
-      console.error("❌ Error durante logout:", err);
-    }
-  };
+  }, [token, logout]);
 
   // Ejecuta checkAuthStatus al montar el componente (inicio de la app)
   useEffect(() => {
@@ -227,7 +272,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshUser,
     isGuest,
     isEmailVerified,
-    isAdmin: user?.role === 'ADMIN',
+    isAdmin: user?.role === "ADMIN",
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

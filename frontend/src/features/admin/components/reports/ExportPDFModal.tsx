@@ -176,33 +176,6 @@ export const ExportPDFModal: React.FC<ExportPDFModalProps> = ({
                 ))}
               </View>
             </View>
-
-            {/* Contenido del PDF */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>📊 Contenido del PDF</Text>
-              <View style={styles.infoBox}>
-                <View style={styles.infoItem}>
-                  <Ionicons name="checkmark-circle" size={16} color="#10b981" />
-                  <Text style={styles.infoText}>Estadísticas generales</Text>
-                </View>
-                <View style={styles.infoItem}>
-                  <Ionicons name="checkmark-circle" size={16} color="#10b981" />
-                  <Text style={styles.infoText}>Tablas de distribución</Text>
-                </View>
-                <View style={styles.infoItem}>
-                  <Ionicons name="checkmark-circle" size={16} color="#10b981" />
-                  <Text style={styles.infoText}>Barras de progreso visuales</Text>
-                </View>
-                <View style={styles.infoItem}>
-                  <Ionicons name="checkmark-circle" size={16} color="#10b981" />
-                  <Text style={styles.infoText}>Tasa de resolución</Text>
-                </View>
-                <View style={styles.infoItem}>
-                  <Ionicons name="checkmark-circle" size={16} color="#10b981" />
-                  <Text style={styles.infoText}>Reportes por severidad y estado</Text>
-                </View>
-              </View>
-            </View>
           </ScrollView>
 
           {/* Footer con botones */}
@@ -343,21 +316,6 @@ const styles = StyleSheet.create({
   statusButtonTextActive: {
     color: 'white',
     fontWeight: '600',
-  },
-  infoBox: {
-    backgroundColor: '#f9fafb',
-    borderRadius: 8,
-    padding: 16,
-    gap: 10,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#4b5563',
   },
   footer: {
     flexDirection: 'row',

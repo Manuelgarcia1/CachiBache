@@ -1,9 +1,11 @@
 import { YStack, Text } from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 
 // Componente de opción invitado: permite acceso sin registro con funcionalidad limitada
 export function GuestOption() {
   const { login } = useAuth();
+  const insets = useSafeAreaInsets();
 
   // Genera token de invitado (prefijo "guest-") para acceso temporal
   const handleGuestLogin = async () => {
@@ -21,7 +23,7 @@ export function GuestOption() {
   };
 
   return (
-    <YStack position="absolute" bottom="$8">
+    <YStack position="absolute" bottom={insets.bottom + 32}>
       <Text
         color="$blue3"
         fontSize="$3"

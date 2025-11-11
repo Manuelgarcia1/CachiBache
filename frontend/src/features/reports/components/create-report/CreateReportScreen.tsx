@@ -16,6 +16,7 @@ export function CreateReportScreen() {
     isSubmitting,
     updateAddress,
     updateSeverity,
+    updateDescription,
     updateImage,
     updateLocation,
     updateMapRegion,
@@ -53,9 +54,11 @@ export function CreateReportScreen() {
           <ReportFormSection
             address={reportData.address}
             severity={reportData.severity}
+            description={reportData.description}
             imageUri={reportData.image}
             onAddressChange={updateAddress}
             onSeverityChange={updateSeverity}
+            onDescriptionChange={updateDescription}
             onImageSelected={updateImage}
           />
 

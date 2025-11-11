@@ -4,13 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CommonModule } from './common/common.module';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ReportsModule } from './reports/reports.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { TypeOrmConfigService } from 'config/typeorm.config';
-
+import { CommonModule } from '@common/common.module';
+import { AuthModule } from '@auth/auth.module';
+import { UsersModule } from '@users/users.module';
+import { ReportsModule } from '@reports/reports.module';
+import { CloudinaryModule } from '@cloudinary/cloudinary.module';
+import { AdminModule } from '@admin/admin.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { TypeOrmConfigService } from './config/typeorm.config';
 
 @Module({
   imports: [
@@ -44,6 +45,12 @@ import { TypeOrmConfigService } from 'config/typeorm.config';
     ReportsModule,
 
     CloudinaryModule,
+
+    // Módulo de administración (incluye gestión de reportes admin, PDFs, etc.)
+    AdminModule,
+
+    // Módulo de notificaciones push
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

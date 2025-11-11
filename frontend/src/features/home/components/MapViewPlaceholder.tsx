@@ -1,8 +1,8 @@
 // Ubicación: src/features/home/components/MapViewPlaceholder.tsx
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import * as Location from 'expo-location';
-import { YStack, Text } from 'tamagui';
+import { YStack, Text, Spinner } from 'tamagui';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { useFocusEffect } from '@react-navigation/native';
 import { ReportMarker } from '@sharedcomponents/map';
@@ -18,10 +18,11 @@ const INITIAL_REGION: Region = {
 };
 
 export function MapViewPlaceholder() {
-  const [region, setRegion] = useState<Region>(INITIAL_REGION);
+  const [region, setRegion] = useState<Region | null>(null);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const [reports, setReports] = useState<MapReport[]>([]);
   const [isLoadingReports, setIsLoadingReports] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const requestLocationPermission = async () => {
@@ -30,10 +31,16 @@ export function MapViewPlaceholder() {
       setHasLocationPermission(status === 'granted');
 
       if (status === 'granted') {
-        getCurrentLocation();
+        await getCurrentLocation();
+      } else {
+        // Si no hay permiso, usar región por defecto
+        setRegion(INITIAL_REGION);
+        setIsLoadingLocation(false);
       }
     } catch (error) {
       console.log('Error requesting location permission:', error);
+      setRegion(INITIAL_REGION);
+      setIsLoadingLocation(false);
     }
   };
 
@@ -51,8 +58,12 @@ export function MapViewPlaceholder() {
       };
 
       setRegion(newRegion);
+      setIsLoadingLocation(false);
     } catch (error) {
       console.log('Error getting current location:', error);
+      // Si falla obtener ubicación, usar región por defecto
+      setRegion(INITIAL_REGION);
+      setIsLoadingLocation(false);
     }
   };
 
@@ -82,6 +93,18 @@ export function MapViewPlaceholder() {
     }, [])
   );
 
+  // Mostrar loading mientras se obtiene la ubicación inicial
+  if (isLoadingLocation || !region) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#f8fafc">
+        <Spinner size="large" color="$yellow9" />
+        <Text marginTop="$3" fontSize="$4" color="$gray11">
+          Obteniendo ubicación...
+        </Text>
+      </YStack>
+    );
+  }
+
   return (
     <YStack flex={1}>
       <MapView
@@ -92,6 +115,9 @@ export function MapViewPlaceholder() {
         showsPointsOfInterest={false}
         showsBuildings={true}
         showsTraffic={false}
+        moveOnMarkerPress={false} // Optimización: reduce lag al tocar markers
+        loadingEnabled={true}
+        loadingIndicatorColor="#facc15"
       >
         {reports.map((report) => (
           <Marker
