@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
-import { Text } from 'react-native';
+import { YStack, Text, Spinner } from 'tamagui';
 import { apiService } from "@/src/shared/services/api.service";
 
 /**
@@ -61,17 +61,29 @@ export default function ProfileTab() {
 
   // Estado de carga
   if (isLoading) {
-    return <Text>Cargando perfil...</Text>;
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#f8fafc">
+        <Spinner size="large" color="$yellow9" />
+      </YStack>
+    );
   }
 
   // Manejo de errores
   if (error) {
-    return <Text>Error: {error}</Text>;
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#f8fafc" padding="$4">
+        <Text fontSize="$5" color="$red10" textAlign="center">Error: {error}</Text>
+      </YStack>
+    );
   }
 
   // Validación de datos
   if (!profileData || !profileData.user) {
-    return <Text>No se pudo cargar el perfil</Text>;
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#f8fafc" padding="$4">
+        <Text fontSize="$5" color="$gray11" textAlign="center">No se pudo cargar el perfil</Text>
+      </YStack>
+    );
   }
 
   // Transformar los datos para ProfileScreen

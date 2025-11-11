@@ -3,10 +3,12 @@ import { Feather } from "@expo/vector-icons";
 import { Tabs, router } from "expo-router";
 import { useEffect } from "react";
 import { Button, Text, XStack, YStack } from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Layout de la sección autenticada: maneja navegación por tabs y protege rutas privadas
 export default function AppLayout() {
   const { token, isLoading, isGuest, isAdmin, logout } = useAuth();
+  const insets = useSafeAreaInsets();
 
   // Protección de rutas: redirige a dashboard si es admin
   useEffect(() => {
@@ -49,13 +51,12 @@ export default function AppLayout() {
 
         <YStack
           backgroundColor="#094b7eff"
-          height={120}
           paddingHorizontal="$4"
-          paddingVertical="$3"
+          paddingTop="$3"
+          paddingBottom={insets.bottom + 16} // Espacio para botones del sistema + margen
           justifyContent="center"
           alignItems="center"
           gap="$2"
-          paddingBottom="$8"
         >
           <XStack alignItems="center" gap="$2">
             <Feather name="user-x" size={20} color="#facc15" />
@@ -92,9 +93,9 @@ export default function AppLayout() {
         tabBarStyle: {
           backgroundColor: "#094b7eff",
           borderTopWidth: 0,
-          height: 100,
           paddingTop: 10,
-          justifyContent: "center",
+          height: 80 + insets.bottom, // Altura base + espacio para botones del sistema
+          paddingBottom: insets.bottom, // Respeta los botones de navegación de Android
         },
         tabBarLabelStyle: {
           fontWeight: "600",

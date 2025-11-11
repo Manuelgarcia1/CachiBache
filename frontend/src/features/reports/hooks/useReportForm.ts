@@ -17,6 +17,7 @@ export const useReportForm = () => {
   const [reportData, setReportData] = useState<ReportData>({
     address: '',
     severity: '',
+    description: '',
     location: {
       latitude: INITIAL_REGION.latitude,
       longitude: INITIAL_REGION.longitude,
@@ -34,6 +35,10 @@ export const useReportForm = () => {
 
   const updateSeverity = (severity: string) => {
     setReportData(prev => ({ ...prev, severity }));
+  };
+
+  const updateDescription = (description: string) => {
+    setReportData(prev => ({ ...prev, description }));
   };
 
   const updateImage = (image: string) => {
@@ -107,6 +112,7 @@ export const useReportForm = () => {
       await createReport({
         address: reportData.address,
         severity: reportData.severity as ReportSeverity,
+        description: reportData.description || undefined, // Solo enviar si no está vacío
         location: {
           x: reportData.location.longitude,
           y: reportData.location.latitude,
@@ -148,6 +154,7 @@ export const useReportForm = () => {
     isSubmitting,
     updateAddress,
     updateSeverity,
+    updateDescription,
     updateImage,
     updateLocation,
     updateMapRegion,

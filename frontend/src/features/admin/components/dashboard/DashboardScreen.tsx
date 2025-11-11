@@ -118,6 +118,14 @@ export function DashboardScreen() {
                 backgroundColor="#d1fae5"
                 description="Completados exitosamente"
               />
+              <MetricCard
+                title="Descartados"
+                value={discardedReports}
+                icon="x-circle"
+                iconColor="#ef4444"
+                backgroundColor="#fee2e2"
+                description="Reportes descartados"
+              />
             </XStack>
 
             {/* Gráficos */}

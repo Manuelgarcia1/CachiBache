@@ -8,13 +8,14 @@ import { authService } from '../services/auth.service';
  * Muestra un mensaje y permite reenviar el email de verificación
  */
 export function EmailVerificationBanner() {
-  const { user, isEmailVerified } = useAuth();
+  const { user, isEmailVerified, isGuest } = useAuth();
   const [loading, setLoading] = useState(false);
 
   // No mostrar el banner si:
   // - El usuario no está autenticado
   // - El email ya está verificado
-  if (!user || isEmailVerified) {
+  // - El usuario es invitado (no tiene email que verificar)
+  if (!user || isEmailVerified || isGuest) {
     return null;
   }
 
