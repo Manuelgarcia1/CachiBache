@@ -59,9 +59,6 @@ importers:
       google-auth-library:
         specifier: ^10.4.0
         version: 10.5.0
-      nodemailer:
-        specifier: ^7.0.9
-        version: 7.0.9
       package:
         specifier: ^1.0.1
         version: 1.0.1
@@ -3038,10 +3035,6 @@ packages:
 
   node-releases@2.0.23:
     resolution: {integrity: sha512-cCmFDMSm26S6tQSDpBCg/NR8NENrVPhAJSf+XbxBG4rPFaaonlEoE9wHQmun+cls499TQGSb7ZyPBRlzgKfpeg==}
-
-  nodemailer@7.0.9:
-    resolution: {integrity: sha512-9/Qm0qXIByEP8lEV2qOqcAW7bRpL8CR9jcTwk3NBnHJNmP9fIJ86g2fgmIXqHY+nj55ZEMwWqYAT2QTDpRUYiQ==}
-    engines: {node: '>=6.0.0'}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -7706,8 +7699,6 @@ snapshots:
   node-int64@0.4.0: {}
 
   node-releases@2.0.23: {}
-
-  nodemailer@7.0.9: {}
 
   normalize-path@3.0.0: {}
 
