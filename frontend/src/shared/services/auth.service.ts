@@ -166,20 +166,12 @@ class AuthService {
    */
   async requestPasswordReset(email: string): Promise<{ message: string }> {
     try {
-      console.log('[AuthService] Iniciando requestPasswordReset para:', email);
-      console.log('[AuthService] Llamando a apiService.post...');
-
       const response = await apiService.post<{ message: string }>(
         '/auth/forgot-password',
         { email }
       );
-
-      console.log('[AuthService] Respuesta recibida:', response);
       return response;
-    } catch (error: any) {
-      console.error('[AuthService] Error capturado:', error);
-      console.error('[AuthService] Error.message:', error.message);
-      console.error('[AuthService] Error completo:', JSON.stringify(error, null, 2));
+    } catch (error) {
       throw error;
     }
   }

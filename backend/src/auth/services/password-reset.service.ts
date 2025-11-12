@@ -18,8 +18,6 @@ export class PasswordResetService {
   ) {}
 
   async requestPasswordReset(email: string): Promise<void> {
-    console.log('🔐 Solicitud de recuperación de contraseña para:', email);
-
     // Normalizar email
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -30,18 +28,12 @@ export class PasswordResetService {
 
     // Por seguridad, no revelar si el email existe o no
     if (!user) {
-      console.log(
-        '⚠️ Usuario no encontrado, simulando respuesta por seguridad',
-      );
       // Simular tiempo de procesamiento para evitar timing attacks
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return;
     }
 
-    console.log('✅ Usuario encontrado:', user.email);
-
-    // Validar límite de intentos (3 en 24 horas) - DESHABILITADO PARA TESTING
-    /*
+    // Validar límite de intentos (3 en 24 horas)
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentAttempts = await this.passwordResetTokenRepository.count({
       where: {
@@ -55,8 +47,6 @@ export class PasswordResetService {
         'Has excedido el límite de intentos. Por favor, intenta de nuevo en 24 horas.',
       );
     }
-    */
-    console.log('⚠️ Límite de intentos deshabilitado para testing');
 
     // Invalidar tokens anteriores del usuario
     await this.passwordResetTokenRepository.update(
@@ -70,11 +60,9 @@ export class PasswordResetService {
 
     // Generar código corto de 6 dígitos (más fácil de usar)
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log('🔑 Código de 6 dígitos generado');
 
     // Hashear el código antes de guardarlo (seguridad: nunca guardar en texto plano)
     const hashedToken = await bcrypt.hash(code, 10);
-    console.log('🔒 Código hasheado para almacenamiento seguro');
 
     // Calcular fecha de expiración (15 minutos)
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
@@ -88,13 +76,10 @@ export class PasswordResetService {
     });
 
     await this.passwordResetTokenRepository.save(resetToken);
-    console.log('💾 Token hasheado guardado en base de datos');
 
     // Enviar email con el código sin hashear
-    console.log('📧 Enviando email de recuperación...');
     try {
       await this.emailService.sendPasswordResetEmail(user.email, code);
-      console.log('✅ Email enviado exitosamente');
     } catch (error) {
       console.error('❌ Error al enviar email:', error);
       throw error;
@@ -158,8 +143,6 @@ export class PasswordResetService {
     // Marcar token como usado
     matchedToken.isUsed = true;
     await this.passwordResetTokenRepository.save(matchedToken);
-
-    console.log('✅ Contraseña actualizada exitosamente');
   }
 
   /**
@@ -168,8 +151,6 @@ export class PasswordResetService {
    */
   @Cron(CronExpression.EVERY_HOUR)
   async cleanupExpiredTokens(): Promise<void> {
-    console.log('🧹 Iniciando limpieza de tokens de recuperación...');
-
     try {
       // Eliminar tokens que estén usados O expirados
       const result = await this.passwordResetTokenRepository.delete({
@@ -179,17 +160,6 @@ export class PasswordResetService {
       const expiredResult = await this.passwordResetTokenRepository.delete({
         expiresAt: LessThanOrEqual(new Date()),
       });
-
-      const totalDeleted =
-        (result.affected || 0) + (expiredResult.affected || 0);
-
-      if (totalDeleted > 0) {
-        console.log(
-          `✅ Limpieza completada: ${totalDeleted} token(s) eliminado(s)`,
-        );
-      } else {
-        console.log('✅ Limpieza completada: no hay tokens para eliminar');
-      }
     } catch (error) {
       console.error('❌ Error durante la limpieza de tokens:', error);
     }

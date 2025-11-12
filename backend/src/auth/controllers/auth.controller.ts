@@ -130,7 +130,6 @@ export class AuthController {
         emailVerified: googleUserData.emailVerified, // Google ya verificó el email
         termsAccepted: true, // Se asume que aceptó al usar Google
       });
-      console.log('✅ Nuevo usuario registrado con Google:', user.email);
     }
 
     // 4. Generar tokens JWT de nuestra aplicación
@@ -215,9 +214,6 @@ export class AuthController {
 
     try {
       const result = await this.authService.refreshAccessToken(refreshToken);
-      console.log(
-        '✅ [BACKEND] REFRESH TOKEN: Sesión renovada automáticamente',
-      );
       return result;
     } catch (error) {
       console.error('❌ [BACKEND] REFRESH TOKEN: Error -', error.message);

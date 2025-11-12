@@ -42,8 +42,6 @@ export function useNotifications() {
 
       // 2. Registrar el token con el backend
       await registerTokenWithBackend(token);
-
-      console.log('Notificaciones push configuradas exitosamente');
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Error al configurar notificaciones';
@@ -63,7 +61,6 @@ export function useNotifications() {
     try {
       await unregisterToken(expoPushToken);
       setExpoPushToken(null);
-      console.log('Token desregistrado exitosamente');
     } catch (err) {
       console.error('Error al desregistrar token:', err);
     }

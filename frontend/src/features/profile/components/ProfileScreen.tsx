@@ -36,11 +36,7 @@ export function ProfileScreen({
 
   const handleLogout = async () => {
     try {
-      console.log("🚪 Iniciando logout desde perfil...");
       await logout();
-      console.log(
-        "🔄 AuthContext limpiará token y protección de rutas navegará automáticamente"
-      );
     } catch (error) {
       console.error("❌ Error en logout desde perfil:", error);
     }

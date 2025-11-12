@@ -23,8 +23,6 @@ export function RegisterScreen() {
     setLoading(true);
 
     try {
-      console.log("📝 Iniciando registro de usuario...");
-
       // Preparar datos para el backend (sin confirmPassword)
       const registerData: RegisterDto = {
         email: formData.email,
@@ -36,8 +34,6 @@ export function RegisterScreen() {
 
       // Llamar al servicio de registro
       const response = await authService.register(registerData);
-
-      console.log("✅ Usuario registrado exitosamente:", response.user);
 
       // Guardar ambos tokens del backend en el contexto
       await login(

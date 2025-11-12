@@ -14,7 +14,6 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
 
     if (isProduction && databaseUrl) {
       // --- CONFIGURACIÓN PARA PRODUCCIÓN (RAILWAY) ---
-      console.log('[DB Config] Entorno de producción detectado. Usando DATABASE_URL.');
       return {
         type: 'postgres',
         url: databaseUrl, // TypeORM maneja la URL completa
@@ -27,7 +26,6 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       };
     } else {
       // --- CONFIGURACIÓN PARA DESARROLLO (LOCAL) ---
-      console.log('[DB Config] Entorno de desarrollo detectado. Usando variables de .env.');
       return {
         type: 'postgres',
         host: this.configService.get<string>('DB_HOST'),
