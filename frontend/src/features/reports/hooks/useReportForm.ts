@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
+import * as Location from 'expo-location';
 import { ReportData, ReportLocation, MapRegion, ReportSeverity } from '../types';
 import { createReport } from '@/src/shared/services/reports.service';
 import { ApiError } from '@/src/shared/services/api.service';
@@ -53,15 +54,88 @@ export const useReportForm = () => {
     setMapRegion(region);
   };
 
-  const handleMapPress = (event: any) => {
+  /**
+   * Convierte coordenadas (lat, lng) a una dirección legible
+   * Usa reverse geocoding para obtener el nombre real de la calle y ciudad
+   */
+  const getAddressFromCoordinates = async (
+    latitude: number,
+    longitude: number
+  ): Promise<string> => {
+    try {
+      const [location] = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      if (!location) {
+        console.log('⚠️ No se pudo obtener dirección, usando coordenadas');
+        return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+      }
+
+      // Construir dirección en orden: calle + número, ciudad, región
+      const addressParts: string[] = [];
+
+      // Calle y número
+      if (location.street) {
+        if (location.streetNumber) {
+          addressParts.push(`${location.street} ${location.streetNumber}`);
+        } else {
+          addressParts.push(location.street);
+        }
+      }
+
+      // Ciudad
+      if (location.city) {
+        addressParts.push(location.city);
+      } else if (location.subregion) {
+        addressParts.push(location.subregion);
+      }
+
+      // Región/Provincia (solo si es diferente de la ciudad)
+      if (location.region && location.region !== location.city) {
+        addressParts.push(location.region);
+      }
+
+      const fullAddress = addressParts.length > 0
+        ? addressParts.join(', ')
+        : `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+      console.log('📍 Dirección obtenida:', fullAddress);
+      console.log('🗺️ Detalles:', {
+        street: location.street,
+        streetNumber: location.streetNumber,
+        city: location.city,
+        subregion: location.subregion,
+        region: location.region,
+      });
+
+      return fullAddress;
+    } catch (error) {
+      console.error('Error en reverse geocoding:', error);
+      // Fallback: usar coordenadas
+      return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    }
+  };
+
+  const handleMapPress = async (event: any) => {
     const coordinate = event.nativeEvent.coordinate;
     if (coordinate && coordinate.latitude !== undefined && coordinate.longitude !== undefined) {
+      // Obtener dirección legible desde las coordenadas
+      const address = await getAddressFromCoordinates(
+        coordinate.latitude,
+        coordinate.longitude
+      );
+
       const newLocation: ReportLocation = {
         latitude: coordinate.latitude,
         longitude: coordinate.longitude,
-        address: `${coordinate.latitude.toFixed(4)}, ${coordinate.longitude.toFixed(4)}`,
+        address, // Ahora contiene dirección real: "Av. Colón 123, Córdoba"
       };
+
       updateLocation(newLocation);
+      // También actualizar el campo address del formulario
+      updateAddress(address);
     }
   };
 

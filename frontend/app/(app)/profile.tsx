@@ -90,8 +90,8 @@ export default function ProfileTab() {
   return (
     <ProfileScreen
       user={{
-        ...profileData.user,
-        name: profileData.user.fullName, // Alias para compatibilidad
+        name: profileData.user.fullName, // Nombre completo
+        email: profileData.user.email,   // Email
         avatar: profileData.user.avatar || '', // String vacío si no hay avatar (se maneja en ProfileHeader)
       }}
       reportStats={profileData.reportStats}

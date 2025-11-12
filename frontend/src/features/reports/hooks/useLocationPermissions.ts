@@ -33,10 +33,50 @@ export const useLocationPermissions = () => {
         accuracy: Location.Accuracy.Balanced,
       });
 
+      // Realizar reverse geocoding para obtener la dirección real
+      let address = 'Ubicación actual';
+      try {
+        const [geocodedLocation] = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+
+        if (geocodedLocation) {
+          // Construir dirección legible
+          const addressParts: string[] = [];
+
+          if (geocodedLocation.street) {
+            if (geocodedLocation.streetNumber) {
+              addressParts.push(`${geocodedLocation.street} ${geocodedLocation.streetNumber}`);
+            } else {
+              addressParts.push(geocodedLocation.street);
+            }
+          }
+
+          if (geocodedLocation.city) {
+            addressParts.push(geocodedLocation.city);
+          } else if (geocodedLocation.subregion) {
+            addressParts.push(geocodedLocation.subregion);
+          }
+
+          if (geocodedLocation.region && geocodedLocation.region !== geocodedLocation.city) {
+            addressParts.push(geocodedLocation.region);
+          }
+
+          if (addressParts.length > 0) {
+            address = addressParts.join(', ');
+          }
+
+          console.log('📍 Dirección de ubicación actual:', address);
+        }
+      } catch (geocodeError) {
+        console.log('⚠️ No se pudo obtener dirección para ubicación actual, usando texto genérico');
+      }
+
       const newLocation: ReportLocation = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        address: 'Ubicación actual',
+        address, // Ahora contiene dirección real o "Ubicación actual" como fallback
       };
 
       const newRegion: MapRegion = {
