@@ -31,6 +31,8 @@ export function CreateReportScreen() {
     if (result.location && result.region) {
       updateLocation(result.location);
       updateMapRegion(result.region);
+      // Actualizar también el campo de dirección en el formulario
+      updateAddress(result.location.address);
     }
   };
 
