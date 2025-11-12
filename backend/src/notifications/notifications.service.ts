@@ -136,7 +136,9 @@ export class NotificationsService {
         relations: ['user'], // ✅ Cargar relación explícitamente
       });
 
-      this.logger.log(`Tokens encontrados para usuario ${userId}: ${tokens.length}`);
+      this.logger.log(
+        `Tokens encontrados para usuario ${userId}: ${tokens.length}`,
+      );
 
       if (tokens.length === 0) {
         this.logger.warn(
