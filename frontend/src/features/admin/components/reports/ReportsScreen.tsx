@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ScrollView, TouchableOpacity, Alert, Platform } from "react-native";
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
-import { YStack, Text, Spinner } from "tamagui";
+import { YStack, Text, Spinner, XStack } from "tamagui";
 import { Ionicons } from "@expo/vector-icons";
 import { ReportTable } from "./ReportTable";
 import { ReportFilters } from "./ReportFilters";
@@ -19,8 +19,12 @@ import {
 } from "@/src/shared/types/report.types";
 import { API_BASE_URL } from "@/src/shared/config/api";
 import { getToken } from "@/src/shared/utils/secure-store";
+import { useAdminLocation } from "../../hooks/useAdminLocation";
 
 export function ReportsScreen() {
+  // Hook de ubicación del admin
+  const { city, isLoadingCity, cityError, retryDetectCity } = useAdminLocation();
+
   // Estado de datos
   const [reports, setReports] = useState<ReportFromBackend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +59,7 @@ export function ReportsScreen() {
         limit: 20,
         status: statusFilter,
         search: searchQuery || undefined,
+        city: city || undefined, // 🎯 Filtro automático por ciudad
       });
 
       setReports(response.reports);
@@ -66,7 +71,7 @@ export function ReportsScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, statusFilter, searchQuery]);
+  }, [currentPage, statusFilter, searchQuery, city]); // 🔄 Recargar cuando cambie la ciudad
 
   // Cargar reportes cuando cambien los filtros o la página
   useEffect(() => {
@@ -208,6 +213,52 @@ export function ReportsScreen() {
           <Text fontSize={24} fontWeight="bold">
             Gestión de Reportes
           </Text>
+
+          {/* Indicador de ciudad detectada */}
+          {isLoadingCity ? (
+            <XStack gap="$2" alignItems="center">
+              <Spinner size="small" color="$blue10" />
+              <Text fontSize={14} color="$gray10">
+                Detectando ubicación...
+              </Text>
+            </XStack>
+          ) : cityError ? (
+            <XStack
+              padding="$2"
+              paddingHorizontal="$3"
+              backgroundColor="#fef3c7"
+              borderRadius="$3"
+              alignItems="center"
+              gap="$2"
+              alignSelf="flex-start"
+            >
+              <Ionicons name="warning" size={16} color="#f59e0b" />
+              <Text fontSize={13} color="#92400e">
+                {cityError}
+              </Text>
+              <TouchableOpacity onPress={retryDetectCity}>
+                <Text fontSize={13} color="#094b7e" fontWeight="600">
+                  Reintentar
+                </Text>
+              </TouchableOpacity>
+            </XStack>
+          ) : city ? (
+            <XStack
+              padding="$2"
+              paddingHorizontal="$3"
+              backgroundColor="#dbeafe"
+              borderRadius="$3"
+              alignItems="center"
+              gap="$2"
+              alignSelf="flex-start"
+            >
+              <Ionicons name="location" size={16} color="#1e40af" />
+              <Text fontSize={13} color="#1e3a8a" fontWeight="600">
+                Mostrando reportes de: {city}
+              </Text>
+            </XStack>
+          ) : null}
+
           <Text fontSize={14} color="$gray10">
             Total: {totalReports} reportes
           </Text>

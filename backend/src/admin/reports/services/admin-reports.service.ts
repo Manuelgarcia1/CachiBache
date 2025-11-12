@@ -39,6 +39,7 @@ export class AdminReportsService {
     startDate?: string;
     endDate?: string;
     status?: string[];
+    city?: string;
   }) {
     // Query builder base para total de reportes
     const totalQuery = this.reportRepository.createQueryBuilder('report');
@@ -59,6 +60,19 @@ export class AdminReportsService {
 
     // Aplicar filtros si existen
     if (filters) {
+      // Filtro por ciudad (busca en el campo address)
+      if (filters.city) {
+        totalQuery.andWhere('report.address ILIKE :city', {
+          city: `%${filters.city}%`,
+        });
+        severityQuery.andWhere('report.address ILIKE :city', {
+          city: `%${filters.city}%`,
+        });
+        statusQuery.andWhere('report.address ILIKE :city', {
+          city: `%${filters.city}%`,
+        });
+      }
+
       // Filtro por fecha de inicio
       if (filters.startDate) {
         totalQuery.andWhere('report.createdAt >= :startDate', {

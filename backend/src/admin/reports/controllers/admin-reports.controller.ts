@@ -57,11 +57,13 @@ export class AdminReportsController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('status') status?: string | string[],
+    @Query('city') city?: string,
   ) {
     const filters = {
       startDate,
       endDate,
       status: status ? (Array.isArray(status) ? status : [status]) : undefined,
+      city,
     };
 
     return this.adminReportsService.getDashboardMetrics(filters);
