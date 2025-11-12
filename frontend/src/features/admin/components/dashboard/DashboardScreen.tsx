@@ -23,6 +23,19 @@ export function DashboardScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const loadMetrics = useCallback(async () => {
+    // ⏳ NO cargar métricas hasta que la ciudad esté detectada
+    if (isLoadingCity) {
+      console.log('⏳ Esperando detección de ciudad para métricas...');
+      return;
+    }
+
+    // ⚠️ Si hay error de ciudad, mostrar mensaje pero no cargar datos
+    if (cityError) {
+      setError("No se pudo detectar tu ubicación. Por favor otorga permisos de ubicación.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
@@ -36,7 +49,7 @@ export function DashboardScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [city]); // 🔄 Recargar cuando cambie la ciudad
+  }, [city, isLoadingCity, cityError]); // 🔄 Incluir isLoadingCity y cityError
 
   // Recargar métricas cada vez que la pantalla recibe foco
   useFocusEffect(
