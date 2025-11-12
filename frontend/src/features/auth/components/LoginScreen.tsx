@@ -35,8 +35,6 @@ export function LoginScreen() {
   ) => {
     setLoading(true);
     setError(null);
-    console.log("📧 Iniciando login con email...");
-    console.log("👤 Email:", values.email);
 
     try {
       // Llamar al servicio de autenticación real
@@ -44,9 +42,6 @@ export function LoginScreen() {
         email: values.email,
         password: values.password,
       });
-
-      console.log("✅ Login exitoso - Usuario autenticado");
-      console.log("👤 Usuario:", response.user.email);
 
       // Guardar ambos tokens y datos del usuario en el contexto
       await login(
@@ -59,8 +54,6 @@ export function LoginScreen() {
         },
         response.refreshToken
       );
-
-      console.log("✅ Sesión iniciada - Navegando a la app");
     } catch (error: any) {
       console.error("❌ Error en login:", error);
 

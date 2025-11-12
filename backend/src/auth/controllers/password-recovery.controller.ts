@@ -24,14 +24,10 @@ export class PasswordRecoveryController {
   async forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ): Promise<{ message: string }> {
-    console.log('🔔 [CONTROLLER] Endpoint /auth/forgot-password llamado');
-    console.log('📧 [CONTROLLER] Email recibido:', forgotPasswordDto.email);
-
     try {
       await this.passwordResetService.requestPasswordReset(
         forgotPasswordDto.email,
       );
-      console.log('✅ [CONTROLLER] Servicio ejecutado exitosamente');
       return {
         message:
           'Si el correo existe, recibirás un enlace para restablecer tu contraseña',

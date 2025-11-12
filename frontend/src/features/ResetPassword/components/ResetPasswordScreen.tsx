@@ -66,13 +66,11 @@ export const ResetPasswordScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      console.log("Restableciendo contraseña...");
       const response = await authService.resetPassword(
         token,
         newPassword,
         confirmPassword
       );
-      console.log("Contraseña restablecida exitosamente");
 
       Alert.alert(
         "Contraseña Actualizada",

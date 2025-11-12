@@ -14,7 +14,6 @@ export default function AdminLayout() {
   // Protección de rutas: redirige si no es admin
   useEffect(() => {
     if (!isLoading && !isAdmin) {
-      console.log("🚫 Acceso denegado - No es admin - Redirigiendo a home");
       router.replace("/(app)/home");
     }
   }, [isAdmin, isLoading]);

@@ -25,7 +25,6 @@ export function DashboardScreen() {
   const loadMetrics = useCallback(async () => {
     // ⏳ NO cargar métricas hasta que la ciudad esté detectada
     if (isLoadingCity) {
-      console.log('⏳ Esperando detección de ciudad para métricas...');
       return;
     }
 

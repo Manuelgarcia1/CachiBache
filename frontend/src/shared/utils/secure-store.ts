@@ -10,7 +10,6 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 export const setToken = async (token: string): Promise<void> => {
   try {
     await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
-    console.log('Access token guardado en SecureStore');
   } catch (error) {
     console.error('Error guardando access token:', error);
   }
@@ -31,7 +30,6 @@ export const getToken = async (): Promise<string | null> => {
 export const deleteToken = async (): Promise<void> => {
   try {
     await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    console.log('Access token eliminado de SecureStore');
   } catch (error) {
     console.error('Error eliminando access token:', error);
   }
@@ -43,7 +41,6 @@ export const deleteToken = async (): Promise<void> => {
 export const setRefreshToken = async (token: string): Promise<void> => {
   try {
     await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
-    console.log('Refresh token guardado en SecureStore');
   } catch (error) {
     console.error('Error guardando refresh token:', error);
   }
@@ -64,7 +61,6 @@ export const getRefreshToken = async (): Promise<string | null> => {
 export const deleteRefreshToken = async (): Promise<void> => {
   try {
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-    console.log('Refresh token eliminado de SecureStore');
   } catch (error) {
     console.error('Error eliminando refresh token:', error);
   }

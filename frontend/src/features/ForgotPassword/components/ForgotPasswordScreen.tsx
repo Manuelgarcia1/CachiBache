@@ -27,9 +27,7 @@ export const ForgotPasswordScreen: React.FC = () => {
   const handleSubmit = async (email: string) => {
     setLoading(true);
     try {
-      console.log("Enviando email de recuperación a:", email);
       const response = await authService.requestPasswordReset(email);
-      console.log("Email de recuperación enviado exitosamente");
 
       Alert.alert(
         "Código Enviado",
