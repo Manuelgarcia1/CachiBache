@@ -59,9 +59,6 @@ importers:
       google-auth-library:
         specifier: ^10.4.0
         version: 10.5.0
-      nodemailer:
-        specifier: ^7.0.9
-        version: 7.0.9
       package:
         specifier: ^1.0.1
         version: 1.0.1
@@ -81,8 +78,8 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       resend:
-        specifier: ^6.4.1
-        version: 6.4.1
+        specifier: ^6.4.0
+        version: 6.4.0
       rxjs:
         specifier: ^7.8.1
         version: 7.8.2
@@ -3039,10 +3036,6 @@ packages:
   node-releases@2.0.23:
     resolution: {integrity: sha512-cCmFDMSm26S6tQSDpBCg/NR8NENrVPhAJSf+XbxBG4rPFaaonlEoE9wHQmun+cls499TQGSb7ZyPBRlzgKfpeg==}
 
-  nodemailer@7.0.9:
-    resolution: {integrity: sha512-9/Qm0qXIByEP8lEV2qOqcAW7bRpL8CR9jcTwk3NBnHJNmP9fIJ86g2fgmIXqHY+nj55ZEMwWqYAT2QTDpRUYiQ==}
-    engines: {node: '>=6.0.0'}
-
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
@@ -3351,8 +3344,8 @@ packages:
   requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
 
-  resend@6.4.1:
-    resolution: {integrity: sha512-+P1gF6bYT0lKd0vsYyKKTHd6PfMH37yDgNRA6wAARQgQbYlc2BZYuo9sB/uZKkVg1oGSh0cgpnxNKGsZJutXMg==}
+  resend@6.4.0:
+    resolution: {integrity: sha512-CTr4ix4RI5M/ucL58Wqr+LE8eI4JHtJEFaBAx6yUVNOI3eaPVtJjpNL0G/BdRSWMbwv6CtpprVOY8Xvpp6UJlA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@react-email/render': '*'
@@ -7707,8 +7700,6 @@ snapshots:
 
   node-releases@2.0.23: {}
 
-  nodemailer@7.0.9: {}
-
   normalize-path@3.0.0: {}
 
   npm-run-path@4.0.1:
@@ -7983,7 +7974,7 @@ snapshots:
 
   requires-port@1.0.0: {}
 
-  resend@6.4.1:
+  resend@6.4.0:
     dependencies:
       svix: 1.76.1
 

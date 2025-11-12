@@ -19,7 +19,9 @@ export class EmailService {
       this.resend = new Resend(apiKey);
       this.isConfigured = true; // <-- 2. Marcamos que la configuración es correcta
     } else {
-      this.logger.warn('RESEND_API_KEY no está configurada. El servicio de email está deshabilitado.');
+      this.logger.warn(
+        'RESEND_API_KEY no está configurada. El servicio de email está deshabilitado.',
+      );
     }
   }
 
@@ -61,28 +63,26 @@ export class EmailService {
   /**
    * Envía el email para restablecer la contraseña.
    * @param email Email del destinatario.
-   * @param token Token de reseteo.
+   * @param token Código de verificación de 6 dígitos.
    */
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const resetUrl = `${this.configService.get<string>('FRONTEND_URL')}/reset-password?token=${token}`;
-
     const subject = 'Recuperación de contraseña - CachiBache';
     const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Recuperación de contraseña</h2>
-          <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}"
-               style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Restablecer Contraseña
-            </a>
-          </div>
-          <p style="color: #666; font-size: 14px;">Si no puedes hacer clic en el botón, copia y pega este enlace en tu navegador:</p>
-          <p style="color: #007bff; word-break: break-all;">${resetUrl}</p>
-          <p style="color: #999; font-size: 12px; margin-top: 30px;">Este enlace expirará en 1 hora.</p>
-          <p style="color: #999; font-size: 12px;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px 40px; border-radius: 8px; text-align: center;">
+        <h2 style="color: #094b7eff;">Recuperación de contraseña</h2>
+        <p style="color: #333; font-size: 16px;">Recibimos una solicitud para restablecer tu contraseña. Usa el siguiente código de verificación en la aplicación:</p>
+
+        <!-- Código de verificación destacado -->
+        <div style="background-color: #f8f9fa; border: 2px dashed #094b7eff; border-radius: 8px; padding: 20px; margin: 30px auto; max-width: 300px;">
+          <p style="color: #666; font-size: 14px; margin: 0 0 10px 0;">Tu código de verificación:</p>
+          <p style="font-size: 32px; font-weight: bold; color: #094b7eff; letter-spacing: 8px; margin: 0; font-family: 'Courier New', monospace;">${token}</p>
         </div>
-      `;
+
+        <p style="color: #666; font-size: 14px;">Ingresa este código en la aplicación para continuar con el restablecimiento de tu contraseña.</p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">Este código expirará en 15 minutos.</p>
+        <p style="color: #999; font-size: 12px;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.</p>
+      </div>
+    `;
 
     await this.sendEmail(email, subject, html);
   }
@@ -90,18 +90,26 @@ export class EmailService {
   /**
    * Método privado genérico para enviar emails usando Resend.
    */
-  private async sendEmail(to: string, subject: string, html: string): Promise<void> {
+  private async sendEmail(
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<void> {
     // --- 👇 ¡AQUÍ ESTÁ LA CORRECCIÓN! 👇 ---
     // 3. Verificamos nuestra bandera 'isConfigured' en lugar de una propiedad inexistente
     if (!this.isConfigured) {
-      this.logger.error(`Intento de envío de email a ${to} fallido: El servicio de email no está configurado (falta RESEND_API_KEY).`);
+      this.logger.error(
+        `Intento de envío de email a ${to} fallido: El servicio de email no está configurado (falta RESEND_API_KEY).`,
+      );
       // Es importante no lanzar un error aquí para que el flujo de registro/login no se interrumpa,
       // solo se registrará el fallo en los logs.
       return;
     }
 
     try {
-      this.logger.log(`Enviando email a ${to} con asunto "${subject}" vía Resend...`);
+      this.logger.log(
+        `Enviando email a ${to} con asunto "${subject}" vía Resend...`,
+      );
       const { data, error } = await this.resend.emails.send({
         from: this.emailFrom,
         to: [to],
@@ -110,14 +118,21 @@ export class EmailService {
       });
 
       if (error) {
-        this.logger.error(`Error devuelto por la API de Resend para ${to}`, error);
+        this.logger.error(
+          `Error devuelto por la API de Resend para ${to}`,
+          error,
+        );
         throw new Error(`Resend API Error: ${error.message}`);
       }
 
-      this.logger.log(`Email enviado exitosamente a ${to}. ID de Resend: ${data.id}`);
-
+      this.logger.log(
+        `Email enviado exitosamente a ${to}. ID de Resend: ${data.id}`,
+      );
     } catch (error) {
-      this.logger.error(`Fallo catastrófico al intentar enviar email a ${to}`, error.stack);
+      this.logger.error(
+        `Fallo catastrófico al intentar enviar email a ${to}`,
+        error.stack,
+      );
       throw error;
     }
   }
