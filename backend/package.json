@@ -37,7 +37,6 @@
     "cookie-parser": "^1.4.7",
     "expo-server-sdk": "^4.0.0",
     "google-auth-library": "^10.4.0",
-    "nodemailer": "^7.0.9",
     "package": "^1.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
