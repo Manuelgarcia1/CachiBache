@@ -62,17 +62,35 @@ export async function updateReportStatus(
  * Endpoint: GET /admin/reports/dashboard/metrics
  * Requiere autenticación + AdminGuard
  */
-export async function getDashboardMetrics(): Promise<{
+export async function getDashboardMetrics(filters?: {
+  city?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string[];
+}): Promise<{
   totalReports: number;
   reportsBySeverity: Record<string, number>;
   reportsByStatus: Record<string, number>;
 }> {
   try {
+    const params = new URLSearchParams();
+
+    if (filters?.city) params.append('city', filters.city);
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (filters?.status && filters.status.length > 0) {
+      filters.status.forEach((status) => params.append('status', status));
+    }
+
+    const url = params.toString()
+      ? `/admin/reports/dashboard/metrics?${params.toString()}`
+      : '/admin/reports/dashboard/metrics';
+
     const response = await apiService.get<{
       totalReports: number;
       reportsBySeverity: Record<string, number>;
       reportsByStatus: Record<string, number>;
-    }>('/admin/reports/dashboard/metrics');
+    }>(url);
 
     return response;
   } catch (error) {
