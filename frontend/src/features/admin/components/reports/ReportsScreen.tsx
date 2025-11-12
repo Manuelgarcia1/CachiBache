@@ -51,6 +51,19 @@ export function ReportsScreen() {
 
   // Función para cargar reportes
   const loadReports = useCallback(async () => {
+    // ⏳ NO cargar reportes hasta que la ciudad esté detectada
+    if (isLoadingCity) {
+      console.log('⏳ Esperando detección de ciudad...');
+      return;
+    }
+
+    // ⚠️ Si hay error de ciudad, mostrar mensaje pero no cargar datos
+    if (cityError) {
+      setError("No se pudo detectar tu ubicación. Por favor otorga permisos de ubicación.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
@@ -71,7 +84,7 @@ export function ReportsScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, statusFilter, searchQuery, city]); // 🔄 Recargar cuando cambie la ciudad
+  }, [currentPage, statusFilter, searchQuery, city, isLoadingCity, cityError]); // 🔄 Incluir isLoadingCity
 
   // Cargar reportes cuando cambien los filtros o la página
   useEffect(() => {

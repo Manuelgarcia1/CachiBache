@@ -64,10 +64,29 @@ export const useAdminLocation = () => {
         return;
       }
 
-      // 2. Obtener ubicación actual
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+      // 2. Intentar primero con última ubicación conocida (INSTANTÁNEO)
+      let location = await Location.getLastKnownPositionAsync({
+        maxAge: 60000, // Usar ubicación de hace máximo 1 minuto
+        requiredAccuracy: 1000, // Precisión de hasta 1km es suficiente para ciudad
       });
+
+      // Si no hay última ubicación, obtener ubicación actual
+      if (!location) {
+        console.log('📍 No hay última ubicación, obteniendo ubicación actual...');
+        const locationPromise = Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Low, // Menos preciso pero MUY rápido
+          // Low: ~1-2 segundos (vs Balanced: ~3-5 segundos)
+        });
+
+        // Timeout de 5 segundos
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout al obtener ubicación')), 5000)
+        );
+
+        location = await Promise.race([locationPromise, timeoutPromise]) as any;
+      } else {
+        console.log('⚡ Usando última ubicación conocida (instantáneo)');
+      }
 
       // 3. Convertir coordenadas a ciudad
       const city = await getCityFromCoordinates(
