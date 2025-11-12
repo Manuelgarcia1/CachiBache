@@ -55,16 +55,6 @@ export class HtmlResponseService {
             color: #667eea;
             font-weight: bold;
           }
-          .instructions {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-          }
-          .instructions p {
-            margin: 0;
-            font-size: 14px;
-          }
         </style>
       </head>
       <body>
@@ -73,9 +63,6 @@ export class HtmlResponseService {
           <h1>¡Email Verificado!</h1>
           <p>Tu correo electrónico ha sido verificado exitosamente.</p>
           <p>Ahora puedes <span class="app-name">reportar baches</span> y usar todas las funciones de CachiBache.</p>
-          <div class="instructions">
-            <p>Regresa a la aplicación móvil para continuar.</p>
-          </div>
         </div>
       </body>
       </html>
