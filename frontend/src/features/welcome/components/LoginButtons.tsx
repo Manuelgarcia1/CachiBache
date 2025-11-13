@@ -1,41 +1,93 @@
 import { router } from "expo-router";
 import { Button, YStack, Text, XStack } from "tamagui";
+import { Alert } from "react-native";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAuth } from "@/src/shared/contexts/AuthContext";
+import { authService } from "@/src/shared/services/auth.service";
+import { env } from "@/src/shared/config/env";
+import { useEffect, useState } from "react";
 
 // Componente de botones de autenticación: maneja login con Google/Email y navegación a registro/recuperación
 export function LoginButtons() {
   const { login } = useAuth();
+  const [isGoogleConfigured, setIsGoogleConfigured] = useState(false);
 
-  // Login directo con Google (genera token mock)
-  const handleGoogleLogin = async () => {
+  // Configurar Google Sign-In al montar el componente
+  useEffect(() => {
     try {
-      const mockToken = `google-${Date.now()}`;
-      console.log('🚀 Iniciando login con Google...');
-      console.log('🔑 Generando token mock:', mockToken);
-
-      await login(mockToken, { name: 'Usuario Google' });
-
-      console.log('✅ Login exitoso - La navegación será automática');
+      GoogleSignin.configure({
+        webClientId: env.googleWebClientId,
+        offlineAccess: false,
+      });
+      setIsGoogleConfigured(true);
     } catch (error) {
+      console.error('❌ Error configurando Google Sign-In:', error);
+      setIsGoogleConfigured(false);
+    }
+  }, []);
+
+  // Login con Google OAuth
+  const handleGoogleLogin = async () => {
+    if (!isGoogleConfigured) {
+      Alert.alert(
+        'Error de configuración',
+        'Google Sign-In no está configurado correctamente. Por favor, verifica las variables de entorno.'
+      );
+      return;
+    }
+
+    try {
+      // 1. Verificar si los servicios de Google Play están disponibles
+      await GoogleSignin.hasPlayServices();
+
+      // 2. Iniciar sesión con Google (abre el diálogo de Google)
+      const userInfo = await GoogleSignin.signIn();
+
+      // 3. Obtener el ID Token
+      const idToken = userInfo.data?.idToken;
+      if (!idToken) {
+        throw new Error('No se pudo obtener el ID Token de Google');
+      }
+
+      // 4. Enviar el ID Token al backend para validación y obtener nuestros tokens
+      const response = await authService.loginWithGoogle(idToken);
+
+      // 5. Guardar la sesión en el contexto
+      await login(response.accessToken, response.user, response.refreshToken);
+    } catch (error: any) {
       console.error('❌ Error en login con Google:', error);
+
+      // Manejar errores específicos
+      if (error.code === 'SIGN_IN_CANCELLED') {
+        // Usuario canceló el login
+      } else if (error.code === 'IN_PROGRESS') {
+        // Login ya en progreso
+      } else if (error.code === 'PLAY_SERVICES_NOT_AVAILABLE') {
+        Alert.alert(
+          'Error',
+          'Google Play Services no está disponible en este dispositivo'
+        );
+      } else {
+        Alert.alert(
+          'Error al iniciar sesión',
+          error.message || 'No se pudo iniciar sesión con Google. Por favor, intenta nuevamente.'
+        );
+      }
     }
   };
 
   // Navegación a pantalla de login con email
   const handleEmailNavigation = () => {
-    console.log('📧 Navegando a pantalla de login con email...');
     router.navigate('/(auth)/login');
   };
 
   // Navegación a pantalla de registro
   const handleRegisterNavigation = () => {
-    console.log('👤 Navegando a pantalla de registro...');
     router.navigate('/(auth)/register');
   };
 
   // Navegación a pantalla de recuperación de contraseña
   const handleForgotPasswordNavigation = () => {
-    console.log('🔑 Navegando a pantalla de olvido de contraseña...');
     router.navigate('/(auth)/forgot-password');
   };
 

@@ -48,3 +48,18 @@ export const loginSchema = yup.object().shape({
     .required('La contraseña es requerida')
     .min(8, 'La contraseña debe tener al menos 8 caracteres'),
 });
+
+export const resetPasswordSchema = yup.object().shape({
+  newPassword: yup
+    .string()
+    .required('La contraseña es requerida')
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'La contraseña debe contener al menos una mayúscula, una minúscula y un número'
+    ),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('newPassword'), undefined], 'Las contraseñas no coinciden')
+    .required('Debes confirmar tu contraseña'),
+});

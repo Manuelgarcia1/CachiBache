@@ -12,12 +12,10 @@ import {
 import { ReportsService } from '../services/reports.service';
 import { CreateReportDto } from '../dto/create-report.dto';
 import { UpdateReportDto } from '../dto/update-report.dto';
-import { UpdateReportStatusDto } from '../dto/update-report-status.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'; // 2. Importar el Guard
-import { AdminGuard } from '../../auth/guards/admin.guard'; // Guard de admin
-import { EmailVerifiedGuard } from '../../auth/guards/email-verified.guard'; // Guard de verificación de email
-import { GetUser } from '../../auth/decorators/get-user.decorator'; // 3. Importar el Decorador
-import { User } from '../../users/entities/user.entity';
+import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { EmailVerifiedGuard } from '@auth/guards/email-verified.guard';
+import { GetUser } from '@auth/decorators/get-user.decorator';
+import { User } from '@users/entities/user.entity';
 
 @Controller('reports')
 export class ReportsController {
@@ -35,18 +33,6 @@ export class ReportsController {
   @Get()
   findAll() {
     return this.reportsService.findAll();
-  }
-
-  @Get('stats')
-  @UseGuards(JwtAuthGuard)
-  getReportStats() {
-    return this.reportsService.getReportStats();
-  }
-
-  @Get('metrics/dashboard')
-  @UseGuards(JwtAuthGuard)
-  getDashboardMetrics() {
-    return this.reportsService.getDashboardMetrics();
   }
 
   @Get('user')
@@ -78,45 +64,5 @@ export class ReportsController {
     @Body() updateReportDto: UpdateReportDto,
   ) {
     return this.reportsService.updateReport(reportId, updateReportDto);
-  }
-
-  // ============ ENDPOINTS PARA ADMINISTRADORES ============
-
-  /**
-   * GET /reports/admin/all
-   * Obtener todos los reportes con filtros (solo admins)
-   */
-  @Get('admin/all')
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  findAllForAdmin(
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-    @Query('status') status?: string,
-    @Query('city') city?: string,
-    @Query('search') search?: string,
-  ) {
-    return this.reportsService.findAllForAdmin(
-      +page,
-      +limit,
-      status,
-      city,
-      search,
-    );
-  }
-
-  /**
-   * PATCH /reports/admin/:reportId/status
-   * Cambiar estado de un reporte (solo admins)
-   */
-  @Patch('admin/:reportId/status')
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  updateReportStatus(
-    @Param('reportId', ParseUUIDPipe) reportId: string,
-    @Body() updateStatusDto: UpdateReportStatusDto,
-  ) {
-    return this.reportsService.updateReportStatus(
-      reportId,
-      updateStatusDto.status,
-    );
   }
 }

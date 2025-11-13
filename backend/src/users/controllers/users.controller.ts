@@ -13,6 +13,10 @@ export class UsersController {
     private readonly reportsService: ReportsService, // Inyecta el servicio de reportes
   ) {}
 
+  /**
+   * GET /users/me
+   * Obtener perfil del usuario con estadísticas de reportes
+   */
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getProfile(@GetUser() user: User) {

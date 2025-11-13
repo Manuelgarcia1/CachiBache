@@ -13,6 +13,13 @@ interface ProfileHeaderProps {
   avatar?: string;
 }
 
+const GradientBackground = styled(LinearGradient, {
+  width: '100%',
+  alignItems: 'center',
+  paddingTop: 60,
+  paddingBottom: 32,
+});
+
 export function ProfileHeader({ name, email, avatar }: ProfileHeaderProps) {
   const { showImagePickerOptions } = useImagePicker();
   const { refreshUser } = useAuth(); // Asumimos que AuthContext tiene una función para recargar datos
@@ -83,9 +90,16 @@ export function ProfileHeader({ name, email, avatar }: ProfileHeaderProps) {
       <Text fontSize={28} fontWeight="700" color="#fff" marginTop="$4">
         {name}
       </Text>
-      <Text fontSize={24} color="#cbd5e1" marginTop="$2">
+
+      {/* Email con mejor contraste */}
+      <Text
+        fontSize={16}
+        color="rgba(255,255,255,0.85)"
+        marginTop="$2"
+        letterSpacing={0.3}
+      >
         {email}
       </Text>
-    </YStack>
+    </GradientBackground>
   );
 }

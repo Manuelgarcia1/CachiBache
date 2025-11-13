@@ -36,6 +36,10 @@ export class CreateReportDto {
   @IsNotEmpty()
   address: string;
 
+  @IsOptional()
+  @IsString()
+  description?: string;
+
   @IsEnum(ReportSeverity)
   @IsNotEmpty()
   severity: ReportSeverity;

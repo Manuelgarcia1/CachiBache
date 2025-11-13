@@ -16,6 +16,7 @@ export function CreateReportScreen() {
     isSubmitting,
     updateAddress,
     updateSeverity,
+    updateDescription,
     updateImage,
     updateLocation,
     updateMapRegion,
@@ -30,6 +31,8 @@ export function CreateReportScreen() {
     if (result.location && result.region) {
       updateLocation(result.location);
       updateMapRegion(result.region);
+      // Actualizar también el campo de dirección en el formulario
+      updateAddress(result.location.address);
     }
   };
 
@@ -53,9 +56,11 @@ export function CreateReportScreen() {
           <ReportFormSection
             address={reportData.address}
             severity={reportData.severity}
+            description={reportData.description}
             imageUri={reportData.image}
             onAddressChange={updateAddress}
             onSeverityChange={updateSeverity}
+            onDescriptionChange={updateDescription}
             onImageSelected={updateImage}
           />
 

@@ -7,9 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import { EmailVerificationToken } from '../entities/email-verification-token.entity';
-import { EmailService } from '../../common/services/email.service';
-import { UsersService } from '../../users/services/users.service';
-import { type UserWithoutPassword } from '../../users/entities/user.entity';
+import { EmailService } from '@common/services/email.service';
+import { UsersService } from '@users/services/users.service';
+import { type UserWithoutPassword } from '@users/entities/user.entity';
 
 @Injectable()
 export class EmailVerificationService {

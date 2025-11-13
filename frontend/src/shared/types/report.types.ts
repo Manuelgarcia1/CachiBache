@@ -18,6 +18,7 @@ export interface PhotoFromBackend {
 export interface ReportFromBackend {
   id: string;
   address: string;
+  description?: string; // Descripción opcional del bache
   status: ReportStatus;
   severity: ReportSeverity;
   location: string | { x: number; y: number } | { coordinates: [number, number] } | any; // Varios formatos posibles
@@ -126,4 +127,19 @@ export function mapReportToMapReport(report: ReportFromBackend): MapReport {
     coordinate: parseLocationFromBackend(report.location),
     createdAt: new Date(report.createdAt),
   };
+}
+
+/**
+ * Formatea el estado del reporte para mostrarlo de manera legible
+ * Convierte "EN_REPARACION" a "EN REPARACIÓN", etc.
+ */
+export function formatReportStatus(status: ReportStatus): string {
+  const statusMap: Record<ReportStatus, string> = {
+    'PENDIENTE': 'PENDIENTE',
+    'EN_REPARACION': 'EN REPARACIÓN',
+    'RESUELTO': 'RESUELTO',
+    'DESCARTADO': 'DESCARTADO',
+  };
+
+  return statusMap[status] || status;
 }

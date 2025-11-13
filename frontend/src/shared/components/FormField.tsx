@@ -42,13 +42,14 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'white',
-    borderRadius: 12, // Bordes más redondeados
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     fontSize: 16,
-    color: '#111827', // Texto oscuro
+    color: '#111827',
     borderWidth: 2,
-    borderColor: 'transparent', // Sin borde por defecto
+    borderColor: 'transparent',
+    height: 55,
   },
   inputError: {
     borderColor: '#EF4444', // Borde rojo para errores

@@ -13,6 +13,7 @@ export interface ReportLocation {
 export interface ReportData {
   address: string;
   severity: string;
+  description?: string;
   location: ReportLocation;
   image?: string | null;
 }

@@ -5,7 +5,7 @@ import { CreateReportDto } from '../dto/create-report.dto';
 import { UpdateReportDto } from '../dto/update-report.dto';
 import { Report } from '../entities/report.entity';
 import { ReportStatus } from '../entities/report-status.enum';
-import { User } from '../../users/entities/user.entity';
+import { User } from '@users/entities/user.entity';
 import { Photo } from '../entities/photo.entity';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class ReportsService {
     // 2. Inyecta el repositorio de la entidad Photo
     @InjectRepository(Photo)
     private readonly photoRepository: Repository<Photo>,
-  ) { }
+  ) {}
 
   async create(createReportDto: CreateReportDto, user: User): Promise<Report> {
     // 3. Extraemos 'photo' del DTO junto con los demás datos
@@ -49,54 +49,17 @@ export class ReportsService {
     // 9. Devolvemos el reporte principal.
     return this.findOneReport(savedReport.id);
   }
+  /**
+   * Obtener todos los reportes (endpoint público)
+   * NO incluye datos de usuario para proteger información personal
+   */
   async findAll(): Promise<Report[]> {
     return this.reportRepository.find({
-      relations: ['user'],
+      // No incluir relations: ['user'] para proteger datos personales (email, teléfono, etc.)
+      // Este endpoint es público y solo debe mostrar datos del reporte
     });
   }
 
-  async getReportStats() {
-    const stats = await this.reportRepository
-      .createQueryBuilder('report')
-      .select('report.status', 'status')
-      .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.status')
-      .getRawMany();
-
-    return stats.reduce((acc, curr) => {
-      acc[curr.status] = parseInt(curr.count, 10);
-      return acc;
-    }, {});
-  }
-
-  async getDashboardMetrics() {
-    const totalReports = await this.reportRepository.count();
-    const reportsBySeverity = await this.reportRepository
-      .createQueryBuilder('report')
-      .select('report.severity', 'severity')
-      .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.severity')
-      .getRawMany();
-
-    const reportsByStatus = await this.reportRepository
-      .createQueryBuilder('report')
-      .select('report.status', 'status')
-      .addSelect('COUNT(report.id)', 'count')
-      .groupBy('report.status')
-      .getRawMany();
-
-    return {
-      totalReports,
-      reportsBySeverity: reportsBySeverity.reduce((acc, curr) => {
-        acc[curr.severity] = parseInt(curr.count, 10);
-        return acc;
-      }, {}),
-      reportsByStatus: reportsByStatus.reduce((acc, curr) => {
-        acc[curr.status] = parseInt(curr.count, 10);
-        return acc;
-      }, {}),
-    };
-  }
 
   async findReportsByUserId(
     userId: string,
@@ -104,7 +67,6 @@ export class ReportsService {
     limit = 10,
     search?: string,
   ): Promise<{ reports: Report[]; total: number }> {
-
     // --- 👇 REESCRIBIMOS LA LÓGICA CON EL MÉTODO 'findAndCount' 👇 ---
 
     const where: FindManyOptions<Report>['where'] = {
@@ -131,7 +93,7 @@ export class ReportsService {
   async findOneReport(id: string): Promise<Report> {
     const report = await this.reportRepository.findOne({
       where: { id },
-      relations: ['user', 'photos', 'history'],
+      relations: ['user', 'photos'],
     });
     if (!report) {
       throw new NotFoundException(`Reporte con ID "${id}" no encontrado`);
@@ -164,10 +126,26 @@ export class ReportsService {
       .groupBy('report.status')
       .getRawMany();
 
+    // Mapear los estados del backend a los nombres que espera el frontend
+    const statusMapping = {
+      'PENDIENTE': 'pendiente',
+      'EN_REPARACION': 'reparacion',
+      'RESUELTO': 'finalizado',
+      'DESCARTADO': 'descartado' // No se muestra en el perfil, pero por completitud
+    };
+
     const reportStats = stats.reduce((acc, curr) => {
-      acc[curr.status] = parseInt(curr.count, 10);
+      const frontendStatus = statusMapping[curr.status];
+      if (frontendStatus) {
+        acc[frontendStatus] = parseInt(curr.count, 10);
+      }
       return acc;
-    }, {});
+    }, {
+      // Inicializar con valores por defecto para que siempre existan
+      pendiente: 0,
+      reparacion: 0,
+      finalizado: 0
+    });
 
     // Ejemplo de dashboard: reportes por mes (últimos 6 meses)
     const bachesMes = await this.reportRepository
@@ -179,71 +157,31 @@ export class ReportsService {
       .orderBy('mes', 'ASC')
       .getRawMany();
 
+    // Calcular tiempo promedio de reportes pendientes (en días)
+    const avgPendingTime = await this.reportRepository
+      .createQueryBuilder('report')
+      .select('AVG(EXTRACT(DAY FROM (CURRENT_DATE - report.createdAt)))', 'avgDays')
+      .where('report.user_id = :userId', { userId })
+      .andWhere('report.status = :status', { status: 'PENDIENTE' })
+      .getRawOne();
+
+    // Calcular tiempo promedio de reportes en reparación (en días)
+    const avgRepairTime = await this.reportRepository
+      .createQueryBuilder('report')
+      .select('AVG(EXTRACT(DAY FROM (CURRENT_DATE - report.createdAt)))', 'avgDays')
+      .where('report.user_id = :userId', { userId })
+      .andWhere('report.status = :status', { status: 'EN_REPARACION' })
+      .getRawOne();
+
     return {
       reportStats,
       dashboard: {
-        tiempoPromedioPendiente: 0, // Calcula según tu modelo si tienes los datos
-        tiempoPromedioReparacion: 0, // Calcula según tu modelo si tienes los datos
+        tiempoPromedioPendiente: Math.round(parseFloat(avgPendingTime?.avgDays || '0')),
+        tiempoPromedioReparacion: Math.round(parseFloat(avgRepairTime?.avgDays || '0')),
         bachesMes: bachesMes.map((m) => Number(m.count)),
         meses: bachesMes.map((m) => m.mes),
       },
     };
   }
 
-  // ============ MÉTODOS PARA ADMINISTRADORES ============
-
-  /**
-   * Obtener todos los reportes con filtros (admin)
-   */
-  async findAllForAdmin(
-    page = 1,
-    limit = 20,
-    status?: string,
-    city?: string,
-    search?: string,
-  ): Promise<{ reports: Report[]; total: number }> {
-    const query = this.reportRepository
-      .createQueryBuilder('report')
-      .leftJoinAndSelect('report.user', 'user');
-
-    // Filtro por estado
-    if (status) {
-      query.andWhere('report.status = :status', { status });
-    }
-
-    // Filtro por ciudad (busca en el campo address)
-    if (city) {
-      query.andWhere('report.address ILIKE :city', { city: `%${city}%` });
-    }
-
-    // Búsqueda general en dirección
-    if (search) {
-      query.andWhere('report.address ILIKE :search', { search: `%${search}%` });
-    }
-
-    // Ordenar por fecha de creación (más recientes primero)
-    query.orderBy('report.createdAt', 'DESC');
-
-    // Paginación
-    const [reports, total] = await query
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
-    return { reports, total };
-  }
-
-  /**
-   * Actualizar solo el estado de un reporte (admin)
-   */
-  async updateReportStatus(
-    reportId: string,
-    newStatus: ReportStatus,
-  ): Promise<Report> {
-    // Usar update en lugar de save para actualizar solo el campo status
-    await this.reportRepository.update(reportId, { status: newStatus });
-
-    // Devolver el reporte actualizado
-    return this.findOneReport(reportId);
-  }
 }

@@ -8,11 +8,12 @@ import { ReportFromBackend, MapReport, mapReportToMapReport, ReportSeverity } fr
 export interface CreateReportDto {
   address: string;
   severity: ReportSeverity;
+  description?: string; // Descripción opcional del bache (puede ser dictada por voz)
   location: {
     x: number; // longitude
     y: number; // latitude
   };
-  // 1. Añadimos la nueva propiedad 'photo' como opcional
+  // Foto opcional
   photo?: {
     url: string;
     publicId: string;
