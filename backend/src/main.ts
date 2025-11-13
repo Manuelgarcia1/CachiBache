@@ -33,9 +33,8 @@ async function bootstrap() {
       
       // Comprueba si el origen coincide con alguno de los patrones de desarrollo
       const isDevOrigin = devPatterns.some((pattern) => pattern.test(origin));
-      
+
       if (isDevOrigin) {
-        console.log(`[CORS] Petición de desarrollo permitida desde: ${origin}`);
         return callback(null, true);
       }
 

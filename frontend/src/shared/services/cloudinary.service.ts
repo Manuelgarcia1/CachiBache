@@ -24,19 +24,16 @@ async function uploadImage(
   }
 
   const public_id = uuidv4();
-  console.log(`[Cloudinary] Paso 1: Generado public_id: ${public_id}`);
 
   // --- 👇 PASO CRÍTICO 1: OBTENER LA FIRMA 👇 ---
   let signatureData;
   try {
-    console.log("[Cloudinary] Paso 2: Solicitando firma al backend...");
     const paramsToSign = { public_id, folder };
     signatureData = await apiService.post<{
       signature: string;
       timestamp: number;
       api_key: string;
     }>("/cloudinary/signature", paramsToSign);
-    console.log("[Cloudinary] ✅ Firma recibida del backend.");
   } catch (error) {
     console.error(
       "🔴 [Cloudinary] ERROR AL OBTENER LA FIRMA:",
@@ -67,13 +64,9 @@ async function uploadImage(
 
   // --- 👇 PASO CRÍTICO 2: SUBIR A CLOUDINARY 👇 ---
   try {
-    console.log(
-      "[Cloudinary] Paso 3: Subiendo imagen directamente a Cloudinary..."
-    );
     const response = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    console.log("[Cloudinary] ✅ Imagen subida exitosamente a Cloudinary.");
 
     const { secure_url, public_id: returned_public_id } = response.data;
     return { secure_url, public_id: returned_public_id };

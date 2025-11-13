@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
 import { YStack, Text, Spinner } from 'tamagui';
 import { apiService } from "@/src/shared/services/api.service";
+import { useAuth } from "@/src/shared/contexts/AuthContext";
 
 /**
  * Tipos para la respuesta del endpoint /users/me
@@ -32,25 +33,28 @@ export default function ProfileTab() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user: authUser } = useAuth();
 
-  const fetchProfile = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      //setIsLoading(true);
+      setError(null);
 
-    try {
-      // Usar apiService en lugar de fetch nativo
-      // El token se agrega automáticamente vía interceptor (api.service.ts:40-63)
-      const data = await apiService.get<ProfileData>('/users/me');
+      try {
+        console.log("🔄 [ProfileTab] Ejecutando fetchProfile...");
+        const data = await apiService.get<ProfileData>('/users/me');
+        setProfileData(data);
+      } catch (err: any) {
+        console.error("Error al cargar perfil:", err);
+        setError(err.message || 'No se pudo cargar el perfil');
+        setProfileData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      setProfileData(data);
-    } catch (err: any) {
-      console.error("Error al cargar perfil:", err);
-      setError(err.message || 'No se pudo cargar el perfil');
-      setProfileData(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    fetchProfile();
+  }, [authUser]);
 
   // Recargar perfil cada vez que la pantalla recibe focus
   useFocusEffect(

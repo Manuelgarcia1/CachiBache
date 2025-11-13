@@ -33,14 +33,6 @@ export const useAdminLocation = () => {
       // Prioridad: city > subregion > region
       const city = location.city || location.subregion || location.region || null;
 
-      console.log('📍 Ciudad detectada:', city);
-      console.log('🗺️ Detalles de ubicación:', {
-        city: location.city,
-        subregion: location.subregion,
-        region: location.region,
-        country: location.country,
-      });
-
       return city;
     } catch (error) {
       console.error('Error en reverse geocoding:', error);
@@ -64,7 +56,19 @@ export const useAdminLocation = () => {
         return;
       }
 
-      // 2. Intentar primero con última ubicación conocida (INSTANTÁNEO)
+      // 2. Verificar si los servicios de ubicación están habilitados
+      const isEnabled = await Location.hasServicesEnabledAsync();
+
+      if (!isEnabled) {
+        setState({
+          city: null,
+          isLoading: false,
+          error: 'Los servicios de ubicación están deshabilitados',
+        });
+        return;
+      }
+
+      // 3. Intentar primero con última ubicación conocida (INSTANTÁNEO)
       let location = await Location.getLastKnownPositionAsync({
         maxAge: 60000, // Usar ubicación de hace máximo 1 minuto
         requiredAccuracy: 1000, // Precisión de hasta 1km es suficiente para ciudad
@@ -72,20 +76,23 @@ export const useAdminLocation = () => {
 
       // Si no hay última ubicación, obtener ubicación actual
       if (!location) {
-        console.log('📍 No hay última ubicación, obteniendo ubicación actual...');
-        const locationPromise = Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Low, // Menos preciso pero MUY rápido
-          // Low: ~1-2 segundos (vs Balanced: ~3-5 segundos)
-        });
+        try {
+          const locationPromise = Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Lowest, // La más baja para emuladores
+          });
 
-        // Timeout de 5 segundos
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout al obtener ubicación')), 5000)
-        );
+          // Timeout de 25 segundos
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout al obtener ubicación')), 25000)
+          );
 
-        location = await Promise.race([locationPromise, timeoutPromise]) as any;
-      } else {
-        console.log('⚡ Usando última ubicación conocida (instantáneo)');
+          location = await Promise.race([locationPromise, timeoutPromise]) as any;
+        } catch {
+          // Último intento sin timeout
+          location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Lowest,
+          });
+        }
       }
 
       // 3. Convertir coordenadas a ciudad

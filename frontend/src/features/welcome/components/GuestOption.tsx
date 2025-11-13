@@ -11,12 +11,7 @@ export function GuestOption() {
   const handleGuestLogin = async () => {
     try {
       const guestToken = `guest-${Date.now()}`;
-      console.log('👤 Iniciando como invitado...');
-      console.log('🔑 Generando token de invitado:', guestToken);
-
       await login(guestToken, { name: 'Invitado' });
-
-      console.log('✅ Login como invitado exitoso - La navegación será automática');
     } catch (error) {
       console.error('❌ Error en login como invitado:', error);
     }

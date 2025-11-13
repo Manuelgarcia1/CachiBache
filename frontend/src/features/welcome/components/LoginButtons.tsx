@@ -20,7 +20,6 @@ export function LoginButtons() {
         offlineAccess: false,
       });
       setIsGoogleConfigured(true);
-      console.log('✅ Google Sign-In configurado correctamente');
     } catch (error) {
       console.error('❌ Error configurando Google Sign-In:', error);
       setIsGoogleConfigured(false);
@@ -38,14 +37,11 @@ export function LoginButtons() {
     }
 
     try {
-      console.log('🚀 Iniciando login con Google...');
-
       // 1. Verificar si los servicios de Google Play están disponibles
       await GoogleSignin.hasPlayServices();
 
       // 2. Iniciar sesión con Google (abre el diálogo de Google)
       const userInfo = await GoogleSignin.signIn();
-      console.log('✅ Usuario autenticado con Google:', userInfo.data?.user.email);
 
       // 3. Obtener el ID Token
       const idToken = userInfo.data?.idToken;
@@ -54,22 +50,18 @@ export function LoginButtons() {
       }
 
       // 4. Enviar el ID Token al backend para validación y obtener nuestros tokens
-      console.log('🔄 Enviando ID Token al backend...');
       const response = await authService.loginWithGoogle(idToken);
-      console.log('✅ Backend validó el token correctamente');
 
       // 5. Guardar la sesión en el contexto
       await login(response.accessToken, response.user, response.refreshToken);
-
-      console.log('✅ Login con Google exitoso - La navegación será automática');
     } catch (error: any) {
       console.error('❌ Error en login con Google:', error);
 
       // Manejar errores específicos
       if (error.code === 'SIGN_IN_CANCELLED') {
-        console.log('ℹ️ Usuario canceló el login con Google');
+        // Usuario canceló el login
       } else if (error.code === 'IN_PROGRESS') {
-        console.log('ℹ️ Login con Google ya en progreso');
+        // Login ya en progreso
       } else if (error.code === 'PLAY_SERVICES_NOT_AVAILABLE') {
         Alert.alert(
           'Error',
@@ -86,19 +78,16 @@ export function LoginButtons() {
 
   // Navegación a pantalla de login con email
   const handleEmailNavigation = () => {
-    console.log('📧 Navegando a pantalla de login con email...');
     router.navigate('/(auth)/login');
   };
 
   // Navegación a pantalla de registro
   const handleRegisterNavigation = () => {
-    console.log('👤 Navegando a pantalla de registro...');
     router.navigate('/(auth)/register');
   };
 
   // Navegación a pantalla de recuperación de contraseña
   const handleForgotPasswordNavigation = () => {
-    console.log('🔑 Navegando a pantalla de olvido de contraseña...');
     router.navigate('/(auth)/forgot-password');
   };
 

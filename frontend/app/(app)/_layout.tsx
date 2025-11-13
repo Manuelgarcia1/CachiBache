@@ -13,7 +13,6 @@ export default function AppLayout() {
   // Protección de rutas: redirige a dashboard si es admin
   useEffect(() => {
     if (!isLoading && isAdmin) {
-      console.log("🔀 Admin detectado - Redirigiendo a dashboard");
       router.replace("/(admin)/dashboard" as any);
     }
   }, [isAdmin, isLoading]);
@@ -21,7 +20,6 @@ export default function AppLayout() {
   // Protección de rutas: redirige a inicio si no hay token válido
   useEffect(() => {
     if (!isLoading && !token) {
-      console.log("🚫 Acceso denegado - No hay token - Redirigiendo a inicio");
       router.replace("/");
     }
   }, [token, isLoading]);

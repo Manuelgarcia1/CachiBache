@@ -15,7 +15,6 @@ export const useLocationPermissions = () => {
       }
       return { granted: true };
     } catch (error) {
-      console.log('Error requesting location permission:', error);
       return { granted: false, error: 'Error al solicitar permisos de ubicación' };
     }
   };
@@ -66,11 +65,9 @@ export const useLocationPermissions = () => {
           if (addressParts.length > 0) {
             address = addressParts.join(', ');
           }
-
-          console.log('📍 Dirección de ubicación actual:', address);
         }
       } catch (geocodeError) {
-        console.log('⚠️ No se pudo obtener dirección para ubicación actual, usando texto genérico');
+        // No se pudo obtener dirección, usar fallback
       }
 
       const newLocation: ReportLocation = {

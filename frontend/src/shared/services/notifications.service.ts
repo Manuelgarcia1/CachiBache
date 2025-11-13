@@ -51,7 +51,6 @@ export async function registerForPushNotifications(): Promise<string | null> {
     });
 
     const token = tokenData.data;
-    console.log('Token de Expo Push obtenido:', token);
 
     // Configuración adicional para Android
     if (Platform.OS === 'android') {
@@ -81,8 +80,6 @@ export async function registerTokenWithBackend(token: string): Promise<void> {
       token,
       deviceType,
     });
-
-    console.log('Token registrado exitosamente en el backend');
   } catch (error) {
     console.error('Error al registrar token con el backend:', error);
     throw error;
@@ -95,8 +92,6 @@ export async function registerTokenWithBackend(token: string): Promise<void> {
 export async function unregisterToken(token: string): Promise<void> {
   try {
     await apiService.delete('/notifications/unregister', { token });
-
-    console.log('Token desregistrado exitosamente');
   } catch (error) {
     console.error('Error al desregistrar token:', error);
     // No lanzamos el error para que no afecte el logout
@@ -114,7 +109,6 @@ export function setupNotificationListeners(
   // Listener para cuando llega una notificación (app en foreground)
   const notificationListener = Notifications.addNotificationReceivedListener(
     (notification) => {
-      console.log('Notificación recibida:', notification);
       onNotificationReceived?.(notification);
     },
   );
@@ -122,7 +116,6 @@ export function setupNotificationListeners(
   // Listener para cuando el usuario toca una notificación
   const responseListener = Notifications.addNotificationResponseReceivedListener(
     (response) => {
-      console.log('Usuario tocó la notificación:', response);
       onNotificationTapped?.(response);
     },
   );
@@ -142,7 +135,6 @@ export function handleNotificationTap(response: Notifications.NotificationRespon
 
   // Si hay un reportId en los datos, podemos navegar a ese reporte
   if (data.reportId) {
-    console.log('Navegar al reporte:', data.reportId);
     // Aquí se puede agregar la lógica de navegación si es necesario
     // Por ejemplo, usando navigation.navigate('ReportDetail', { id: data.reportId })
   }
