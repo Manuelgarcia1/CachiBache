@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
 import { Text } from 'react-native';
 import { apiService } from "@/src/shared/services/api.service";
+import { useAuth } from "@/src/shared/contexts/AuthContext";
 
 /**
  * Tipos para la respuesta del endpoint /users/me
@@ -31,17 +32,16 @@ export default function ProfileTab() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     const fetchProfile = async () => {
-      setIsLoading(true);
+      //setIsLoading(true);
       setError(null);
 
       try {
-        // Usar apiService en lugar de fetch nativo
-        // El token se agrega automáticamente vía interceptor (api.service.ts:40-63)
+        console.log("🔄 [ProfileTab] Ejecutando fetchProfile...");
         const data = await apiService.get<ProfileData>('/users/me');
-
         setProfileData(data);
       } catch (err: any) {
         console.error("Error al cargar perfil:", err);
@@ -53,7 +53,7 @@ export default function ProfileTab() {
     };
 
     fetchProfile();
-  }, []);
+  }, [authUser]);
 
   // Estado de carga
   if (isLoading) {
