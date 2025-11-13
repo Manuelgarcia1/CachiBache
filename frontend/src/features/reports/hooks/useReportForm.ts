@@ -69,7 +69,6 @@ export const useReportForm = () => {
       });
 
       if (!location) {
-        console.log('⚠️ No se pudo obtener dirección, usando coordenadas');
         return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
       }
 
@@ -100,15 +99,6 @@ export const useReportForm = () => {
       const fullAddress = addressParts.length > 0
         ? addressParts.join(', ')
         : `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-
-      console.log('📍 Dirección obtenida:', fullAddress);
-      console.log('🗺️ Detalles:', {
-        street: location.street,
-        streetNumber: location.streetNumber,
-        city: location.city,
-        subregion: location.subregion,
-        region: location.region,
-      });
 
       return fullAddress;
     } catch (error) {
@@ -158,7 +148,6 @@ export const useReportForm = () => {
     try {
       let photoData: { url: string; publicId: string } | undefined = undefined;
       if (reportData.image) {
-        console.log(`[useReportForm] INICIANDO SUBIDA. URI de la imagen: ${reportData.image}`);
         try {
           const uploadResult = await cloudinaryService.uploadImage(
             reportData.image,
@@ -168,7 +157,6 @@ export const useReportForm = () => {
             url: uploadResult.secure_url,
             publicId: uploadResult.public_id,
           };
-          console.log(`[useReportForm] ✅ Imagen subida. URL: ${photoData.url}`);
 
         } catch (uploadError) {
           // Este catch capturará CUALQUIER error de la función uploadImage
@@ -176,11 +164,7 @@ export const useReportForm = () => {
           // Re-lanzamos el error para que el catch principal lo maneje y muestre la alerta
           throw new Error('Fallo en la subida de la imagen a Cloudinary.');
         }
-      } else {
-        console.log('[useReportForm] No se seleccionó ninguna imagen, omitiendo subida.');
       }
-
-      console.log('[useReportForm] Preparando para crear el reporte en el backend...');
 
       // Llamada al backend para crear el reporte
       await createReport({
@@ -194,8 +178,6 @@ export const useReportForm = () => {
         // Aquí pasamos photoData, que será undefined si no se subió imagen
         photo: photoData,
       });
-
-      console.log('[useReportForm] ✅ Reporte creado exitosamente en el backend.');
 
       Alert.alert(
         "¡Reporte enviado!",

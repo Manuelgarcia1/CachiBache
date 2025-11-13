@@ -51,6 +51,18 @@ export function ReportsScreen() {
 
   // Función para cargar reportes
   const loadReports = useCallback(async () => {
+    // ⏳ NO cargar reportes hasta que la ciudad esté detectada
+    if (isLoadingCity) {
+      return;
+    }
+
+    // ⚠️ Si hay error de ciudad, mostrar mensaje pero no cargar datos
+    if (cityError) {
+      setError("No se pudo detectar tu ubicación. Por favor otorga permisos de ubicación.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
@@ -71,7 +83,7 @@ export function ReportsScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, statusFilter, searchQuery, city]); // 🔄 Recargar cuando cambie la ciudad
+  }, [currentPage, statusFilter, searchQuery, city, isLoadingCity, cityError]); // 🔄 Incluir isLoadingCity
 
   // Cargar reportes cuando cambien los filtros o la página
   useEffect(() => {
@@ -124,13 +136,9 @@ export function ReportsScreen() {
 
   const handleExportPDF = async (filters: ExportFilters) => {
     try {
-      console.log("🔄 Iniciando exportación de PDF con filtros:", filters);
-
       if (Platform.OS === "web") {
         // En web, descargar el archivo
-        console.log("🌐 Descargando PDF en web...");
         const pdfBlob = await exportReportsPDF(filters);
-        console.log("✅ PDF recibido, tamaño:", pdfBlob.size, "bytes");
 
         const fileName = `reporte-cachibache-${new Date().toISOString().split("T")[0]}.pdf`;
         const url = window.URL.createObjectURL(pdfBlob);
@@ -144,7 +152,6 @@ export function ReportsScreen() {
         Alert.alert("Éxito", "PDF descargado correctamente");
       } else {
         // En móvil, descargar y guardar el PDF
-        console.log("📱 Descargando PDF en móvil...");
 
         // Obtener el token de autenticación
         const token = await getToken();
@@ -169,8 +176,6 @@ export function ReportsScreen() {
         const fileName = `reporte-cachibache-${new Date().toISOString().split("T")[0]}.pdf`;
         const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-        console.log("📥 Descargando desde:", pdfURL);
-
         // Descargar el archivo
         const downloadResult = await FileSystem.downloadAsync(
           pdfURL,
@@ -182,8 +187,6 @@ export function ReportsScreen() {
           }
         );
 
-        console.log("✅ PDF descargado en:", downloadResult.uri);
-
         // Compartir/Abrir el archivo descargado
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(downloadResult.uri, {
@@ -191,7 +194,6 @@ export function ReportsScreen() {
             dialogTitle: 'Guardar o compartir PDF',
             UTI: 'com.adobe.pdf',
           });
-          console.log("✅ PDF compartido");
         } else {
           Alert.alert("Éxito", `PDF guardado en: ${fileName}`);
         }

@@ -43,21 +43,41 @@ export class NotificationsService {
     // Verificar si el token ya existe
     let pushToken = await this.pushTokenRepository.findOne({
       where: { token },
+      relations: ['user'], // ✅ Cargar relación para comparar usuario
     });
 
     if (pushToken) {
-      // Si existe pero está inactivo, reactivarlo
+      // Siempre actualizar el token existente para asegurar la relación con el usuario
+      let needsUpdate = false;
+
+      // Si está inactivo, reactivarlo
       if (!pushToken.isActive) {
         pushToken.isActive = true;
-        pushToken.user = user;
-        if (deviceType) {
-          pushToken.deviceType = deviceType;
-        }
-        await this.pushTokenRepository.save(pushToken);
+        needsUpdate = true;
         this.logger.log(`Token reactivado: ${token}`);
+      }
+
+      // Actualizar usuario (puede haber cambiado si el token se reutilizó)
+      if (!pushToken.user || pushToken.user.id !== userId) {
+        pushToken.user = user;
+        needsUpdate = true;
+        this.logger.log(`Actualizando usuario para token: ${token}`);
+      }
+
+      // Actualizar tipo de dispositivo si se proporciona
+      if (deviceType && pushToken.deviceType !== deviceType) {
+        pushToken.deviceType = deviceType;
+        needsUpdate = true;
+      }
+
+      // Guardar cambios si hubo alguna actualización
+      if (needsUpdate) {
+        await this.pushTokenRepository.save(pushToken);
+        this.logger.log(`Token actualizado en BD: ${token}`);
       } else {
         this.logger.log(`Token ya existía y estaba activo: ${token}`);
       }
+
       return pushToken;
     }
 
@@ -113,7 +133,12 @@ export class NotificationsService {
       // Obtener todos los tokens activos del usuario
       const tokens = await this.pushTokenRepository.find({
         where: { user: { id: userId }, isActive: true },
+        relations: ['user'], // ✅ Cargar relación explícitamente
       });
+
+      this.logger.log(
+        `Tokens encontrados para usuario ${userId}: ${tokens.length}`,
+      );
 
       if (tokens.length === 0) {
         this.logger.warn(

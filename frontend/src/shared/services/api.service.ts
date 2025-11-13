@@ -136,9 +136,6 @@ class ApiService {
             }
 
             isRefreshing = true;
-            console.log(
-              "🔄 REFRESH TOKEN: Token expirado, renovando sesión automáticamente..."
-            );
 
             // Obtener refresh token de SecureStore
             const refreshToken = await getRefreshToken();
@@ -153,8 +150,6 @@ class ApiService {
 
             const newAccessToken = response.data.accessToken;
             await setToken(newAccessToken);
-
-            console.log("✅ REFRESH TOKEN: Sesión renovada exitosamente");
 
             // Notificar a todas las peticiones en espera
             refreshSubscribers.forEach((callback) => callback(newAccessToken));

@@ -36,7 +36,6 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggleExpand = () => {
-    console.log(`[ReportItem] TOCADO! ID: ${id}. Nuevo estado: ${!isExpanded}`);
     setIsExpanded(!isExpanded);
   };
   return (

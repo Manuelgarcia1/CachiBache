@@ -38,7 +38,6 @@ export function MapViewPlaceholder() {
         setIsLoadingLocation(false);
       }
     } catch (error) {
-      console.log('Error requesting location permission:', error);
       setRegion(INITIAL_REGION);
       setIsLoadingLocation(false);
     }
@@ -46,9 +45,26 @@ export function MapViewPlaceholder() {
 
   const getCurrentLocation = async () => {
     try {
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+      // ⚡ Intentar primero con última ubicación conocida (INSTANTÁNEO)
+      let location = await Location.getLastKnownPositionAsync({
+        maxAge: 60000, // Usar ubicación de hace máximo 1 minuto
+        requiredAccuracy: 1000, // 1km es suficiente para el mapa
       });
+
+      // Si no hay última ubicación, obtener ubicación actual
+      if (!location) {
+        // Usar Low accuracy para ser más rápido (1-2s vs 3-5s)
+        const locationPromise = Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Low,
+        });
+
+        // Timeout de 5 segundos
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        );
+
+        location = await Promise.race([locationPromise, timeoutPromise]) as any;
+      }
 
       const newRegion = {
         latitude: location.coords.latitude,
@@ -60,8 +76,7 @@ export function MapViewPlaceholder() {
       setRegion(newRegion);
       setIsLoadingLocation(false);
     } catch (error) {
-      console.log('Error getting current location:', error);
-      // Si falla obtener ubicación, usar región por defecto
+      // Si falla obtener ubicación, usar región por defecto (Buenos Aires)
       setRegion(INITIAL_REGION);
       setIsLoadingLocation(false);
     }

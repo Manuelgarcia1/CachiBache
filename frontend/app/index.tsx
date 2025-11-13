@@ -12,10 +12,8 @@ export default function Index() {
   useEffect(() => {
     if (!isLoading && token) {
       if (isAdmin) {
-        console.log("✅ Admin detectado - Navegando a dashboard");
         router.replace("/(admin)/dashboard" as any);
       } else {
-        console.log("✅ Usuario autenticado detectado - Navegando a app");
         router.replace("/(app)/home");
       }
     }
@@ -24,10 +22,8 @@ export default function Index() {
   // Muestra loading mientras se verifica la autenticación
   if (isLoading) {
     if (token) {
-      console.log("🔄 Reautenticando usuario existente");
       return <ReauthLoadingScreen />;
     } else {
-      console.log("🔄 Loading sin token - primera vez");
       return null;
     }
   }
@@ -38,6 +34,5 @@ export default function Index() {
   }
 
   // Muestra la pantalla de bienvenida si no hay sesión activa
-  console.log("📱 Mostrando WelcomeScreen - Usuario no autenticado");
   return <WelcomeScreen />;
 }

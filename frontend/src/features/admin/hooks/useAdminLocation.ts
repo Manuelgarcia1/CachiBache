@@ -33,14 +33,6 @@ export const useAdminLocation = () => {
       // Prioridad: city > subregion > region
       const city = location.city || location.subregion || location.region || null;
 
-      console.log('📍 Ciudad detectada:', city);
-      console.log('🗺️ Detalles de ubicación:', {
-        city: location.city,
-        subregion: location.subregion,
-        region: location.region,
-        country: location.country,
-      });
-
       return city;
     } catch (error) {
       console.error('Error en reverse geocoding:', error);
@@ -64,10 +56,44 @@ export const useAdminLocation = () => {
         return;
       }
 
-      // 2. Obtener ubicación actual
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+      // 2. Verificar si los servicios de ubicación están habilitados
+      const isEnabled = await Location.hasServicesEnabledAsync();
+
+      if (!isEnabled) {
+        setState({
+          city: null,
+          isLoading: false,
+          error: 'Los servicios de ubicación están deshabilitados',
+        });
+        return;
+      }
+
+      // 3. Intentar primero con última ubicación conocida (INSTANTÁNEO)
+      let location = await Location.getLastKnownPositionAsync({
+        maxAge: 60000, // Usar ubicación de hace máximo 1 minuto
+        requiredAccuracy: 1000, // Precisión de hasta 1km es suficiente para ciudad
       });
+
+      // Si no hay última ubicación, obtener ubicación actual
+      if (!location) {
+        try {
+          const locationPromise = Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Lowest, // La más baja para emuladores
+          });
+
+          // Timeout de 25 segundos
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout al obtener ubicación')), 25000)
+          );
+
+          location = await Promise.race([locationPromise, timeoutPromise]) as any;
+        } catch {
+          // Último intento sin timeout
+          location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Lowest,
+          });
+        }
+      }
 
       // 3. Convertir coordenadas a ciudad
       const city = await getCityFromCoordinates(
