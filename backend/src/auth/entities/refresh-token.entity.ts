@@ -7,7 +7,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { User } from '@users/entities/user.entity';
 
 @Entity('refresh_tokens')
 @Index('IDX_REFRESH_TOKEN', ['token'], { unique: true }) // Índice único para búsquedas rápidas

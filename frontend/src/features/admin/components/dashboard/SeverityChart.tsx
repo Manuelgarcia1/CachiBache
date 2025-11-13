@@ -6,9 +6,9 @@ interface SeverityChartProps {
 }
 
 const SEVERITY_CONFIG = {
-  BAJA: { label: 'Baja', color: '#22c55e' },
-  MEDIA: { label: 'Media', color: '#f59e0b' },
-  ALTA: { label: 'Alta', color: '#ef4444' },
+  LEVE: { label: 'Leve', color: '#22c55e' },
+  INTERMEDIO: { label: 'Intermedio', color: '#f59e0b' },
+  GRAVE: { label: 'Grave', color: '#ef4444' },
 };
 
 export function SeverityChart({ data }: SeverityChartProps) {

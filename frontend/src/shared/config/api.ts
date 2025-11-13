@@ -25,5 +25,6 @@ export const DEFAULT_HEADERS = {
 /**
  * Timeout para peticiones HTTP (en milisegundos)
  * Se aplica globalmente a todas las peticiones de axios
+ * Aumentado a 60 segundos para operaciones que envían emails
  */
-export const API_TIMEOUT = 30000; // 30 segundos
+export const API_TIMEOUT = 60000; // 60 segundos

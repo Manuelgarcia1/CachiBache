@@ -1,15 +1,19 @@
 import { useState, useCallback } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, TouchableOpacity } from "react-native";
 import { YStack, XStack, Text, Spinner } from "tamagui";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 import { getDashboardMetrics } from "@/src/shared/services/admin.service";
 import { MetricCard } from "./MetricCard";
 import { StatusChart } from "./StatusChart";
 import { SeverityChart } from "./SeverityChart";
 import { useFocusEffect } from "expo-router";
+import { useAdminLocation } from "../../hooks/useAdminLocation";
 
 export function DashboardScreen() {
   const { user } = useAuth();
+  const { city, isLoadingCity, cityError, retryDetectCity } = useAdminLocation();
+
   const [metrics, setMetrics] = useState<{
     totalReports: number;
     reportsBySeverity: Record<string, number>;
@@ -19,10 +23,24 @@ export function DashboardScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const loadMetrics = useCallback(async () => {
+    // ⏳ NO cargar métricas hasta que la ciudad esté detectada
+    if (isLoadingCity) {
+      return;
+    }
+
+    // ⚠️ Si hay error de ciudad, mostrar mensaje pero no cargar datos
+    if (cityError) {
+      setError("No se pudo detectar tu ubicación. Por favor otorga permisos de ubicación.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getDashboardMetrics();
+      const data = await getDashboardMetrics({
+        city: city || undefined, // 🎯 Filtrar por ciudad detectada
+      });
       setMetrics(data);
     } catch (err) {
       console.error("Error loading metrics:", err);
@@ -30,7 +48,7 @@ export function DashboardScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [city, isLoadingCity, cityError]); // 🔄 Incluir isLoadingCity y cityError
 
   // Recargar métricas cada vez que la pantalla recibe foco
   useFocusEffect(
@@ -49,13 +67,58 @@ export function DashboardScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: "#f8fafc" }}>
       <YStack flex={1} padding="$4" gap="$4">
         {/* Header */}
-        <YStack gap="$2">
+        <YStack gap="$3">
           <Text fontSize={24} fontWeight="bold">
             Resumen General
           </Text>
           <Text fontSize={14} color="$gray10">
             Bienvenido, {user?.name}
           </Text>
+
+          {/* Indicador de ciudad detectada */}
+          {isLoadingCity ? (
+            <XStack gap="$2" alignItems="center">
+              <Spinner size="small" color="$blue10" />
+              <Text fontSize={13} color="$gray10">
+                Detectando ubicación...
+              </Text>
+            </XStack>
+          ) : cityError ? (
+            <XStack
+              padding="$2"
+              paddingHorizontal="$3"
+              backgroundColor="#fef3c7"
+              borderRadius="$3"
+              alignItems="center"
+              gap="$2"
+              alignSelf="flex-start"
+            >
+              <Ionicons name="warning" size={16} color="#f59e0b" />
+              <Text fontSize={12} color="#92400e">
+                {cityError}
+              </Text>
+              <TouchableOpacity onPress={retryDetectCity}>
+                <Text fontSize={12} color="#094b7e" fontWeight="600">
+                  Reintentar
+                </Text>
+              </TouchableOpacity>
+            </XStack>
+          ) : city ? (
+            <XStack
+              padding="$2"
+              paddingHorizontal="$3"
+              backgroundColor="#dbeafe"
+              borderRadius="$3"
+              alignItems="center"
+              gap="$2"
+              alignSelf="flex-start"
+            >
+              <Ionicons name="location" size={16} color="#1e40af" />
+              <Text fontSize={12} color="#1e3a8a" fontWeight="600">
+                Estadísticas de: {city}
+              </Text>
+            </XStack>
+          ) : null}
         </YStack>
 
         {/* Loading State */}
@@ -117,6 +180,14 @@ export function DashboardScreen() {
                 iconColor="#10b981"
                 backgroundColor="#d1fae5"
                 description="Completados exitosamente"
+              />
+              <MetricCard
+                title="Descartados"
+                value={discardedReports}
+                icon="x-circle"
+                iconColor="#ef4444"
+                backgroundColor="#fee2e2"
+                description="Reportes descartados"
               />
             </XStack>
 

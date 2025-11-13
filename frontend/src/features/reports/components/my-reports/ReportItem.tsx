@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Text, View, XStack, YStack, AnimatePresence, Separator } from 'tamagui';
 import { ReportDetail } from './ReportDetail';
 import { Feather } from '@expo/vector-icons';
+import { formatReportStatus, ReportStatus } from '@/src/shared/types/report.types';
 
 
 interface ReportItemProps {
@@ -18,13 +19,15 @@ interface ReportItemProps {
 function getBarProps(status: string) {
   switch (status) {
     case 'PENDIENTE':
-      return { color: '#dc3826', width: '20%' };
-    case 'EN REPARACION':
-      return { color: '#fabd15', width: '66%' };
-    case 'FINALIZADO':
-      return { color: '#22c566', width: '100%' };
+      return { color: '#dc2626', width: '20%' }; // Rojo para pendiente
+    case 'EN_REPARACION':
+      return { color: '#f59e0b', width: '66%' }; // Amarillo/naranja para en reparación
+    case 'RESUELTO':
+      return { color: '#22c55e', width: '100%' }; // Verde para resuelto
+    case 'DESCARTADO':
+      return { color: '#6b7280', width: '10%' }; // Gris para descartado
     default:
-      return { color: '#e5e7eb', width: '0%' };
+      return { color: '#e5e7eb', width: '0%' }; // Gris claro por defecto
   }
 }
 
@@ -33,7 +36,6 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggleExpand = () => {
-    console.log(`[ReportItem] TOCADO! ID: ${id}. Nuevo estado: ${!isExpanded}`);
     setIsExpanded(!isExpanded);
   };
   return (
@@ -43,7 +45,6 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
       borderRadius="$6"
       gap="$3"
       elevation={2}
-      animation="bouncy"
       pressStyle={{ scale: 0.98, backgroundColor: '$gray2' }} // Añadimos un feedback visual sutil
       onPress={handleToggleExpand} // 3. Pasamos la función directamente al YStack
     >
@@ -58,7 +59,7 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
 
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontSize="$5" fontWeight="600" color={color}>
-          {status}
+          {formatReportStatus(status as ReportStatus)}
         </Text>
         <Text fontSize="$3" color="$gray10">
           {new Date(date).toLocaleDateString()}
@@ -79,22 +80,19 @@ export function ReportItem({ id, address, date, status, severity, photoUrl, loca
       </XStack>
 
       {/* ... VISTA DETALLADA ... */}
-      <AnimatePresence>
-        {isExpanded && (
-          <YStack
-            animation="lazy"
-            enterStyle={{ opacity: 0, y: -10 }}
-            exitStyle={{ opacity: 0, y: -10 }}
-          >
-            <ReportDetail
-              severity={severity}
-              photoUrl={photoUrl}
-              location={location}
-              date={date}
-            />
-          </YStack>
-        )}
-      </AnimatePresence>
+      <YStack
+        animation="quick"
+        height={isExpanded ? 'auto' : 0}
+        opacity={isExpanded ? 1 : 0}
+        overflow="hidden"
+      >
+        <ReportDetail
+          severity={severity}
+          photoUrl={photoUrl}
+          location={location}
+          date={date}
+        />
+      </YStack>
     </YStack>
   );
 }

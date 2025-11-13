@@ -4,15 +4,16 @@ import { useEffect } from "react";
 import { Feather } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { Text } from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Layout de la sección admin: protege rutas y renderiza contenido con tabs inferiores
 export default function AdminLayout() {
   const { isLoading, isAdmin, logout } = useAuth();
+  const insets = useSafeAreaInsets();
 
   // Protección de rutas: redirige si no es admin
   useEffect(() => {
     if (!isLoading && !isAdmin) {
-      console.log("🚫 Acceso denegado - No es admin - Redirigiendo a home");
       router.replace("/(app)/home");
     }
   }, [isAdmin, isLoading]);
@@ -50,6 +51,8 @@ export default function AdminLayout() {
           backgroundColor: "#094b7e",
           borderTopColor: "rgba(255,255,255,0.1)",
           borderTopWidth: 1,
+          paddingBottom: insets.bottom, // Respeta los botones de navegación de Android
+          height: 60 + insets.bottom, // Altura base + espacio para botones del sistema
         },
         tabBarLabelStyle: {
           fontSize: 12,

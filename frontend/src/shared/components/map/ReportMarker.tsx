@@ -1,14 +1,14 @@
 // Ubicación: src/shared/components/map/ReportMarker.tsx
 
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { YStack } from 'tamagui';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSequence,
-  withTiming,
   withRepeat,
+  withTiming,
   Easing,
+  cancelAnimation,
 } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
 import { ReportStatus, ReportSeverity } from '@/src/shared/types/report.types';
@@ -37,43 +37,48 @@ function getMarkerColor(severity: ReportSeverity): string {
 }
 
 /**
- * Marker para mostrar reportes existentes en el mapa
- * Usado en la pantalla home
+ * Marker optimizado para mostrar reportes existentes en el mapa
  * Color: basado en severidad (LEVE/INTERMEDIO/GRAVE)
- * Animación: Pulse continuo solo para reportes pendientes
+ * Animación: Pulse suave solo para reportes pendientes
+ * Optimizado con React.memo para evitar re-renders innecesarios
  */
 export function ReportMarker({ severity, status }: ReportMarkerProps) {
   const color = getMarkerColor(severity);
-  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
   const shouldPulse = status === 'PENDIENTE';
 
   useEffect(() => {
     if (shouldPulse) {
-      // Pulse continuo suave para reportes pendientes
-      scale.value = withRepeat(
-        withSequence(
-          withTiming(1.15, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
-        ),
+      // Pulse de opacidad más ligero que scale (mejor performance)
+      opacity.value = withRepeat(
+        withTiming(0.7, {
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease)
+        }),
         -1, // Infinito
-        false
+        true // Reverse (alterna entre 1 y 0.7)
       );
     } else {
-      scale.value = 1;
+      cancelAnimation(opacity);
+      opacity.value = 1;
     }
-  }, [shouldPulse, scale]);
+
+    return () => {
+      cancelAnimation(opacity);
+    };
+  }, [shouldPulse, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
   }));
 
   return (
     <Animated.View style={animatedStyle}>
       <YStack
         backgroundColor={color}
-        width={32}
-        height={32}
-        borderRadius={16}
+        width={26}
+        height={26}
+        borderRadius={13}
         alignItems="center"
         justifyContent="center"
         borderWidth={2}
@@ -83,7 +88,7 @@ export function ReportMarker({ severity, status }: ReportMarkerProps) {
         shadowOpacity={0.3}
         shadowRadius={3}
       >
-        <Feather name="alert-triangle" size={16} color="#fff" />
+        <Feather name="alert-triangle" size={14} color="#fff" />
       </YStack>
     </Animated.View>
   );

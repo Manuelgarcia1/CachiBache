@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState, useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
-import { Text } from 'react-native';
+import { YStack, Text, Spinner } from 'tamagui';
 import { apiService } from "@/src/shared/services/api.service";
 import { useAuth } from "@/src/shared/contexts/AuthContext";
 
@@ -55,27 +56,46 @@ export default function ProfileTab() {
     fetchProfile();
   }, [authUser]);
 
+  // Recargar perfil cada vez que la pantalla recibe focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [fetchProfile])
+  );
+
   // Estado de carga
   if (isLoading) {
-    return <Text>Cargando perfil...</Text>;
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#f8fafc">
+        <Spinner size="large" color="$yellow9" />
+      </YStack>
+    );
   }
 
   // Manejo de errores
   if (error) {
-    return <Text>Error: {error}</Text>;
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#f8fafc" padding="$4">
+        <Text fontSize="$5" color="$red10" textAlign="center">Error: {error}</Text>
+      </YStack>
+    );
   }
 
   // Validación de datos
   if (!profileData || !profileData.user) {
-    return <Text>No se pudo cargar el perfil</Text>;
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#f8fafc" padding="$4">
+        <Text fontSize="$5" color="$gray11" textAlign="center">No se pudo cargar el perfil</Text>
+      </YStack>
+    );
   }
 
   // Transformar los datos para ProfileScreen
   return (
     <ProfileScreen
       user={{
-        ...profileData.user,
-        name: profileData.user.fullName, // Alias para compatibilidad
+        name: profileData.user.fullName, // Nombre completo
+        email: profileData.user.email,   // Email
         avatar: profileData.user.avatar || '', // String vacío si no hay avatar (se maneja en ProfileHeader)
       }}
       reportStats={profileData.reportStats}

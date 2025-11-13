@@ -1,19 +1,30 @@
 import { useState, useEffect, useCallback } from "react";
-import { ScrollView } from "react-native";
-import { YStack, Text, Spinner } from "tamagui";
+import { ScrollView, TouchableOpacity, Alert, Platform } from "react-native";
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
+import { YStack, Text, Spinner, XStack } from "tamagui";
+import { Ionicons } from "@expo/vector-icons";
 import { ReportTable } from "./ReportTable";
 import { ReportFilters } from "./ReportFilters";
 import { ChangeStatusModal } from "./ChangeStatusModal";
+import { ExportPDFModal, ExportFilters } from "./ExportPDFModal";
 import {
   getAllReportsAdmin,
   updateReportStatus,
+  exportReportsPDF,
 } from "@/src/shared/services/admin.service";
 import {
   ReportFromBackend,
   ReportStatus,
 } from "@/src/shared/types/report.types";
+import { API_BASE_URL } from "@/src/shared/config/api";
+import { getToken } from "@/src/shared/utils/secure-store";
+import { useAdminLocation } from "../../hooks/useAdminLocation";
 
 export function ReportsScreen() {
+  // Hook de ubicación del admin
+  const { city, isLoadingCity, cityError, retryDetectCity } = useAdminLocation();
+
   // Estado de datos
   const [reports, setReports] = useState<ReportFromBackend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,8 +46,23 @@ export function ReportsScreen() {
   const [selectedReport, setSelectedReport] =
     useState<ReportFromBackend | null>(null);
 
+  // Estado del modal de exportar PDF
+  const [exportModalVisible, setExportModalVisible] = useState(false);
+
   // Función para cargar reportes
   const loadReports = useCallback(async () => {
+    // ⏳ NO cargar reportes hasta que la ciudad esté detectada
+    if (isLoadingCity) {
+      return;
+    }
+
+    // ⚠️ Si hay error de ciudad, mostrar mensaje pero no cargar datos
+    if (cityError) {
+      setError("No se pudo detectar tu ubicación. Por favor otorga permisos de ubicación.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
@@ -45,6 +71,7 @@ export function ReportsScreen() {
         limit: 20,
         status: statusFilter,
         search: searchQuery || undefined,
+        city: city || undefined, // 🎯 Filtro automático por ciudad
       });
 
       setReports(response.reports);
@@ -56,7 +83,7 @@ export function ReportsScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, statusFilter, searchQuery]);
+  }, [currentPage, statusFilter, searchQuery, city, isLoadingCity, cityError]); // 🔄 Incluir isLoadingCity
 
   // Cargar reportes cuando cambien los filtros o la página
   useEffect(() => {
@@ -107,17 +134,157 @@ export function ReportsScreen() {
     setCurrentPage(page);
   };
 
+  const handleExportPDF = async (filters: ExportFilters) => {
+    try {
+      if (Platform.OS === "web") {
+        // En web, descargar el archivo
+        const pdfBlob = await exportReportsPDF(filters);
+
+        const fileName = `reporte-cachibache-${new Date().toISOString().split("T")[0]}.pdf`;
+        const url = window.URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        Alert.alert("Éxito", "PDF descargado correctamente");
+      } else {
+        // En móvil, descargar y guardar el PDF
+
+        // Obtener el token de autenticación
+        const token = await getToken();
+        if (!token) {
+          Alert.alert("Error", "No se encontró el token de autenticación. Por favor inicia sesión nuevamente.");
+          return;
+        }
+
+        // Construir la URL del PDF con los filtros
+        const params = new URLSearchParams();
+        if (filters.startDate) params.append("startDate", filters.startDate);
+        if (filters.endDate) params.append("endDate", filters.endDate);
+        if (filters.status && filters.status.length > 0) {
+          filters.status.forEach((status) => params.append("status", status));
+        }
+
+        // Construir URL completa del PDF
+        const baseURL = API_BASE_URL.replace("/api", "");
+        const pdfURL = `${baseURL}/api/reports/admin/export/pdf?${params.toString()}`;
+
+        // Nombre del archivo
+        const fileName = `reporte-cachibache-${new Date().toISOString().split("T")[0]}.pdf`;
+        const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+        // Descargar el archivo
+        const downloadResult = await FileSystem.downloadAsync(
+          pdfURL,
+          fileUri,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Compartir/Abrir el archivo descargado
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(downloadResult.uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Guardar o compartir PDF',
+            UTI: 'com.adobe.pdf',
+          });
+        } else {
+          Alert.alert("Éxito", `PDF guardado en: ${fileName}`);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error exportando PDF:", error);
+      Alert.alert(
+        "Error",
+        `No se pudo exportar el PDF: ${(error as Error).message}`
+      );
+    }
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#f8fafc" }}>
       <YStack padding="$4" gap="$4">
         {/* Header */}
-        <YStack gap="$2">
+        <YStack gap="$3">
           <Text fontSize={24} fontWeight="bold">
             Gestión de Reportes
           </Text>
+
+          {/* Indicador de ciudad detectada */}
+          {isLoadingCity ? (
+            <XStack gap="$2" alignItems="center">
+              <Spinner size="small" color="$blue10" />
+              <Text fontSize={14} color="$gray10">
+                Detectando ubicación...
+              </Text>
+            </XStack>
+          ) : cityError ? (
+            <XStack
+              padding="$2"
+              paddingHorizontal="$3"
+              backgroundColor="#fef3c7"
+              borderRadius="$3"
+              alignItems="center"
+              gap="$2"
+              alignSelf="flex-start"
+            >
+              <Ionicons name="warning" size={16} color="#f59e0b" />
+              <Text fontSize={13} color="#92400e">
+                {cityError}
+              </Text>
+              <TouchableOpacity onPress={retryDetectCity}>
+                <Text fontSize={13} color="#094b7e" fontWeight="600">
+                  Reintentar
+                </Text>
+              </TouchableOpacity>
+            </XStack>
+          ) : city ? (
+            <XStack
+              padding="$2"
+              paddingHorizontal="$3"
+              backgroundColor="#dbeafe"
+              borderRadius="$3"
+              alignItems="center"
+              gap="$2"
+              alignSelf="flex-start"
+            >
+              <Ionicons name="location" size={16} color="#1e40af" />
+              <Text fontSize={13} color="#1e3a8a" fontWeight="600">
+                Mostrando reportes de: {city}
+              </Text>
+            </XStack>
+          ) : null}
+
           <Text fontSize={14} color="$gray10">
             Total: {totalReports} reportes
           </Text>
+
+          {/* Botón de exportar PDF */}
+          <TouchableOpacity
+            onPress={() => setExportModalVisible(true)}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              backgroundColor: "#094b7e",
+              paddingVertical: 12,
+              paddingHorizontal: 20,
+              borderRadius: 8,
+              alignSelf: "flex-start",
+            }}
+          >
+            <Ionicons name="document-text" size={20} color="white" />
+            <Text color="white" fontWeight="600" fontSize={15}>
+              Exportar PDF
+            </Text>
+          </TouchableOpacity>
         </YStack>
 
         {/* Filtros */}
@@ -170,6 +337,13 @@ export function ReportsScreen() {
             onConfirm={handleConfirmStatusChange}
           />
         )}
+
+        {/* Modal para exportar PDF */}
+        <ExportPDFModal
+          visible={exportModalVisible}
+          onClose={() => setExportModalVisible(false)}
+          onExport={handleExportPDF}
+        />
       </YStack>
     </ScrollView>
   );

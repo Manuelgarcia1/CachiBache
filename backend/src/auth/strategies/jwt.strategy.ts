@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import { UsersService } from '../../users/services/users.service';
-import { type UserWithoutPassword } from '../../users/entities/user.entity';
+import { UsersService } from '@users/services/users.service';
+import { type UserWithoutPassword } from '@users/entities/user.entity';
 
 // Extendemos el tipo Request para incluir cookies tipadas
 interface RequestWithCookies extends Request {
@@ -33,6 +33,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         // 2. Si no hay, intentar desde cookies (para navegadores web)
         (request: RequestWithCookies): string | null => {
           return request?.cookies?.accessToken ?? null;
+        },
+        // 3. Si no hay, intentar desde query parameter 'token' (para PDFs en navegador móvil)
+        (request: Request): string | null => {
+          return (request.query?.token as string) ?? null;
         },
       ]),
       ignoreExpiration: false,

@@ -5,35 +5,39 @@ import {
   Res,
   UnauthorizedException,
   UseGuards,
-  Get,
-  Patch,
-  Param,
-  Query,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
-import { EmailVerificationService } from '../services/email-verification.service';
-import { HtmlResponseService } from '../../common/services/html-response.service';
-import {
-  type UserWithoutPassword,
-  User,
-} from '../../users/entities/user.entity';
+import { GoogleAuthService } from '../services/google-auth.service';
+import { UsersService } from '@users/services/users.service';
+import { type UserWithoutPassword, User } from '@users/entities/user.entity';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { RegisterUserDto } from '../dto/register-user.dto';
-import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { GoogleLoginDto } from '../dto/google-login.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 
-@Controller('auth') // Ruta base es /api/auth
+/**
+ * AuthController
+ * Maneja únicamente la autenticación y gestión de sesiones:
+ * - Registro de nuevos usuarios
+ * - Inicio de sesión
+ * - Cierre de sesión (uno o todos los dispositivos)
+ * - Renovación de tokens
+ */
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly emailVerificationService: EmailVerificationService,
-    private readonly htmlResponseService: HtmlResponseService,
+    private readonly googleAuthService: GoogleAuthService,
+    private readonly usersService: UsersService,
   ) {}
 
-  // ✨ --- NUEVO ENDPOINT DE REGISTRO --- ✨
+  /**
+   * POST /auth/register
+   * Registrar un nuevo usuario
+   */
   @Post('register')
   @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 registros por hora
   async register(
@@ -51,7 +55,7 @@ export class AuthController {
     // Enviar access token en cookie httpOnly (para seguridad web)
     response.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Automático según entorno
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires: new Date(Date.now() + 3600 * 1000), // 1 hora
     });
@@ -60,6 +64,10 @@ export class AuthController {
     return { message: 'Registro exitoso', user, accessToken, refreshToken };
   }
 
+  /**
+   * POST /auth/login
+   * Iniciar sesión
+   */
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
@@ -79,8 +87,8 @@ export class AuthController {
 
     // Enviar access token en cookie httpOnly (para seguridad web)
     response.cookie('accessToken', accessToken, {
-      httpOnly: true, // El frontend no puede leer esta cookie
-      secure: process.env.NODE_ENV === 'production', // Automático según entorno
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires: new Date(Date.now() + 3600 * 1000), // 1 hora
     });
@@ -88,6 +96,71 @@ export class AuthController {
     // También devolver ambos tokens en el body (para React Native)
     return { message: 'Login exitoso', user, accessToken, refreshToken };
   }
+
+  /**
+   * POST /auth/google
+   * Iniciar sesión con Google OAuth
+   * Si el usuario no existe, se registra automáticamente
+   */
+  @Post('google')
+  async googleLogin(
+    @Body() googleLoginDto: GoogleLoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{
+    message: string;
+    user: UserWithoutPassword;
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    // 1. Verificar el token de Google y extraer datos del usuario
+    const googleUserData = await this.googleAuthService.verifyGoogleToken(
+      googleLoginDto.idToken,
+    );
+
+    // 2. Buscar si el usuario ya existe
+    let user = await this.usersService.findOneByEmail(googleUserData.email);
+
+    // 3. Si no existe, crear nuevo usuario
+    if (!user) {
+      user = await this.usersService.create({
+        email: googleUserData.email,
+        fullName: googleUserData.fullName,
+        password: undefined, // Usuarios de Google no tienen contraseña local
+        avatar: googleUserData.profilePicture,
+        emailVerified: googleUserData.emailVerified, // Google ya verificó el email
+        termsAccepted: true, // Se asume que aceptó al usar Google
+      });
+    }
+
+    // 4. Generar tokens JWT de nuestra aplicación
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+    const { accessToken, refreshToken } =
+      await this.authService.login(userWithoutPassword);
+
+    // 5. Enviar access token en cookie httpOnly (para seguridad web)
+    response.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 3600 * 1000), // 1 hora
+    });
+
+    // 6. Devolver tokens y datos del usuario
+    return {
+      message: user
+        ? 'Login con Google exitoso'
+        : 'Registro con Google exitoso',
+      user: userWithoutPassword,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  /**
+   * POST /auth/logout
+   * Cerrar sesión en el dispositivo actual
+   */
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   async logout(
@@ -109,6 +182,10 @@ export class AuthController {
     return { message: 'Sesión cerrada exitosamente' };
   }
 
+  /**
+   * POST /auth/logout-all
+   * Cerrar sesión en todos los dispositivos
+   */
   @Post('logout-all')
   @UseGuards(JwtAuthGuard)
   async logoutAll(
@@ -123,6 +200,10 @@ export class AuthController {
     return { message: 'Sesión cerrada en todos los dispositivos' };
   }
 
+  /**
+   * POST /auth/refresh
+   * Renovar access token usando refresh token
+   */
   @Post('refresh')
   async refreshToken(
     @Body('refreshToken') refreshToken: string,
@@ -133,74 +214,10 @@ export class AuthController {
 
     try {
       const result = await this.authService.refreshAccessToken(refreshToken);
-      console.log(
-        '✅ [BACKEND] REFRESH TOKEN: Sesión renovada automáticamente',
-      );
       return result;
     } catch (error) {
       console.error('❌ [BACKEND] REFRESH TOKEN: Error -', error.message);
       throw error;
     }
-  }
-
-  @Get('user')
-  @UseGuards(JwtAuthGuard)
-  getUser(@GetUser() user: User): User {
-    return user;
-  }
-
-  @Patch('profile')
-  @UseGuards(JwtAuthGuard)
-  async updateProfile(
-    @GetUser() user: User,
-    @Body() updateProfileDto: UpdateProfileDto,
-  ) {
-    return this.authService.updateProfile(user.id, updateProfileDto);
-  }
-
-  // ✨ --- NUEVOS ENDPOINTS DE VERIFICACIÓN DE EMAIL --- ✨
-
-  /**
-   * Endpoint GET para verificar email desde el navegador
-   * Este endpoint es llamado cuando el usuario hace clic en el enlace del email
-   */
-  @Get('verify-email')
-  async verifyEmailFromBrowser(
-    @Query('token') token: string,
-    @Res() response: Response,
-  ): Promise<void> {
-    try {
-      await this.emailVerificationService.verifyEmail(token);
-      const successPage =
-        this.htmlResponseService.getEmailVerificationSuccessPage();
-      response.send(successPage);
-    } catch (error) {
-      const errorPage = this.htmlResponseService.getEmailVerificationErrorPage(
-        error.message || 'No se pudo verificar tu email.',
-      );
-      response.status(400).send(errorPage);
-    }
-  }
-
-  @Post('verify-email/:token')
-  async verifyEmail(
-    @Param('token') token: string,
-  ): Promise<{ message: string; user: UserWithoutPassword }> {
-    const user = await this.emailVerificationService.verifyEmail(token);
-    return {
-      message: 'Email verificado exitosamente',
-      user,
-    };
-  }
-
-  @Post('resend-verification')
-  async resendVerificationEmail(
-    @Body('email') email: string,
-  ): Promise<{ message: string }> {
-    await this.emailVerificationService.resendVerificationEmail(email);
-    return {
-      message:
-        'Si el correo existe y no está verificado, se enviará un email de verificación',
-    };
   }
 }

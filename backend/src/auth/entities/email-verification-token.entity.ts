@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { User } from '@users/entities/user.entity';
 
 @Entity('email_verification_tokens')
 export class EmailVerificationToken {
