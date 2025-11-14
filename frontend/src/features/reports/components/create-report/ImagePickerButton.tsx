@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { Button, Text, YStack, Image } from 'tamagui';
-import { useImagePicker } from '@features/reports/hooks/useImagePicker';
+import { useImagePicker } from '@/src/shared/hooks/useImagePicker';
 
 interface ImagePickerButtonProps {
   imageUri?: string;
@@ -8,7 +8,11 @@ interface ImagePickerButtonProps {
 }
 
 export function ImagePickerButton({ imageUri, onImageSelected }: ImagePickerButtonProps) {
-  const { showImagePickerOptions } = useImagePicker();
+  const { showImagePickerOptions } = useImagePicker({
+    aspectRatio: [4, 3],
+    title: 'Seleccionar imagen',
+    message: 'Elige una opción para agregar la foto del bache',
+  });
 
   return (
     <YStack gap="$2">

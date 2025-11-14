@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { ProfileScreen } from "@features/profile/components/ProfileScreen";
 import { YStack, Text, Spinner } from 'tamagui';
@@ -35,26 +35,25 @@ export default function ProfileTab() {
   const [error, setError] = useState<string | null>(null);
   const { user: authUser } = useAuth();
 
+  // Definir fetchProfile como useCallback para poder reutilizarlo
+  const fetchProfile = useCallback(async () => {
+    setError(null);
+
+    try {
+      const data = await apiService.get<ProfileData>('/users/me');
+      setProfileData(data);
+    } catch (err: any) {
+      setError(err.message || 'No se pudo cargar el perfil');
+      setProfileData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Cargar perfil al montar el componente
   useEffect(() => {
-    const fetchProfile = async () => {
-      //setIsLoading(true);
-      setError(null);
-
-      try {
-        console.log("🔄 [ProfileTab] Ejecutando fetchProfile...");
-        const data = await apiService.get<ProfileData>('/users/me');
-        setProfileData(data);
-      } catch (err: any) {
-        console.error("Error al cargar perfil:", err);
-        setError(err.message || 'No se pudo cargar el perfil');
-        setProfileData(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchProfile();
-  }, [authUser]);
+  }, [fetchProfile, authUser]);
 
   // Recargar perfil cada vez que la pantalla recibe focus
   useFocusEffect(

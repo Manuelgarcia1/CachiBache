@@ -48,27 +48,35 @@ export default function AppLayout() {
         </Tabs>
 
         <YStack
-          backgroundColor="#094b7eff"
+          backgroundColor="#ffffff"
           paddingHorizontal="$4"
-          paddingTop="$3"
-          paddingBottom={insets.bottom + 16} // Espacio para botones del sistema + margen
+          paddingTop="$4"
+          paddingBottom={insets.bottom + 12}
           justifyContent="center"
           alignItems="center"
-          gap="$2"
+          gap="$3"
+          borderTopWidth={1}
+          borderTopColor="#e5e5e5"
+          shadowColor="#000"
+          shadowOffset={{ width: 0, height: -2 }}
+          shadowOpacity={0.08}
+          shadowRadius={4}
         >
           <XStack alignItems="center" gap="$2">
-            <Feather name="user-x" size={20} color="#facc15" />
-            <Text color="#ffffff" fontSize="$3" fontWeight="500">
+            <Feather name="user-x" size={18} color="#666" />
+            <Text color="#333" fontSize={13} fontWeight="600">
               Navegando como invitado
             </Text>
           </XStack>
 
           <Button
-            size="$4"
-            color="#000"
-            backgroundColor="#facc15"
-            fontWeight="600"
-            borderRadius="$4"
+            size="$3"
+            color="#fff"
+            backgroundColor="#3483fa"
+            fontWeight="700"
+            borderRadius="$3"
+            paddingHorizontal="$6"
+            pressStyle={{ backgroundColor: "#2968c8", opacity: 0.9 }}
             onPress={() => {
               logout();
               router.replace("/");
@@ -81,23 +89,30 @@ export default function AppLayout() {
     );
   }
 
-  // Navegación completa por tabs para usuarios registrados
+  // Navegación completa por tabs para usuarios registrados - Estilo profesional
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#facc15",
-        tabBarInactiveTintColor: "#ffffff",
+        tabBarActiveTintColor: "#3483fa", // Azul profesional tipo Mercado Libre
+        tabBarInactiveTintColor: "#666666",
         tabBarStyle: {
-          backgroundColor: "#094b7eff",
-          borderTopWidth: 0,
-          paddingTop: 10,
-          height: 80 + insets.bottom, // Altura base + espacio para botones del sistema
-          paddingBottom: insets.bottom, // Respeta los botones de navegación de Android
+          backgroundColor: "#ffffff",
+          borderTopColor: "#e5e5e5",
+          borderTopWidth: 1,
+          paddingTop: 8,
+          height: 65 + insets.bottom,
+          paddingBottom: insets.bottom + 6,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 4,
+          elevation: 10,
         },
         tabBarLabelStyle: {
           fontWeight: "600",
-          fontSize: 12,
+          fontSize: 11,
+          marginTop: 4,
         },
       }}
     >
@@ -106,7 +121,7 @@ export default function AppLayout() {
         options={{
           title: "Reportar",
           tabBarIcon: ({ color }) => (
-            <Feather size={28} name="map-pin" color={color} />
+            <Feather size={24} name="map-pin" color={color} />
           ),
         }}
       />
@@ -115,7 +130,7 @@ export default function AppLayout() {
         options={{
           title: "Mis Reportes",
           tabBarIcon: ({ color }) => (
-            <Feather size={28} name="file-text" color={color} />
+            <Feather size={24} name="file-text" color={color} />
           ),
         }}
       />
@@ -124,7 +139,7 @@ export default function AppLayout() {
         options={{
           title: "Perfil",
           tabBarIcon: ({ color }) => (
-            <Feather size={28} name="user" color={color} />
+            <Feather size={24} name="user" color={color} />
           ),
         }}
       />
