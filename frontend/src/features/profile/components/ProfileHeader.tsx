@@ -14,25 +14,22 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ name, email, avatar }: ProfileHeaderProps) {
-  const { showImagePickerOptions } = useImagePicker();
-  const { refreshUser } = useAuth(); // Asumimos que AuthContext tiene una función para recargar datos
+  const { showImagePickerOptions } = useImagePicker({
+    aspectRatio: [1, 1],
+    title: 'Seleccionar Foto de Perfil',
+    message: 'Elige una opción',
+  });
+  const { refreshUser } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
 
   const handleAvatarChange = async (localUri: string) => {
     setIsUploading(true);
     try {
-      // 1. Subir la imagen a Cloudinary
       const { secure_url } = await cloudinaryService.uploadImage(localUri, 'avatars');
-
-      // 2. Notificar al backend sobre la nueva URL
       await usersService.updateUserAvatar(secure_url);
-
-      // 3. Recargar los datos del usuario para mostrar la nueva imagen
       await refreshUser();
-
       Alert.alert('Éxito', 'Tu foto de perfil ha sido actualizada.');
-    } catch (error) {
-      console.error("Error al cambiar el avatar:", error);
+    } catch {
       Alert.alert('Error', 'No se pudo actualizar tu foto de perfil.');
     } finally {
       setIsUploading(false);

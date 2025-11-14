@@ -24,8 +24,3 @@ export interface LocationPermissionResult {
   granted: boolean;
   error?: string;
 }
-
-export interface ImagePickerResult {
-  uri?: string;
-  error?: string;
-}
