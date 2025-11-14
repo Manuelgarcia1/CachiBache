@@ -33,30 +33,43 @@ export default function AdminLayout() {
     router.replace("/");
   };
 
-  // Layout con Tabs inferiores
+  // Layout con Tabs inferiores - Estilo profesional
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: "#094b7e",
+          backgroundColor: "#fff",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+          elevation: 3,
         },
-        headerTintColor: "#fff",
+        headerTintColor: "#000",
         headerTitleStyle: {
-          fontWeight: "bold",
+          fontWeight: "700",
+          fontSize: 18,
         },
-        tabBarActiveTintColor: "#facc15",
-        tabBarInactiveTintColor: "#94a3b8",
+        tabBarActiveTintColor: "#3483fa",
+        tabBarInactiveTintColor: "#666666",
         tabBarStyle: {
-          backgroundColor: "#094b7e",
-          borderTopColor: "rgba(255,255,255,0.1)",
+          backgroundColor: "#ffffff",
+          borderTopColor: "#e5e5e5",
           borderTopWidth: 1,
-          paddingBottom: insets.bottom, // Respeta los botones de navegación de Android
-          height: 60 + insets.bottom, // Altura base + espacio para botones del sistema
+          paddingTop: 8,
+          paddingBottom: insets.bottom + 6,
+          height: 65 + insets.bottom,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 4,
+          elevation: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: "600",
+          marginTop: 4,
         },
       }}
     >
@@ -64,15 +77,15 @@ export default function AdminLayout() {
         name="dashboard"
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="bar-chart-2" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Feather name="bar-chart-2" size={24} color={color} />
           ),
           headerRight: () => (
             <TouchableOpacity
               onPress={handleLogout}
               style={{ marginRight: 16 }}
             >
-              <Feather name="log-out" size={24} color="#fff" />
+              <Feather name="log-out" size={22} color="#333" />
             </TouchableOpacity>
           ),
         }}
@@ -81,15 +94,15 @@ export default function AdminLayout() {
         name="reports"
         options={{
           title: "Reportes",
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="file-text" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Feather name="file-text" size={24} color={color} />
           ),
           headerRight: () => (
             <TouchableOpacity
               onPress={handleLogout}
               style={{ marginRight: 16 }}
             >
-              <Feather name="log-out" size={24} color="#fff" />
+              <Feather name="log-out" size={22} color="#333" />
             </TouchableOpacity>
           ),
         }}
