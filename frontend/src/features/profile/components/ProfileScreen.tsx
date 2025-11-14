@@ -1,5 +1,5 @@
 import { useAuth } from "@/src/shared/contexts/AuthContext";
-import { Button, ScrollView, Text, YStack, XStack } from "tamagui";
+import { Button, ScrollView, Text, YStack } from "tamagui";
 import { ProfileDashboard } from "./ProfileDashboard";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileStats } from "./ProfileStats";
@@ -44,7 +44,11 @@ export function ProfileScreen({
 
   return (
     <YStack flex={1} backgroundColor="#f1f5f9">
-      <ProfileHeader name={user.name} email={user.email} avatar={user.avatar || ''} />
+      <ProfileHeader
+        name={user.name}
+        email={user.email}
+        avatar={user.avatar || ""}
+      />
       <ScrollView
         flex={1}
         showsVerticalScrollIndicator={false}
@@ -53,7 +57,12 @@ export function ProfileScreen({
         <YStack padding="$4" space="$4">
           {/* Sección de Historial */}
           <YStack space="$3">
-            <Text fontSize={20} fontWeight="700" color="#1e293b" letterSpacing={0.3}>
+            <Text
+              fontSize={22}
+              fontWeight="800"
+              color="#0f172a"
+              letterSpacing={-0.3}
+            >
               Historial de Reportes
             </Text>
             <ProfileStats {...reportStats} />
@@ -61,7 +70,12 @@ export function ProfileScreen({
 
           {/* Sección de Dashboard */}
           <YStack space="$3">
-            <Text fontSize={20} fontWeight="700" color="#1e293b" letterSpacing={0.3}>
+            <Text
+              fontSize={22}
+              fontWeight="800"
+              color="#0f172a"
+              letterSpacing={-0.3}
+            >
               Dashboard
             </Text>
             <ProfileDashboard {...dashboard} />
@@ -69,10 +83,6 @@ export function ProfileScreen({
 
           {/* --- SECCIÓN DE OPCIONES --- */}
           <YStack space="$3" marginTop="$3">
-            <Text fontSize={18} fontWeight="700" color="#1e293b" marginBottom="$1" letterSpacing={0.3}>
-              Opciones de Cuenta
-            </Text>
-
             {/* Botón "Cerrar Sesión" mejorado */}
             <Button
               size="$4"

@@ -1,10 +1,28 @@
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
 import { Alert } from "react-native";
-import { ImagePickerResult } from "../types";
+import { useState } from "react";
 
-export const useImagePicker = () => {
+export interface ImagePickerResult {
+  uri?: string;
+  error?: string;
+}
+
+export interface UseImagePickerOptions {
+  aspectRatio?: [number, number];
+  quality?: number;
+  title?: string;
+  message?: string;
+}
+
+export const useImagePicker = (options?: UseImagePickerOptions) => {
   const [isPickingImage, setIsPickingImage] = useState(false);
+
+  const {
+    aspectRatio = [1, 1],
+    quality = 0.8,
+    title = "Seleccionar imagen",
+    message = "Elige una opción",
+  } = options || {};
 
   const pickImageFromGallery = async (): Promise<ImagePickerResult> => {
     setIsPickingImage(true);
@@ -15,16 +33,16 @@ export const useImagePicker = () => {
       if (status !== "granted") {
         Alert.alert(
           "Permisos requeridos",
-          "Necesitamos acceso a tu galería para adjuntar fotos"
+          "Necesitamos acceso a tu galería para seleccionar fotos"
         );
         return { error: "Permisos de galería denegados" };
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: "images",
         allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
+        aspect: aspectRatio,
+        quality,
       });
 
       if (!result.canceled && result.assets[0]) {
@@ -33,7 +51,6 @@ export const useImagePicker = () => {
 
       return { error: "Selección de imagen cancelada" };
     } catch (error) {
-      console.error("Error al seleccionar imagen de galería:", error);
       Alert.alert(
         "Error",
         `No se pudo seleccionar la imagen: ${
@@ -60,9 +77,10 @@ export const useImagePicker = () => {
       }
 
       const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: "images",
         allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
+        aspect: aspectRatio,
+        quality,
       });
 
       if (!result.canceled && result.assets[0]) {
@@ -70,7 +88,7 @@ export const useImagePicker = () => {
       }
 
       return { error: "Captura de foto cancelada" };
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "No se pudo tomar la foto");
       return { error: "Error al tomar la foto" };
     } finally {
@@ -80,13 +98,10 @@ export const useImagePicker = () => {
 
   const showImagePickerOptions = (onImageSelected: (uri: string) => void) => {
     Alert.alert(
-      "Seleccionar imagen",
-      "Elige una opción para agregar la foto del bache",
+      title,
+      message,
       [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
+        { text: "Cancelar", style: "cancel" },
         {
           text: "Tomar foto",
           onPress: async () => {

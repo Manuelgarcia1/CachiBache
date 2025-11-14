@@ -1,5 +1,4 @@
-import { Feather } from '@expo/vector-icons';
-import { Card, Text, View, XStack, YStack, Separator } from 'tamagui';
+import { Card, Text, XStack, YStack, Separator, View } from "tamagui";
 
 interface ProfileDashboardProps {
   tiempoPromedioPendiente: number;
@@ -8,7 +7,12 @@ interface ProfileDashboardProps {
   meses: string[];
 }
 
-export function ProfileDashboard({ tiempoPromedioPendiente, tiempoPromedioReparacion, bachesMes, meses }: ProfileDashboardProps) {
+export function ProfileDashboard({
+  tiempoPromedioPendiente,
+  tiempoPromedioReparacion,
+  bachesMes,
+  meses,
+}: ProfileDashboardProps) {
   // Solo últimos 4 meses
   const lastMonths = meses.slice(-4);
   const lastBaches = bachesMes.slice(-4);
@@ -28,7 +32,13 @@ export function ProfileDashboard({ tiempoPromedioPendiente, tiempoPromedioRepara
         elevation={6}
       >
         <YStack flex={1} space="$3">
-          <Text fontSize="$4" color="white" fontWeight="600" opacity={0.9} letterSpacing={0.5}>
+          <Text
+            fontSize="$4"
+            color="white"
+            fontWeight="600"
+            opacity={0.9}
+            letterSpacing={0.5}
+          >
             TIEMPO PROMEDIO (DÍAS)
           </Text>
 
@@ -38,20 +48,32 @@ export function ProfileDashboard({ tiempoPromedioPendiente, tiempoPromedioRepara
               <Text fontSize="$9" color="white" fontWeight="bold">
                 {tiempoPromedioPendiente.toFixed(1)}
               </Text>
-              <Text fontSize="$2" color="rgba(255,255,255,0.85)" fontWeight="500">
+              <Text
+                fontSize="$2"
+                color="rgba(255,255,255,0.85)"
+                fontWeight="500"
+              >
                 Pendiente
               </Text>
             </YStack>
 
             {/* Separador vertical mejorado */}
-            <Separator vertical borderColor="rgba(255,255,255,0.25)" height="70%" />
+            <Separator
+              vertical
+              borderColor="rgba(255,255,255,0.25)"
+              height="70%"
+            />
 
             {/* Dato de Reparación */}
             <YStack alignItems="center" space="$2">
               <Text fontSize="$9" color="white" fontWeight="bold">
                 {tiempoPromedioReparacion.toFixed(1)}
               </Text>
-              <Text fontSize="$2" color="rgba(255,255,255,0.85)" fontWeight="500">
+              <Text
+                fontSize="$2"
+                color="rgba(255,255,255,0.85)"
+                fontWeight="500"
+              >
                 Reparación
               </Text>
             </YStack>
@@ -73,10 +95,22 @@ export function ProfileDashboard({ tiempoPromedioPendiente, tiempoPromedioRepara
         elevation={6}
       >
         <YStack flex={1} alignItems="center" space="$3">
-          <Text fontSize="$4" color="white" fontWeight="600" opacity={0.9} letterSpacing={0.5}>
+          <Text
+            fontSize="$4"
+            color="white"
+            fontWeight="600"
+            opacity={0.9}
+            letterSpacing={0.5}
+          >
             REPORTES POR MES
           </Text>
-          <XStack flex={1} gap="$3" alignItems="flex-end" justifyContent="center" height={80}>
+          <XStack
+            flex={1}
+            gap="$3"
+            alignItems="flex-end"
+            justifyContent="center"
+            height={80}
+          >
             {lastBaches.map((val, idx) => {
               const maxVal = Math.max(...lastBaches, 1);
               const maxHeight = 60;
@@ -89,11 +123,6 @@ export function ProfileDashboard({ tiempoPromedioPendiente, tiempoPromedioRepara
                     height={barHeight}
                     backgroundColor="white"
                     borderRadius="$3"
-                    shadowColor="#000"
-                    shadowOffset={{ width: 0, height: 1 }}
-                    shadowOpacity={0.2}
-                    shadowRadius={2}
-                    elevation={2}
                   />
                   <Text fontSize={10} color="rgba(255,255,255,0.85)">
                     {lastMonths[idx]}

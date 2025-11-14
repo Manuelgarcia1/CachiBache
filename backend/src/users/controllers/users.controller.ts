@@ -1,9 +1,10 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Patch, Body } from '@nestjs/common'; 
 import { UsersService } from '../services/users.service';
-import { ReportsService } from '@reports/services/reports.service';
-import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
-import { GetUser } from '@common/decorators/get-user.decorator';
+import { ReportsService } from '../../reports/services/reports.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { GetUser } from '../../common/decorators/get-user.decorator';
 import { User } from '../entities/user.entity';
+import { UpdateAvatarDto } from '../dto/update-avatar.dto';
 
 @Controller('users')
 export class UsersController {
@@ -29,5 +30,18 @@ export class UsersController {
       reportStats,
       dashboard,
     };
+  }
+
+  @Patch('avatar')
+  @UseGuards(JwtAuthGuard)
+  async updateAvatar(
+    @GetUser() user: User, // Obtenemos el usuario autenticado
+    @Body() updateAvatarDto: UpdateAvatarDto, // Validamos el body
+  ) {
+    // Llamamos al servicio para actualizar el campo 'avatar'
+    const updatedUser = await this.usersService.updateProfile(user.id, {
+      avatar: updateAvatarDto.avatarUrl,
+    });
+    return updatedUser;
   }
 }
