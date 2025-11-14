@@ -72,7 +72,6 @@
 - Captura fotográfica
 - Geolocalización automática por GPS
 - Descripción mediante texto o voz
-- Comentarios adicionales
 
 **🔍 Seguimiento de Reportes**
 
