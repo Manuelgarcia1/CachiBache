@@ -25,7 +25,7 @@ export class AuthService {
     private readonly encryptionService: EncryptionService,
     private readonly emailVerificationService: EmailVerificationService,
     private readonly refreshTokenService: RefreshTokenService,
-  ) { }
+  ) {}
 
   // ✨ --- NUEVO MÉTODO DE REGISTRO --- ✨
   async register(registerUserDto: RegisterUserDto): Promise<AuthResponse> {
@@ -48,12 +48,18 @@ export class AuthService {
     });
 
     // 4. Enviar email de verificación
-    this.emailVerificationService.sendVerificationEmailToNewUser(newUser.id, newUser.email)
+    this.emailVerificationService
+      .sendVerificationEmailToNewUser(newUser.id, newUser.email)
       .then(() => {
-        this.logger.log(`Email de verificación enviado exitosamente a ${newUser.email}`);
+        this.logger.log(
+          `Email de verificación enviado exitosamente a ${newUser.email}`,
+        );
       })
       .catch((error) => {
-        this.logger.error(`FALLO AL ENVIAR EMAIL de verificación a ${newUser.email}`, error.stack);
+        this.logger.error(
+          `FALLO AL ENVIAR EMAIL de verificación a ${newUser.email}`,
+          error.stack,
+        );
         // Nota: No relanzamos el error. El registro y login deben continuar.
       });
 

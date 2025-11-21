@@ -153,11 +153,11 @@ export class PasswordResetService {
   async cleanupExpiredTokens(): Promise<void> {
     try {
       // Eliminar tokens que estén usados O expirados
-      const result = await this.passwordResetTokenRepository.delete({
+      await this.passwordResetTokenRepository.delete({
         isUsed: true,
       });
 
-      const expiredResult = await this.passwordResetTokenRepository.delete({
+      await this.passwordResetTokenRepository.delete({
         expiresAt: LessThanOrEqual(new Date()),
       });
     } catch (error) {
