@@ -327,6 +327,8 @@ eas build --platform android --profile production
 
 ## Licencia
 
+Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+
 Proyecto académico - Universidad Nacional de Entre Ríos (UNER)
 Facultad de Ciencias de la Administración (FCAD)
 
